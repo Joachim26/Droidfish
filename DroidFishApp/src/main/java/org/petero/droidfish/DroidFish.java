@@ -209,7 +209,7 @@ public class DroidFish extends Activity
     private boolean animateMoves;
     private boolean autoScrollTitle;
     private boolean showVariationLine;
-
+    private int sleepMoveDelay;
     private int autoMoveDelay; // Delay in auto forward/backward mode
     enum AutoMode {
         OFF, FORWARD, BACKWARD
@@ -712,7 +712,7 @@ public class DroidFish extends Activity
     private void createDirectories() {
         if (storagePermission == PermissionState.UNKNOWN) {
             String extStorage = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-            if (ContextCompat.checkSelfPermission(this, extStorage) == 
+            if (ContextCompat.checkSelfPermission(this, extStorage) ==
                     PackageManager.PERMISSION_GRANTED) {
                 storagePermission = PermissionState.GRANTED;
             } else {
@@ -888,7 +888,7 @@ public class DroidFish extends Activity
     private boolean landScapeView() {
         return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
-    
+
     /** Return true if left-handed layout should be used. */
     private boolean leftHandedView() {
         return settings.getBoolean("leftHanded", false) && landScapeView();
@@ -1097,7 +1097,7 @@ public class DroidFish extends Activity
         mShowBookHints = settings.getBoolean("bookHints", false);
         mEcoHints = getIntSetting("ecoHints", ECO_HINTS_AUTO);
 
-        String engine = settings.getString("engine", "stockfish");
+        String engine = settings.getString("engine", "blackdiamond");
         setEngine(engine);
 
         mPonderMode = settings.getBoolean("ponderMode", false);
@@ -1109,6 +1109,7 @@ public class DroidFish extends Activity
         timeIncrement = getIntSetting("timeIncrement", 0);
 
         autoMoveDelay = getIntSetting("autoDelay", 5000);
+
 
         dragMoveEnabled = settings.getBoolean("dragMoveEnabled", true);
         scrollSensitivity = Float.parseFloat(settings.getString("scrollSensitivity", "2"));
@@ -1160,6 +1161,7 @@ public class DroidFish extends Activity
         File extDir = Environment.getExternalStorageDirectory();
         String sep = File.separator;
         engineOptions.hashMB = getIntSetting("hashMB", 16);
+        engineOptions.sleepDelay = getIntSetting("sleepDelay", 0);
         engineOptions.unSafeHash = new File(extDir + sep + engineDir + sep + ".unsafehash").exists();
         engineOptions.hints = settings.getBoolean("tbHints", false);
         engineOptions.hintsEdit = settings.getBoolean("tbHintsEdit", false);
@@ -1312,10 +1314,10 @@ public class DroidFish extends Activity
     }
 
     private void setEngine(String engine) {
-        if (!storageAvailable()) {
+    /*    if (!storageAvailable()) {
             if (!"stockfish".equals(engine) && !"cuckoochess".equals(engine))
                 engine = "stockfish";
-        }
+        }*/
         ctrl.setEngine(engine);
         setEngineTitle(engine, ctrl.eloData().getEloToUse());
     }
@@ -1338,7 +1340,8 @@ public class DroidFish extends Activity
         } else {
             eName = getString("cuckoochess".equals(engine) ?
                               R.string.cuckoochess_engine :
-                              R.string.stockfish_engine);
+                              R.string.blackdiamond_engine );
+
         }
         if (ctrl != null && !ctrl.analysisMode())
             if (elo != Integer.MAX_VALUE)
@@ -1367,7 +1370,7 @@ public class DroidFish extends Activity
 
     @Override
     public void updateEngineTitle(int elo) {
-        String engine = settings.getString("engine", "stockfish");
+        String engine = settings.getString("engine", "blackdiamond");
         setEngineTitle(engine, elo);
     }
 
@@ -2553,16 +2556,43 @@ public class DroidFish extends Activity
     }
 
     private static boolean reservedEngineName(String name) {
-        return "cuckoochess".equals(name) ||
-               "stockfish".equals(name) ||
-               name.endsWith(".ini");
+        return  "andscacs".equals(name) ||
+                "blackdiamond".equals(name) ||
+                "bluefish".equals(name) ||
+                "cfish".equals(name) ||
+                "ethereal".equals(name) ||
+                "cuckoochess".equals(name) ||
+                "fruit".equals(name) ||
+                "glaurung".equals(name) ||
+                "honey".equals(name) ||
+                "chess".equals(name) ||
+                "okimaguro".equals(name) ||
+                "stockfish".equals(name) ||
+                "weakfish".equals(name) ||
+                "shallowblue".equals(name) ||
+                name.endsWith(".ini");
     }
 
     private Dialog selectEngineDialog(final boolean abortOnCancel) {
         final ArrayList<String> items = new ArrayList<>();
         final ArrayList<String> ids = new ArrayList<>();
+
+        ids.add("blackdiamond"); items.add(getString(R.string.blackdiamond_engine));
+        ids.add("bluefish"); items.add(getString(R.string.bluefish_engine));
+        ids.add("cfish"); items.add(getString(R.string.cfish_engine));
+        ids.add("ethereal"); items.add(getString(R.string.ethereal_engine));
         ids.add("stockfish"); items.add(getString(R.string.stockfish_engine));
+        ids.add("okimaguro"); items.add(getString(R.string.okimaguro_engine));
+        ids.add("glaurung"); items.add(getString(R.string.glaurung_engine));
+        ids.add("weakfish"); items.add(getString(R.string.weakfish_engine));
+        ids.add("andscacs"); items.add(getString(R.string.andscacs_engine));
         ids.add("cuckoochess"); items.add(getString(R.string.cuckoochess_engine));
+        ids.add("fruit"); items.add(getString(R.string.fruit_engine));
+        ids.add("chess"); items.add(getString(R.string.chess_engine));
+        ids.add("shallowblue"); items.add(getString(R.string.shallowblue_engine));
+
+
+
 
         if (storageAvailable()) {
             final String sep = File.separator;
@@ -3069,7 +3099,7 @@ public class DroidFish extends Activity
             double x = Math.sqrt((nPV - 1) / (double)(maxPV - 1));
             return (int)Math.round(x * maxProgress(maxPV));
         }
-        
+
         private void updateText(EditText editTxt, int nPV) {
             String txt = Integer.valueOf(nPV).toString();
             if (!txt.equals(editTxt.getText().toString())) {
@@ -3116,7 +3146,7 @@ public class DroidFish extends Activity
                         if (p != seekBar.getProgress())
                             seekBar.setProgress(p);
                         updateText(editTxt, progressToNumPV(p, maxPV));
-                        
+
                     } catch (NumberFormatException ignore) {
                     }
                 }
@@ -3512,14 +3542,14 @@ public class DroidFish extends Activity
     }
 
     public static boolean hasFenProvider(PackageManager manager) {
-        Intent i = new Intent(Intent.ACTION_GET_CONTENT); 
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.setType("application/x-chess-fen");
         List<ResolveInfo> resolvers = manager.queryIntentActivities(i, 0);
         return (resolvers != null) && (resolvers.size() > 0);
     }
 
     private void getFen() {
-        Intent i = new Intent(Intent.ACTION_GET_CONTENT); 
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.setType("application/x-chess-fen");
         try {
             startActivityForResult(i, RESULT_GET_FEN);

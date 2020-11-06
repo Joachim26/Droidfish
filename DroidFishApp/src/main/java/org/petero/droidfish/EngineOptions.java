@@ -21,6 +21,7 @@ package org.petero.droidfish;
 /** Engine options, including endgame tablebase probing options. */
 public final class EngineOptions {
     public int hashMB;          // Engine hash table size in MB
+    public int sleepDelay;      //Sleep setting to avoid instant move
     public boolean unSafeHash;  // True if allocating very large hash is allowed
     public boolean hints;       // Hints when playing/analyzing
     public boolean hintsEdit;   // Hints in "edit board" mode
@@ -35,6 +36,7 @@ public final class EngineOptions {
 
     public EngineOptions() {
         hashMB = 16;
+        sleepDelay = 0;
         unSafeHash = false;
         hints = false;
         hintsEdit = false;
@@ -50,6 +52,7 @@ public final class EngineOptions {
 
     public EngineOptions(EngineOptions other) {
         hashMB = other.hashMB;
+        sleepDelay = other.sleepDelay;
         unSafeHash = other.unSafeHash;
         hints = other.hints;
         hintsEdit = other.hintsEdit;
@@ -84,6 +87,7 @@ public final class EngineOptions {
         EngineOptions other = (EngineOptions)o;
 
         return ((hashMB == other.hashMB) &&
+                (sleepDelay == other.sleepDelay) &&
                 (unSafeHash == other.unSafeHash) &&
                 (hints == other.hints) &&
                 (hintsEdit == other.hintsEdit) &&

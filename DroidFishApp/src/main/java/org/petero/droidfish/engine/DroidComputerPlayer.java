@@ -155,6 +155,7 @@ public class DroidComputerPlayer {
                                                   boolean ponderEnabled, Move ponderMove,
                                                   String engine, int elo) {
             SearchRequest sr = new SearchRequest();
+
             sr.searchId = id;
             sr.startTime = now;
             sr.prevPos = prevPos;
@@ -387,7 +388,6 @@ public class DroidComputerPlayer {
         searchRequest.ponderHit();
         if (engineState.state != MainState.PONDER)
             searchRequest.startTime = System.currentTimeMillis();
-
         if (engineState.state == MainState.PONDER) {
             uciEngine.writeLineToEngine("ponderhit");
             engineState.setState(MainState.SEARCH);
@@ -614,6 +614,8 @@ public class DroidComputerPlayer {
         // Reduce remaining time if there was an engine delay
         if (isSearch) {
             long now = System.currentTimeMillis();
+
+
             int delay = (int)(now - searchRequest.startTime);
             boolean wtm = searchRequest.currPos.whiteMove ^ (searchRequest.ponderMove != null);
             if (wtm)
@@ -645,8 +647,10 @@ public class DroidComputerPlayer {
             uciEngine.setOption("Ponder", sr.ponderEnabled);
             uciEngine.setOption("UCI_AnalyseMode", false);
             uciEngine.writeLineToEngine(posStr.toString());
+
             if (sr.wTime < 1) sr.wTime = 1;
             if (sr.bTime < 1) sr.bTime = 1;
+
             StringBuilder goStr = new StringBuilder(96);
             goStr.append(String.format(Locale.US, "go wtime %d btime %d", sr.wTime, sr.bTime));
             if (sr.wInc > 0)
@@ -801,8 +805,10 @@ public class DroidComputerPlayer {
                     Move nextPonderMove = TextIO.UCIstringToMove(nextPonderMoveStr);
 
                     if (engineState.state == MainState.SEARCH)
+                    {
+                        android.os.SystemClock.sleep(engineOptions.sleepDelay);
                         reportMove(bestMove, nextPonderMove);
-
+                    }
                     engineState.setState(MainState.IDLE);
                     searchRequest = null;
                     handleIdleState();
@@ -861,7 +867,7 @@ public class DroidComputerPlayer {
             }
         }
         // Accept draw offer if engine is losing
-        if (sr.drawOffer && !statIsMate && (statScore <= -300)) {
+        if (sr.drawOffer && !statIsMate && (statScore <= -200)) {
             bestMove = "draw accept";
             canPonder = false;
         }
@@ -1003,7 +1009,7 @@ public class DroidComputerPlayer {
                     depthModified = true;
                 } else if (is.equals("seldepth")) {
                     statSelDepth = Integer.parseInt(tokens[i++]);
-                    statsModified = true;    
+                    statsModified = true;
                 } else if (is.equals("currmove")) {
                     statCurrMove = tokens[i++];
                     currMoveModified = true;

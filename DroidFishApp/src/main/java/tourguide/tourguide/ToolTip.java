@@ -26,7 +26,7 @@ public class ToolTip {
         mTextColor = Color.parseColor("#FFFFFF");
 
         mEnterAnimation = new AlphaAnimation(0f, 1f);
-        mEnterAnimation.setDuration(1000);
+        mEnterAnimation.setDuration(750);
         mEnterAnimation.setFillAfter(true);
         mEnterAnimation.setInterpolator(new BounceInterpolator());
         mShadow = true;

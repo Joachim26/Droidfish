@@ -215,9 +215,11 @@ public class DroidEngineControl {
     private void startThread(final int minTimeLimit, final int maxTimeLimit,
                              int maxDepth, final int maxNodes) {
         synchronized (threadMutex) {} // Must not start new search until old search is finished
+
         sc = new Search(pos, posHashList, posHashListSize, tt, ht);
         sc.timeLimit(minTimeLimit, maxTimeLimit);
         sc.setListener(new SearchListener(os));
+        android.os.SystemClock.sleep(3000);
         sc.setStrength(getStrength(), randomSeed, getMaxNPS());
         sc.nodesBetweenTimeCheck = Math.min(500, sc.nodesBetweenTimeCheck);
         MoveGen.MoveList moves = moveGen.pseudoLegalMoves(pos);
@@ -265,6 +267,7 @@ public class DroidEngineControl {
         };
         ThreadGroup tg = new ThreadGroup("searcher");
         engineThread = new Thread(tg, run, "searcher", 32768);
+        android.os.SystemClock.sleep(3000);
         engineThread.start();
     }
 

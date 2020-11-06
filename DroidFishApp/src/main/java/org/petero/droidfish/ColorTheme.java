@@ -63,17 +63,30 @@ public class ColorTheme {
     };
     private static final String prefPrefix = "color_";
 
-    private final static int defaultTheme = 2;
+    private final static int defaultTheme = 0;
     final static int[] themeNames = {
+        R.string.colortheme_honey,
+        R.string.colortheme_honey2,
         R.string.colortheme_original,
         R.string.colortheme_xboard,
         R.string.colortheme_blue,
         R.string.colortheme_grey,
         R.string.colortheme_scid_default,
-        R.string.colortheme_scid_brown,
         R.string.colortheme_scid_green
     };
     private final static String[][] themeColors = {
+    { // Honey
+        "#FFB44600", "#FFF6D7A4", "#FF00FF00", "#FF000000", "#FFFFFFFF", "#FFFF0000",
+        "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
+        "#FFFF0000", "#FF808080", "#FFC0C000", "#FFFFFF00", "#FF000000"
+    },
+
+    { // Honey2
+        "#FF89807A", "#FFB6AFA5", "#FF00FF00", "#FF0F0F0F", "#FFE6E6E6", "#FFFF0000",
+        "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
+        "#FFFF0000", "#FF808080", "#FFC0C000", "#FFFFFF00", "#FF000000"
+    },
+
     { // Original
         "#FF808080", "#FFBEBE5A", "#FFFF0000", "#FF000000", "#FFFFFFFF", "#FF888888",
         "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
@@ -98,11 +111,6 @@ public class ColorTheme {
         "#FF80A0A0", "#FFD0E0D0", "#FFFF0000", "#FF000000", "#FFFFFFFF", "#FF666666",
         "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
         "#FFFF0000", "#FF808080", "#FFC0C000", "#FFDEFBDE", "#FF213429"
-    },
-    { // Scid Brown
-        "#B58863",   "#F0D9B5",   "#FFFF0000", "#FF000000", "#FFFFFFFF", "#FF666666",
-        "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
-        "#FFFF0000", "#FF808080", "#FFC0C000", "#FFF7FAE3", "#FF40260A"
     },
     { // Scid Green
         "#FF769656", "#FFEEEED2", "#FFFF0000", "#FF000000", "#FFFFFFFF", "#FF666666",

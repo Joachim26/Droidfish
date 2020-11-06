@@ -44,6 +44,111 @@ public class EngineUtil {
         return abi + "/stockfish" + (isSimdSupported() ? "" : "_nosimd");
     }
 
+    public static String internalAndscacsName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/andscacs" + (isSimdSupported() ? "" : "_nosimd");
+      }
+
+    public static String internalBlackDiamondName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/blackdiamond" + (isSimdSupported() ? "" : "_nosimd");
+    }
+
+    public static String internalBluefishName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/bluefish" + (isSimdSupported() ? "" : "_nosimd");
+    }
+
+    public static String internalCfishName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/cfish" + (isSimdSupported() ? "" : "_nosimd");
+    }
+
+    public static String internalEtherealName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/ethereal" + (isSimdSupported() ? "" : "_nosimd");
+    }
+
+    public static String internalFruitName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/fruit" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalGlaurungName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/glaurung" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalChessName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/chess" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalOkiMaguroName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/okimaguro" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalWeakfishName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/weakfish" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalShallowBlueName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/shallowblue" + (isSimdSupported() ? "" : "_nosimd");
+    }
+
     /** Return true if file "engine" is a network engine. */
     public static boolean isNetEngine(String engine) {
         boolean netEngine = false;

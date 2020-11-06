@@ -1,17 +1,18 @@
 apply plugin: 'com.android.application'
 
+
 android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "org.petero.droidfish"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 94
-        versionName "1.84"
+        versionCode 1001
+        versionName "2.01"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             ndkBuild {
-                arguments '-j8'
+                arguments '-j'
             }
         }
     }
@@ -40,6 +41,7 @@ android {
     externalNativeBuild {
         ndkBuild {
             path file('src/main/cpp/Android.mk')
+            path file('src/main/c/Android.mk')
         }
     }
 
@@ -70,15 +72,40 @@ dependencies {
 task buildEco {
     def a = "buildSrc/src/main/java/chess/eco.pgn"
     def b = "DroidFishApp/src/main/assets/eco.dat"
-    chess.EcoBuilder.main2(a, b)
+    chess.EcoBuilder.main2(a, b )
 }
+
 preBuild.dependsOn buildEco
 
-// Copy Stockfish executables to assets directory
+// Copy engine executables to assets directory
 task copyToAssets(type: Copy, dependsOn: 'externalNativeBuildRelease') {
     from('build/intermediates/ndkBuild/release/obj/local') {
         include '*/stockfish'
         include '*/stockfish_nosimd'
+        include '*/blackdiamond'
+        include '*/blackdiamond_nosimd'
+        include '*/bluefish'
+        include '*/bluefish_nosimd'
+        include '*/okimaguro'
+        include '*/okimaguro_nosimd'
+        include '*/weakfish'
+        include '*/weakfish_nosimd'
+        include '*/cfish'
+        include '*/cfish_nosimd'
+        include '*/ethereal'
+        include '*/ethereal_nosimd'
+        include '*/fruit'
+        include '*/fruit_nosimd'
+        include '*/chess'
+        include '*/chess_nosimd'
+        include '*/glaurung'
+        include '*/glaurung_nosimd'
+        include '*/andscacs'
+        include '*/andscacs_nosimd'
+        include '*/shallowblue'
+        include '*/shallowblue_nosimd'
+
+
     }
     into 'src/main/assets'
 }

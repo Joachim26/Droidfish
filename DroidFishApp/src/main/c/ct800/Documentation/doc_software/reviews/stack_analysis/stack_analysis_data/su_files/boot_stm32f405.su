@@ -1,0 +1,2 @@
+boot_stm32f405.c:203:23:Boot_Default_Handler	0	static
+boot_stm32f405.c:208:23:Boot_Reset_Handler	8	static

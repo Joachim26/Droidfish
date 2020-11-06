@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">DroidFish</string>
+    <string name="app_name">Black Diamond Chess</string>
     <string name="engine_hash_default">64</string>
-    <string name="moves_per_session_default">60</string>
-    <string name="time_control_default">120000</string>
-    <string name="time_increment_default">0</string>
+    <string name="moves_per_session_default">0</string>
+    <string name="time_control_default">300000</string>
+    <string name="time_increment_default">3000</string>
     <string name="squareSelectType_default">1</string>
     <string name="language_default">default</string>
     <string name="font_size_default">12</string>
-    <string name="thinking_arrows_default">4</string>
+    <string name="thinking_arrows_default">0</string>
     <string name="scroll_sensitivity_default">2</string>
     <string name="book_line_length_default">1000000</string>
     <string name="viewPieceType_default">1</string>
-    <string name="viewPieceSet_default">chesscases</string>
+    <string name="viewPieceSet_default">chessmonk</string>
     <string name="autoDelay_default">5000</string>
+    <string name="sleepDelay_default">0</string>
     <string name="move_announce_type_default">off</string>
     <string name="cpu_warning">\
 <b>Obciążenie procesora</b>\
@@ -95,12 +96,13 @@ Jeśli pracujesz na baterii, zalecana jest zmiana ustawień, w celu oszczędzani
     <string name="no_pgn_files">Nie znaleziono plików w katalogu DroidFish/pgn na karcie SD</string>
     <string name="no_fen_files">Nie znaleziono plików w katalogu DroidFish/epd na karcie SD</string>
     <string name="select_color_theme">Wybierz schemat kolorów</string>
+    <string name="colortheme_honey">Złoto</string>
+    <string name="colortheme_honey2">Noc</string>
     <string name="colortheme_original">Oryginalny</string>
-    <string name="colortheme_xboard">XBoard</string>
+    <string name="colortheme_xboard">XDeska</string>
     <string name="colortheme_blue">Niebieski</string>
     <string name="colortheme_grey">Szary</string>
     <string name="colortheme_scid_default">Scid - domyślny</string>
-    <string name="colortheme_scid_brown">Scid - brązowy</string>
     <string name="colortheme_scid_green">Scid - zielony</string>
     <string name="select_game_mode">Wybierz tryb gry</string>
     <string name="edit_replay_game">Edytuj/odtwórz partię</string>
@@ -217,8 +219,20 @@ Jeśli pracujesz na baterii, zalecana jest zmiana ustawień, w celu oszczędzani
     <string name="engine_name_in_use">Nazwa używanego silnika</string>
     <string name="slash_not_allowed">Znak / jest niedozwolony</string>
     <string name="engine_error">Błąd silnika</string>
-    <string name="stockfish_engine">Stockfish</string>
+    <string name="blackdiamond_engine">Black Diamond</string>
+    <string name="andscacs_engine">Andscacs 0.921</string>
+    <string name="bluefish_engine">Bluefish</string>
+    <string name="cfish_engine">Cfish</string>
+    <string name="ethereal_engine">Ethereal 2.75</string>
+    <string name="stockfish_engine">Honey</string>
+    <string name="glaurung_engine">Stockfish 6</string>
+    <string name="okimaguro_engine">Oki Maguro</string>
     <string name="cuckoochess_engine">CuckooChess</string>
+    <string name="fruit_engine">Fruit 2.1</string>
+    <string name="chess_engine">Senpai 1.0</string>
+    <string name="shallowblue_engine">Shallow Blue 2.0</string>
+    <string name="weakfish_engine">Weakfish</string>
+
     <string name="select_engine">Wybierz silnik</string>
     <string name="engine_options">Opcje silnika</string>
     <string name="set_engine_options">Ustaw opcje</string>
@@ -288,6 +302,9 @@ Jeśli pracujesz na baterii, zalecana jest zmiana ustawień, w celu oszczędzani
     <string name="prefs_timeIncrement_summary">Dodatkowy czas do namysłu po każdym posunięciu</string>
     <string name="prefs_autoDelay_title">Opóźnienie auto-ruchu</string>
     <string name="prefs_autoDelay_summary">Opóźnienie pomiędzy ruchami w trybie automatycznego postępu/cofania</string>
+    <string name="prefs_sleepDelay_title">Engine Sleep</string>
+    <string name="prefs_sleepDelay_summary">Engine sleeps a few seconds before making a move — avoids instant move at very fast time controls</string>
+
     <string name="prefs_hints">Wskazówki</string>
     <string name="prefs_showThinking_title">Pokaż analizę</string>
     <string name="prefs_showThinking_summary">Wyświetla informacje z obliczeń podczas poszukiwania posunięcia</string>
@@ -547,6 +564,7 @@ Jeśli pracujesz na baterii, zalecana jest zmiana ustawień, w celu oszczędzani
         <item>40 posunięć</item>
         <item>50 posunięć</item>
         <item>60 posunięć</item>
+        <item>100 moves</item>
     </string-array>
     <string-array name="moves_per_session_values">
         <item>0</item>
@@ -557,23 +575,31 @@ Jeśli pracujesz na baterii, zalecana jest zmiana ustawień, w celu oszczędzani
         <item>40</item>
         <item>50</item>
         <item>60</item>
+        <item>100</item>
     </string-array>
     <string-array name="time_control_texts">
-        <item>15 sekund</item>
-        <item>30 sekund</item>
-        <item>1 minuta</item>
-        <item>2 minuty</item>
-        <item>3 minuty</item>
-        <item>5 minut</item>
-        <item>10 minut</item>
-        <item>15 minut</item>
-        <item>30 minut</item>
-        <item>45 minut</item>
-        <item>60 minut</item>
-        <item>90 minut</item>
-        <item>120 minut</item>
+        <item>500 milleseconds</item>
+        <item>1 second</item>
+        <item>2 seconds</item>
+        <item>4 seconds</item>
+        <item>8 seconds</item>
+        <item>12 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>3 minutes</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>15 minutes</item>
     </string-array>
     <string-array name="time_control_values">
+        <item>500</item>
+        <item>1000</item>
+        <item>2000</item>
+        <item>4000</item>
+        <item>8000</item>
+        <item>12000</item>
         <item>15000</item>
         <item>30000</item>
         <item>60000</item>
@@ -582,37 +608,38 @@ Jeśli pracujesz na baterii, zalecana jest zmiana ustawień, w celu oszczędzani
         <item>300000</item>
         <item>600000</item>
         <item>900000</item>
-        <item>1800000</item>
-        <item>2700000</item>
-        <item>3600000</item>
-        <item>5400000</item>
-        <item>7200000</item>
     </string-array>
     <string-array name="time_increment_texts">
         <item>0s</item>
+        <item>10ms</item>
+        <item>20ms</item>
+        <item>40ms</item>
+        <item>60ms</item>
+        <item>100ms</item>
+        <item>250ms</item>
+        <item>500ms</item>
         <item>1s</item>
         <item>2s</item>
         <item>3s</item>
-        <item>4s</item>
         <item>5s</item>
         <item>10s</item>
-        <item>12s</item>
         <item>15s</item>
-        <item>30s</item>
-        <item>60s</item>
     </string-array>
     <string-array name="time_increment_values">
         <item>0</item>
+        <item>10</item>
+        <item>20</item>
+        <item>40</item>
+        <item>60</item>
+        <item>100</item>
+        <item>250</item>
+        <item>500</item>
         <item>1000</item>
         <item>2000</item>
         <item>3000</item>
-        <item>4000</item>
         <item>5000</item>
         <item>10000</item>
-        <item>12000</item>
         <item>15000</item>
-        <item>30000</item>
-        <item>60000</item>
     </string-array>
     <string-array name="autoDelay_texts">
         <item>0.5s</item>
@@ -635,7 +662,32 @@ Jeśli pracujesz na baterii, zalecana jest zmiana ustawień, w celu oszczędzani
         <item>15000</item>
         <item>30000</item>
         <item>60000</item>
+        <item>120000</item>
     </string-array>
+    <string-array name="sleepDelay_texts">
+        <item>Off</item>
+        <item>1 second</item>
+        <item>2 seconds</item>
+        <item>3 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+    </string-array>
+    <string-array name="sleepDelay_values">
+        <item>0</item>
+        <item>1000</item>
+        <item>2000</item>
+        <item>3000</item>
+        <item>5000</item>
+        <item>10000</item>
+        <item>15000</item>
+        <item>30000</item>
+        <item>60000</item>
+    </string-array>
+
     <string-array name="squareSelectType_texts">
         <item>Trwały</item>
         <item>Przełącz</item>

@@ -1,0 +1,21 @@
+There are no GCC v7.3 warnings when compiling with:
+-Wall -Wextra -Wlogical-op -Wstrict-prototypes -Wshadow -Werror
+for the following components:
+
+- CT800 embedded version
+- CT800 UCI version
+- Book tool
+- CRC tool
+- KPK bitbase generator.
+
+
+CppCheck v2.1 does not issue errors or warnings for the source code of:
+
+- CT800 embedded version
+- CT800 UCI version
+- Book tool
+- CRC tool
+- KPK bitbase generator.
+
+
+Evaluation: PASSED.
