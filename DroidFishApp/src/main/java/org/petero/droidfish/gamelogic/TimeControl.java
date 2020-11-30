@@ -18,14 +18,19 @@
 
 package org.petero.droidfish.gamelogic;
 
+
+
+
 import android.util.Pair;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-
+import org.petero.droidfish.EngineOptions;
+//import org.petero.droidfish.GameMode;
 import org.petero.droidfish.gamelogic.TimeControlData.TimeControlField;
+import org.petero.droidfish.gamelogic.Game.GameState;
 
 /** Keep track of time control information for both players. */
 public class TimeControl {
@@ -33,12 +38,14 @@ public class TimeControl {
 
     private int whiteBaseTime; // Current remaining time, or remaining time when clock started
     private int blackBaseTime; // Current remaining time, or remaining time when clock started
+    //GameMode gameMode;
 
     int currentMove;
     boolean whiteToMove;
 
     private int elapsed;  // Accumulated elapsed time for this move.
     private long timerT0; // Time when timer started. 0 if timer is stopped.
+    private EngineOptions engineOptions = new EngineOptions();
 
 
     /** Constructor. Sets time control to "game in 5min". */
@@ -112,7 +119,8 @@ public class TimeControl {
         int tcIdx = tcInfo.first;
         int movesToTc = tcInfo.second;
 
-        int remaining = getRemainingTime(whiteToMove, now);
+
+      int remaining = getRemainingTime(whiteToMove, now);
         if (useIncrement) {
             remaining += tc.get(tcIdx).increment;
             if (movesToTc == 1) {
@@ -127,7 +135,15 @@ public class TimeControl {
 
     /** Get remaining time */
     public final int getRemainingTime(boolean whiteToMove, long now) {
-        int remaining = whiteToMove ? whiteBaseTime : blackBaseTime;
+        //int time_adj = engineOptions.sleepDelay * 1000;
+        int w_time_adj = 0;
+        int b_time_adj = 0;
+        //boolean analysis = gameMode.analysisMode();
+  //if (analysis) {
+        w_time_adj =  getIncrement(true)/15;
+        b_time_adj =  getIncrement(false)/15;
+    //  }
+        int remaining = whiteToMove ? whiteBaseTime + w_time_adj : blackBaseTime + b_time_adj;
         if (whiteToMove == this.whiteToMove) {
             remaining -= elapsed;
             if (timerT0 != 0)

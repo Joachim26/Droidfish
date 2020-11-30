@@ -112,6 +112,15 @@ public class EngineUtil {
         }
         return abi + "/glaurung" + (isSimdSupported() ? "" : "_nosimd");
     }
+    public static String internalSF6Name() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/sf6" + (isSimdSupported() ? "" : "_nosimd");
+    }
     public static String internalChessName() {
         String abi = Build.CPU_ABI;
         if (!"x86".equals(abi) &&
@@ -129,6 +138,33 @@ public class EngineUtil {
             abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
         }
         return abi + "/okimaguro" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalCorchessName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/corchess" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalMojoName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/mojo" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalRubichessName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/rubichess" + (isSimdSupported() ? "" : "_nosimd");
     }
     public static String internalWeakfishName() {
         String abi = Build.CPU_ABI;
@@ -148,7 +184,52 @@ public class EngineUtil {
         }
         return abi + "/shallowblue" + (isSimdSupported() ? "" : "_nosimd");
     }
+    public static String internalXiphosName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/xiphos" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalLaserName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/laser" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalDefenchessName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/defenchess" + (isSimdSupported() ? "" : "_nosimd");
+    }
 
+    public static String internalDemolitoName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/demolito" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalCT800Name() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/ct800" + (isSimdSupported() ? "" : "_nosimd");
+    }
     /** Return true if file "engine" is a network engine. */
     public static boolean isNetEngine(String engine) {
         boolean netEngine = false;

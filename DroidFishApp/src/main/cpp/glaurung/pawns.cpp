@@ -1,312 +1,380 @@
 /*
-  Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2008 Tord Romstad (Glaurung author)
-  Copyright (C) 2008-2015 Marco Costalba, Joona Kiiski, Tord Romstad
+  Glaurung, a UCI chess playing engine.
+  Copyright (C) 2004-2008 Tord Romstad
 
-  Stockfish is free software: you can redistribute it and/or modify
+  Glaurung is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-
-  Stockfish is distributed in the hope that it will be useful,
+  
+  Glaurung is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-
+  
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <algorithm>
-#include <cassert>
 
-#include "bitboard.h"
-#include "bitcount.h"
+////
+//// Includes
+////
+
+#include <cassert>
+#include <cstring>
+
 #include "pawns.h"
-#include "position.h"
-#include "thread.h"
+
+
+////
+//// Local definitions
+////
 
 namespace {
 
-  #define V Value
-  #define S(mg, eg) make_score(mg, eg)
+  /// Constants and variables
 
-  // Doubled pawn penalty by file
-  const Score Doubled[FILE_NB] = {
-    S(13, 43), S(20, 48), S(23, 48), S(23, 48),
-    S(23, 48), S(23, 48), S(20, 48), S(13, 43) };
+  // Doubled pawn penalty by file, middle game.
+  const Value DoubledPawnMidgamePenalty[8] = {
+    Value(20), Value(30), Value(34), Value(34),
+    Value(34), Value(34), Value(30), Value(20)
+  };
 
-  // Isolated pawn penalty by opposed flag and file
-  const Score Isolated[2][FILE_NB] = {
-  { S(37, 45), S(54, 52), S(60, 52), S(60, 52),
-    S(60, 52), S(60, 52), S(54, 52), S(37, 45) },
-  { S(25, 30), S(36, 35), S(40, 35), S(40, 35),
-    S(40, 35), S(40, 35), S(36, 35), S(25, 30) } };
+  // Doubled pawn penalty by file, endgame.
+  const Value DoubledPawnEndgamePenalty[8] = {
+    Value(35), Value(40), Value(40), Value(40),
+    Value(40), Value(40), Value(40), Value(35)
+  };
 
-  // Backward pawn penalty by opposed flag and file
-  const Score Backward[2][FILE_NB] = {
-  { S(30, 42), S(43, 46), S(49, 46), S(49, 46),
-    S(49, 46), S(49, 46), S(43, 46), S(30, 42) },
-  { S(20, 28), S(29, 31), S(33, 31), S(33, 31),
-    S(33, 31), S(33, 31), S(29, 31), S(20, 28) } };
+  // Isolated pawn penalty by file, middle game.
+  const Value IsolatedPawnMidgamePenalty[8] = {
+    Value(20), Value(30), Value(34), Value(34),
+    Value(34), Value(34), Value(30), Value(20)
+  };
 
-  // Connected pawn bonus by opposed, phalanx flags and rank
-  Score Connected[2][2][RANK_NB];
+  // Isolated pawn penalty by file, endgame.
+  const Value IsolatedPawnEndgamePenalty[8] = {
+    Value(35), Value(40), Value(40), Value(40),
+    Value(40), Value(40), Value(40), Value(35)
+  };
 
-  // Levers bonus by rank
-  const Score Lever[RANK_NB] = {
-    S( 0, 0), S( 0, 0), S(0, 0), S(0, 0),
-    S(20,20), S(40,40), S(0, 0), S(0, 0) };
+  // Backward pawn penalty by file, middle game.
+  const Value BackwardPawnMidgamePenalty[8] = {
+    Value(16), Value(24), Value(27), Value(27),
+    Value(27), Value(27), Value(24), Value(16)
+  };
 
-  // Unsupported pawn penalty
-  const Score UnsupportedPawnPenalty = S(20, 10);
+  // Backward pawn penalty by file, endgame.
+  const Value BackwardPawnEndgamePenalty[8] = {
+    Value(28), Value(32), Value(32), Value(32),
+    Value(32), Value(32), Value(32), Value(28)
+  };
 
-  // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
-  const Value ShelterWeakness[][RANK_NB] = {
-  { V(100), V(13), V(24), V(64), V(89), V( 93), V(104) },
-  { V(110), V( 1), V(29), V(75), V(96), V(102), V(107) },
-  { V(102), V( 0), V(39), V(74), V(88), V(101), V( 98) },
-  { V( 88), V( 4), V(33), V(67), V(92), V( 94), V(107) } };
+  // Pawn chain membership bonus by file, middle game. 
+  const Value ChainMidgameBonus[8] = {
+    Value(14), Value(16), Value(17), Value(18),
+    Value(18), Value(17), Value(16), Value(14)
+  };
 
-  // Danger of enemy pawns moving toward our king by [type][distance from edge][rank]
-  const Value StormDanger[][4][RANK_NB] = {
-  { { V( 0),  V(  63), V( 128), V(43), V(27) },
-    { V( 0),  V(  62), V( 131), V(44), V(26) },
-    { V( 0),  V(  59), V( 121), V(50), V(28) },
-    { V( 0),  V(  62), V( 127), V(54), V(28) } },
-  { { V(24),  V(  40), V(  93), V(42), V(22) },
-    { V(24),  V(  28), V( 101), V(38), V(20) },
-    { V(24),  V(  32), V(  95), V(36), V(23) },
-    { V(27),  V(  24), V(  99), V(36), V(24) } },
-  { { V( 0),  V(   0), V(  81), V(16), V( 6) },
-    { V( 0),  V(   0), V( 165), V(29), V( 9) },
-    { V( 0),  V(   0), V( 163), V(23), V(12) },
-    { V( 0),  V(   0), V( 161), V(28), V(13) } },
-  { { V( 0),  V(-296), V(-299), V(55), V(25) },
-    { V( 0),  V(  67), V( 131), V(46), V(21) },
-    { V( 0),  V(  65), V( 135), V(50), V(31) },
-    { V( 0),  V(  62), V( 128), V(51), V(24) } } };
+  // Pawn chain membership bonus by file, endgame. 
+  const Value ChainEndgameBonus[8] = {
+    Value(16), Value(16), Value(16), Value(16),
+    Value(16), Value(16), Value(16), Value(16)
+  };
 
-  // Max bonus for king safety. Corresponds to start position with all the pawns
-  // in front of the king and no enemy pawn on the horizon.
-  const Value MaxSafetyBonus = V(257);
+  // Candidate passed pawn bonus by rank, middle game.
+  const Value CandidateMidgameBonus[8] = {
+    Value(0), Value(12), Value(12), Value(20),
+    Value(40), Value(90), Value(0), Value(0)
+  };
 
-  #undef S
-  #undef V
+  // Candidate passed pawn bonus by rank, endgame.
+  const Value CandidateEndgameBonus[8] = {
+    Value(0), Value(24), Value(24), Value(40),
+    Value(80), Value(180), Value(0), Value(0)
+  };
 
-  template<Color Us>
-  Score evaluate(const Position& pos, Pawns::Entry* e) {
+  // Pawn storm tables for positions with opposite castling:
+  const int QStormTable[64] = {
+    0, 0, 0, 0, 0, 0, 0, 0,
+    -22, -22, -22, -13, -4, 0, 0, 0,
+    -4, -9, -9, -9, -4, 0, 0, 0,
+    9, 18, 22, 18, 9, 0, 0, 0,
+    22, 31, 31, 22, 0, 0, 0, 0,
+    31, 40, 40, 31, 0, 0, 0, 0,
+    31, 40, 40, 31, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+  };
+  
+  const int KStormTable[64] = {
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, -4, -13, -22, -27, -27,
+    0, 0, 0, -4, -9, -13, -18, -18,
+    0, 0, 0, 0, 9, 9, 9, 9,
+    0, 0, 0, 0, 9, 18, 27, 27,
+    0, 0, 0, 0, 9, 27, 40, 36,
+    0, 0, 0, 0, 0, 31, 40, 31,
+    0, 0, 0, 0, 0, 0, 0, 0
+  };
 
-    const Color  Them  = (Us == WHITE ? BLACK    : WHITE);
-    const Square Up    = (Us == WHITE ? DELTA_N  : DELTA_S);
-    const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
-    const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
+  // Pawn storm open file bonuses by file:
+  const int KStormOpenFileBonus[8] = {
+    45, 45, 30, 0, 0, 0, 0, 0
+  };
 
-    Bitboard b, p, doubled, connected;
-    Square s;
-    bool passed, isolated, opposed, phalanx, backward, unsupported, lever;
-    Score score = SCORE_ZERO;
-    const Square* pl = pos.list<PAWN>(Us);
-    const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
+  const int QStormOpenFileBonus[8] = {
+    0, 0, 0, 0, 0, 30, 45, 30
+  };
 
-    Bitboard ourPawns   = pos.pieces(Us  , PAWN);
-    Bitboard theirPawns = pos.pieces(Them, PAWN);
+}
 
-    e->passedPawns[Us] = 0;
-    e->kingSquares[Us] = SQ_NONE;
-    e->semiopenFiles[Us] = 0xFF;
-    e->pawnAttacks[Us] = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
-    e->pawnsOnSquares[Us][BLACK] = popcount<Max15>(ourPawns & DarkSquares);
-    e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
-    // Loop through all pawns of the current color and score each pawn
-    while ((s = *pl++) != SQ_NONE)
-    {
-        assert(pos.piece_on(s) == make_piece(Us, PAWN));
+////
+//// Functions
+////
 
-        File f = file_of(s);
+/// Constructor
 
-        // This file cannot be semi-open
-        e->semiopenFiles[Us] &= ~(1 << f);
+PawnInfoTable::PawnInfoTable(unsigned numOfEntries) {
+  size = numOfEntries;
+  entries = new PawnInfo[size];
+  if(entries == NULL) {
+    std::cerr << "Failed to allocate " << (numOfEntries * sizeof(PawnInfo))
+              << " bytes for pawn hash table." << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  this->clear();
+}
 
-        // Previous rank
-        p = rank_bb(s - pawn_push(Us));
 
-        // Flag the pawn as passed, isolated, doubled,
-        // unsupported or connected (but not the backward one).
-        connected   =   ourPawns   & adjacent_files_bb(f) & (rank_bb(s) | p);
-        phalanx     =   connected  & rank_bb(s);
-        unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
-        isolated    = !(ourPawns   & adjacent_files_bb(f));
-        doubled     =   ourPawns   & forward_bb(Us, s);
-        opposed     =   theirPawns & forward_bb(Us, s);
-        passed      = !(theirPawns & passed_pawn_mask(Us, s));
-        lever       =   theirPawns & pawnAttacksBB[s];
+/// Destructor
 
-        // Test for backward pawn.
-        // If the pawn is passed, isolated, or connected it cannot be
-        // backward. If there are friendly pawns behind on adjacent files
-        // or if it can capture an enemy pawn it cannot be backward either.
-        if (   (passed | isolated | connected)
-            || (ourPawns & pawn_attack_span(Them, s))
-            || (pos.attacks_from<PAWN>(s, Us) & theirPawns))
-            backward = false;
-        else
-        {
-            // We now know that there are no friendly pawns beside or behind this
-            // pawn on adjacent files. We now check whether the pawn is
-            // backward by looking in the forward direction on the adjacent
-            // files, and picking the closest pawn there.
-            b = pawn_attack_span(Us, s) & (ourPawns | theirPawns);
-            b = pawn_attack_span(Us, s) & rank_bb(backmost_sq(Us, b));
+PawnInfoTable::~PawnInfoTable() {
+  delete [] entries;
+}
 
-            // If we have an enemy pawn in the same or next rank, the pawn is
-            // backward because it cannot advance without being captured.
-            backward = (b | shift_bb<Up>(b)) & theirPawns;
+
+/// PawnInfoTable::clear() clears the pawn hash table by setting all
+/// entries to 0.
+
+void PawnInfoTable::clear() {
+  memset(entries, 0, size * sizeof(PawnInfo));
+}
+
+
+/// PawnInfoTable::get_pawn_info() takes a position object as input, computes
+/// a PawnInfo object, and returns a pointer to it.  The result is also 
+/// stored in a hash table, so we don't have to recompute everything when
+/// the same pawn structure occurs again.
+
+PawnInfo *PawnInfoTable::get_pawn_info(const Position &pos) {
+  assert(pos.is_ok());
+
+  Key key = pos.get_pawn_key();
+  int index = int(key & (size - 1));
+  PawnInfo *pi = entries + index;
+
+  // If pi->key matches the position's pawn hash key, it means that we 
+  // have analysed this pawn structure before, and we can simply return the
+  // information we found the last time instead of recomputing it:
+  if(pi->key == key)
+    return pi;
+
+  // Clear the PawnInfo object, and set the key:
+  pi->clear();
+  pi->key = key;
+
+  Value mgValue[2] = {Value(0), Value(0)};
+  Value egValue[2] = {Value(0), Value(0)};
+
+  // Loop through the pawns for both colors:
+  for(Color us = WHITE; us <= BLACK; us++) {
+    Color them = opposite_color(us);
+    Bitboard ourPawns = pos.pawns(us);
+    Bitboard theirPawns = pos.pawns(them);
+    Bitboard pawns = ourPawns;
+
+    // Initialize pawn storm scores by giving bonuses for open files:
+    for(File f = FILE_A; f <= FILE_H; f++)
+      if(pos.file_is_half_open(us, f)) {
+        pi->ksStormValue[us] += KStormOpenFileBonus[f];
+        pi->qsStormValue[us] += QStormOpenFileBonus[f];
+      }
+
+    // Loop through all pawns of the current color and score each pawn:
+    while(pawns) {
+      Square s = pop_1st_bit(&pawns);
+      File f = square_file(s);
+      Rank r = square_rank(s);
+      bool passed, doubled, isolated, backward, chain, candidate;
+      int bonus;
+
+      assert(pos.piece_on(s) == pawn_of_color(us));
+
+      // The file containing the pawn is not half open:
+      pi->halfOpenFiles[us] &= ~(1 << f);
+
+      // Passed, isolated or doubled pawn?
+      passed = pos.pawn_is_passed(us, s);
+      isolated = pos.pawn_is_isolated(us, s);
+      doubled = pos.pawn_is_doubled(us, s);
+
+      // We calculate kingside and queenside pawn storm
+      // scores for both colors.  These are used when evaluating
+      // middle game positions with opposite side castling.
+      //
+      // Each pawn is given a base score given by a piece square table
+      // (KStormTable[] or QStormTable[]).  This score is increased if
+      // there are enemy pawns on adjacent files in front of the pawn.
+      // This is because we want to be able to open files against the
+      // enemy king, and to avoid blocking the pawn structure (e.g. white
+      // pawns on h6, g5, black pawns on h7, g6, f7).
+      
+      // Kingside pawn storms:
+      bonus = KStormTable[relative_square(us, s)];
+      if(bonus > 0 && outpost_mask(us, s) & theirPawns) {
+        switch(f) {
+          
+        case FILE_F:
+          bonus += bonus / 4;
+          break;
+          
+        case FILE_G:
+          bonus += bonus / 2 + bonus / 4;
+          break;
+          
+        case FILE_H:
+          bonus += bonus / 2;
+          break;
+          
+        default:
+          break;
         }
+      }
+      pi->ksStormValue[us] += bonus;
 
-        assert(opposed | passed | (pawn_attack_span(Us, s) & theirPawns));
+      // Queenside pawn storms:
+      bonus = QStormTable[relative_square(us, s)];
+      if(bonus > 0 && passed_pawn_mask(us, s) & theirPawns) {
+        switch(f) {
+          
+        case FILE_A:
+          bonus += bonus / 2;
+          break;
+          
+        case FILE_B:
+          bonus += bonus / 2 + bonus / 4;
+          break;
+          
+        case FILE_C:
+          bonus += bonus / 2;
+          break;
+          
+        default:
+          break;
+        }
+      }
+      pi->qsStormValue[us] += bonus;
+      
+      // Member of a pawn chain?  We could speed up the test a little by 
+      // introducing an array of masks indexed by color and square for doing
+      // the test, but because everything is hashed, it probably won't make
+      // any noticable difference.
+      chain = (us == WHITE)?
+        (ourPawns & neighboring_files_bb(f) & (rank_bb(r) | rank_bb(r-1))) :
+        (ourPawns & neighboring_files_bb(f) & (rank_bb(r) | rank_bb(r+1)));
 
-        // Passed pawns will be properly scored in evaluation because we need
-        // full attack info to evaluate passed pawns. Only the frontmost passed
-        // pawn on each file is considered a true passed pawn.
-        if (passed && !doubled)
-            e->passedPawns[Us] |= s;
 
-        // Score this pawn
-        if (isolated)
-            score -= Isolated[opposed][f];
+      // Test for backward pawn.
 
-        if (unsupported && !isolated)
-            score -= UnsupportedPawnPenalty;
+      // If the pawn is isolated, passed, or member of a pawn chain, it cannot
+      // be backward:
+      if(passed || isolated || chain)
+        backward = false;
+      // If the pawn can capture an enemy pawn, it's not backward:
+      else if(pos.pawn_attacks(us, s) & theirPawns)
+        backward = false;
+      // Check for friendly pawns behind on neighboring files:
+      else if(ourPawns & in_front_bb(them, r) & neighboring_files_bb(f))
+        backward = false;
+      else {
+        // We now know that there is no friendly pawns beside or behind this
+        // pawn on neighboring files.  We now check whether the pawn is
+        // backward by looking in the forward direction on the neighboring
+        // files, and seeing whether we meet a friendly or an enemy pawn first.
+        Bitboard b;
+        if(us == WHITE) {
+          for(b=pos.pawn_attacks(us, s); !(b&(ourPawns|theirPawns)); b<<=8);
+          backward = (b | (b << 8)) & theirPawns;
+        }
+        else {
+          for(b=pos.pawn_attacks(us, s); !(b&(ourPawns|theirPawns)); b>>=8);
+          backward = (b | (b >> 8)) & theirPawns;
+        }
+      }
 
-        if (doubled)
-            score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
+      // Test for candidate passed pawn.
+      candidate =
+        (!passed && pos.file_is_half_open(them, f) &&
+         count_1s_max_15(neighboring_files_bb(f)
+                         & (in_front_bb(them, r) | rank_bb(r))
+                         & ourPawns)
+         - count_1s_max_15(neighboring_files_bb(f) & in_front_bb(us, r)
+                           & theirPawns)
+         >= 0);
 
-        if (backward)
-            score -= Backward[opposed][f];
+      // In order to prevent doubled passed pawns from receiving a too big
+      // bonus, only the frontmost passed pawn on each file is considered as
+      // a true passed pawn.
+      if(passed && (ourPawns & squares_in_front_of(us, s))) {
+        // candidate = true;
+        passed = false;
+      }
 
-        if (connected)
-            score += Connected[opposed][phalanx][relative_rank(Us, s)];
+      // Score this pawn:
+      Value mv = Value(0), ev = Value(0);
+      if(isolated) {
+        mv -= IsolatedPawnMidgamePenalty[f];
+        ev -= IsolatedPawnEndgamePenalty[f];
+        if(pos.file_is_half_open(them, f)) {
+          mv -= IsolatedPawnMidgamePenalty[f] / 2;
+          ev -= IsolatedPawnEndgamePenalty[f] / 2;
+        }
+      }
+      if(doubled)  {
+        mv -= DoubledPawnMidgamePenalty[f];
+        ev -= DoubledPawnEndgamePenalty[f];
+      }
+      if(backward)  {
+        mv -= BackwardPawnMidgamePenalty[f];
+        ev -= BackwardPawnEndgamePenalty[f];
+        if(pos.file_is_half_open(them, f)) {
+          mv -= BackwardPawnMidgamePenalty[f] / 2;
+          ev -= BackwardPawnEndgamePenalty[f] / 2;
+        }
+      }
+      if(chain) {
+        mv += ChainMidgameBonus[f];
+        ev += ChainEndgameBonus[f];
+      }
+      if(candidate) {
+        mv += CandidateMidgameBonus[pawn_rank(us, s)];
+        ev += CandidateEndgameBonus[pawn_rank(us, s)];
+      }
 
-        if (lever)
-            score += Lever[relative_rank(Us, s)];
+      mgValue[us] += mv;
+      egValue[us] += ev;
+        
+      // If the pawn is passed, set the square of the pawn in the passedPawns
+      // bitboard:
+      if(passed)
+        set_bit(&(pi->passedPawns), s);
     }
-
-    b = e->semiopenFiles[Us] ^ 0xFF;
-    e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
-
-    return score;
   }
 
-} // namespace
+  pi->mgValue = int16_t(mgValue[WHITE] - mgValue[BLACK]);
+  pi->egValue = int16_t(egValue[WHITE] - egValue[BLACK]);
 
-namespace Pawns {
-
-/// Pawns::init() initializes some tables needed by evaluation. Instead of using
-/// hard-coded tables, when makes sense, we prefer to calculate them with a formula
-/// to reduce independent parameters and to allow easier tuning and better insight.
-
-void init()
-{
-  static const int Seed[RANK_NB] = { 0, 6, 15, 10, 57, 75, 135, 258 };
-
-  for (int opposed = 0; opposed <= 1; ++opposed)
-      for (int phalanx = 0; phalanx <= 1; ++phalanx)
-          for (Rank r = RANK_2; r < RANK_8; ++r)
-          {
-              int bonus = Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0);
-              Connected[opposed][phalanx][r] = make_score(bonus / 2, bonus >> opposed);
-          }
+  return pi;
 }
-
-
-/// Pawns::probe() looks up the current position's pawns configuration in
-/// the pawns hash table. It returns a pointer to the Entry if the position
-/// is found. Otherwise a new Entry is computed and stored there, so we don't
-/// have to recompute all when the same pawns configuration occurs again.
-
-Entry* probe(const Position& pos) {
-
-  Key key = pos.pawn_key();
-  Entry* e = pos.this_thread()->pawnsTable[key];
-
-  if (e->key == key)
-      return e;
-
-  e->key = key;
-  e->score = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
-  return e;
-}
-
-
-/// Entry::shelter_storm() calculates shelter and storm penalties for the file
-/// the king is on, as well as the two adjacent files.
-
-template<Color Us>
-Value Entry::shelter_storm(const Position& pos, Square ksq) {
-
-  const Color Them = (Us == WHITE ? BLACK : WHITE);
-
-  enum { NoFriendlyPawn, Unblocked, BlockedByPawn, BlockedByKing };
-
-  Bitboard b = pos.pieces(PAWN) & (in_front_bb(Us, rank_of(ksq)) | rank_bb(ksq));
-  Bitboard ourPawns = b & pos.pieces(Us);
-  Bitboard theirPawns = b & pos.pieces(Them);
-  Value safety = MaxSafetyBonus;
-  File center = std::max(FILE_B, std::min(FILE_G, file_of(ksq)));
-
-  for (File f = center - File(1); f <= center + File(1); ++f)
-  {
-      b = ourPawns & file_bb(f);
-      Rank rkUs = b ? relative_rank(Us, backmost_sq(Us, b)) : RANK_1;
-
-      b  = theirPawns & file_bb(f);
-      Rank rkThem = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
-
-      safety -=  ShelterWeakness[std::min(f, FILE_H - f)][rkUs]
-               + StormDanger
-                 [f == file_of(ksq) && rkThem == relative_rank(Us, ksq) + 1 ? BlockedByKing  :
-                  rkUs   == RANK_1                                          ? NoFriendlyPawn :
-                  rkThem == rkUs + 1                                        ? BlockedByPawn  : Unblocked]
-                 [std::min(f, FILE_H - f)][rkThem];
-  }
-
-  return safety;
-}
-
-
-/// Entry::do_king_safety() calculates a bonus for king safety. It is called only
-/// when king square changes, which is about 20% of total king_safety() calls.
-
-template<Color Us>
-Score Entry::do_king_safety(const Position& pos, Square ksq) {
-
-  kingSquares[Us] = ksq;
-  castlingRights[Us] = pos.can_castle(Us);
-  minKingPawnDistance[Us] = 0;
-
-  Bitboard pawns = pos.pieces(Us, PAWN);
-  if (pawns)
-      while (!(DistanceRingBB[ksq][minKingPawnDistance[Us]++] & pawns)) {}
-
-  if (relative_rank(Us, ksq) > RANK_4)
-      return make_score(0, -16 * minKingPawnDistance[Us]);
-
-  Value bonus = shelter_storm<Us>(pos, ksq);
-
-  // If we can castle use the bonus after the castling if it is bigger
-  if (pos.can_castle(MakeCastling<Us, KING_SIDE>::right))
-      bonus = std::max(bonus, shelter_storm<Us>(pos, relative_square(Us, SQ_G1)));
-
-  if (pos.can_castle(MakeCastling<Us, QUEEN_SIDE>::right))
-      bonus = std::max(bonus, shelter_storm<Us>(pos, relative_square(Us, SQ_C1)));
-
-  return make_score(bonus, -16 * minKingPawnDistance[Us]);
-}
-
-// Explicit template instantiation
-template Score Entry::do_king_safety<WHITE>(const Position& pos, Square ksq);
-template Score Entry::do_king_safety<BLACK>(const Position& pos, Square ksq);
-
-} // namespace Pawns

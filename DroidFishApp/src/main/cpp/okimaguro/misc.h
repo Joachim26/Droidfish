@@ -24,10 +24,11 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 #include "types.h"
 
-//const std::string splash();
+const std::string splash();
 const std::string engine_info(bool to_uci = false);
 const std::string compiler_info();
 
@@ -68,6 +69,17 @@ std::ostream& operator<<(std::ostream&, SyncCout);
 #define sync_cout std::cout << IO_LOCK
 #define sync_endl std::endl << IO_UNLOCK
 
+// `ptr` must point to an array of size at least
+// `sizeof(T) * N + alignment` bytes, where `N` is the
+// number of elements in the array.
+template <uintptr_t Alignment, typename T>
+T* align_ptr_up(T* ptr)
+{
+  static_assert(alignof(T) < Alignment);
+
+  const uintptr_t ptrint = reinterpret_cast<uintptr_t>(reinterpret_cast<char*>(ptr));
+  return reinterpret_cast<T*>(reinterpret_cast<char*>((ptrint + (Alignment - 1)) / Alignment * Alignment));
+}
 
 /// xorshift64star Pseudo-Random Number Generator
 /// This class is based on original code written and dedicated
@@ -128,8 +140,8 @@ inline uint64_t mul_hi64(uint64_t a, uint64_t b) {
 namespace WinProcGroup {
   void bindThisThread(size_t idx);
 }
-/*
-namespace FontColor {
+
+/*namespace FontColor {
 
   template < class CharT, class Traits >
   constexpr
@@ -218,8 +230,8 @@ namespace FontColor {
      return os << "\033[0m";
   }
 
-} // FontColor*/
-
+} // FontColor
+*/
 namespace CommandLine {
   void init(int argc, char* argv[]);
 

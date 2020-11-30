@@ -209,7 +209,6 @@ public class DroidFish extends Activity
     private boolean animateMoves;
     private boolean autoScrollTitle;
     private boolean showVariationLine;
-    private int sleepMoveDelay;
     private int autoMoveDelay; // Delay in auto forward/backward mode
     enum AutoMode {
         OFF, FORWARD, BACKWARD
@@ -1087,9 +1086,9 @@ public class DroidFish extends Activity
         cb.highlightLastMove = settings.getBoolean("highlightLastMove", true);
         cb.setBlindMode(settings.getBoolean("blindMode", false));
 
-        mShowThinking = settings.getBoolean("showThinking", false);
+        mShowThinking = settings.getBoolean("showThinking", true);
         mShowStats = settings.getBoolean("showStats", true);
-        fullPVLines = settings.getBoolean("fullPVLines", false);
+        fullPVLines = settings.getBoolean("fullPVLines", true);
         numPV = settings.getInt("numPV", 1);
         ctrl.setMultiPVMode(numPV);
         mWhiteBasedScores = settings.getBoolean("whiteBasedScores", false);
@@ -1104,14 +1103,15 @@ public class DroidFish extends Activity
         if (!mPonderMode)
             ctrl.stopPonder();
 
-        timeControl = getIntSetting("timeControl", 120000);
-        movesPerSession = getIntSetting("movesPerSession", 60);
-        timeIncrement = getIntSetting("timeIncrement", 0);
+        timeControl = getIntSetting("timeControl", 100);
+        movesPerSession = getIntSetting("movesPerSession",100);
+        timeIncrement = getIntSetting("timeIncrement", 10);
+        engineOptions.sleepDelay = getIntSetting("sleepDelay", 3000);
 
         autoMoveDelay = getIntSetting("autoDelay", 5000);
 
 
-        dragMoveEnabled = settings.getBoolean("dragMoveEnabled", true);
+        dragMoveEnabled = settings.getBoolean("dragMoveEnabled", false);
         scrollSensitivity = Float.parseFloat(settings.getString("scrollSensitivity", "2"));
         invertScrollDirection = settings.getBoolean("invertScrollDirection", false);
         scrollGames = settings.getBoolean("scrollGames", false);
@@ -1140,7 +1140,7 @@ public class DroidFish extends Activity
         }
         initSpeech();
         vibrateEnabled = settings.getBoolean("vibrateEnabled", false);
-        animateMoves = settings.getBoolean("animateMoves", true);
+        animateMoves = settings.getBoolean("animateMoves", false);
         autoScrollTitle = settings.getBoolean("autoScrollTitle", true);
         setTitleScrolling();
 
@@ -1161,7 +1161,7 @@ public class DroidFish extends Activity
         File extDir = Environment.getExternalStorageDirectory();
         String sep = File.separator;
         engineOptions.hashMB = getIntSetting("hashMB", 16);
-        engineOptions.sleepDelay = getIntSetting("sleepDelay", 0);
+
         engineOptions.unSafeHash = new File(extDir + sep + engineDir + sep + ".unsafehash").exists();
         engineOptions.hints = settings.getBoolean("tbHints", false);
         engineOptions.hintsEdit = settings.getBoolean("tbHintsEdit", false);
@@ -1984,10 +1984,12 @@ public class DroidFish extends Activity
             thinking.append(Html.fromHtml(s));
             thinkingEmpty = false;
         }
-        thinking.setVisibility(thinkingEmpty ? View.GONE : View.VISIBLE);
+        //thinking.setVisibility(thinkingEmpty ? View.GONE : View.VISIBLE);
+        //thinking.setVisibility(View.VISIBLE); //MFByrne
 
         List<Move> hints = null;
         if (mShowThinking || gameMode.analysisMode()) {
+            thinking.setVisibility(View.VISIBLE);
             ArrayList<ArrayList<Move>> pvMovesTmp = pvMoves;
             if (pvMovesTmp.size() == 1) {
                 hints = pvMovesTmp.get(0);
@@ -2564,12 +2566,21 @@ public class DroidFish extends Activity
                 "cuckoochess".equals(name) ||
                 "fruit".equals(name) ||
                 "glaurung".equals(name) ||
+                "sf6".equals(name) ||
                 "honey".equals(name) ||
+                "rubichess".equals(name) ||
                 "chess".equals(name) ||
                 "okimaguro".equals(name) ||
+                "corchess".equals(name) ||
+                "mojo".equals(name) ||
                 "stockfish".equals(name) ||
                 "weakfish".equals(name) ||
                 "shallowblue".equals(name) ||
+                "laser".equals(name) ||
+                "defenchess".equals(name) ||
+                "xiphos".equals(name) ||
+                "demolito".equals(name) ||
+                "ct800".equals(name) ||
                 name.endsWith(".ini");
     }
 
@@ -2578,21 +2589,27 @@ public class DroidFish extends Activity
         final ArrayList<String> ids = new ArrayList<>();
 
         ids.add("blackdiamond"); items.add(getString(R.string.blackdiamond_engine));
+        ids.add("andscacs"); items.add(getString(R.string.andscacs_engine));
         ids.add("bluefish"); items.add(getString(R.string.bluefish_engine));
         ids.add("cfish"); items.add(getString(R.string.cfish_engine));
-        ids.add("ethereal"); items.add(getString(R.string.ethereal_engine));
-        ids.add("stockfish"); items.add(getString(R.string.stockfish_engine));
-        ids.add("okimaguro"); items.add(getString(R.string.okimaguro_engine));
-        ids.add("glaurung"); items.add(getString(R.string.glaurung_engine));
-        ids.add("weakfish"); items.add(getString(R.string.weakfish_engine));
-        ids.add("andscacs"); items.add(getString(R.string.andscacs_engine));
+        ids.add("ct800"); items.add(getString(R.string.ct800_engine));
         ids.add("cuckoochess"); items.add(getString(R.string.cuckoochess_engine));
+        ids.add("corchess"); items.add(getString(R.string.corchess_engine));
+        ids.add("defenchess"); items.add(getString(R.string.defenchess_engine));
+        ids.add("demolito"); items.add(getString(R.string.demolito_engine));
         ids.add("fruit"); items.add(getString(R.string.fruit_engine));
-        ids.add("chess"); items.add(getString(R.string.chess_engine));
+        ids.add("ethereal"); items.add(getString(R.string.ethereal_engine));
+        ids.add("glaurung"); items.add(getString(R.string.glaurung_engine));
+        ids.add("stockfish"); items.add(getString(R.string.stockfish_engine));  //honey
+        ids.add("laser"); items.add(getString(R.string.laser_engine));
+        ids.add("mojo"); items.add(getString(R.string.mojo_engine));
+        ids.add("okimaguro"); items.add(getString(R.string.okimaguro_engine));
+        ids.add("rubichess"); items.add(getString(R.string.rubichess_engine));
+        ids.add("chess"); items.add(getString(R.string.chess_engine)); //senpai 1.0
         ids.add("shallowblue"); items.add(getString(R.string.shallowblue_engine));
-
-
-
+        ids.add("sf6"); items.add(getString(R.string.sf6_engine));
+        ids.add("weakfish"); items.add(getString(R.string.weakfish_engine));
+        ids.add("xiphos"); items.add(getString(R.string.xiphos_engine));
 
         if (storageAvailable()) {
             final String sep = File.separator;

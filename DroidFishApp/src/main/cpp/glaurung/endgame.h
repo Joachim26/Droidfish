@@ -1,122 +1,263 @@
 /*
-  Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2008 Tord Romstad (Glaurung author)
-  Copyright (C) 2008-2015 Marco Costalba, Joona Kiiski, Tord Romstad
+  Glaurung, a UCI chess playing engine.
+  Copyright (C) 2004-2008 Tord Romstad
 
-  Stockfish is free software: you can redistribute it and/or modify
+  Glaurung is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-
-  Stockfish is distributed in the hope that it will be useful,
+  
+  Glaurung is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-
+  
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ENDGAME_H_INCLUDED
+
+#if !defined(ENDGAME_H_INCLUDED)
 #define ENDGAME_H_INCLUDED
 
-#include <map>
-#include <string>
+////
+//// Includes
+////
 
 #include "position.h"
-#include "types.h"
+#include "scale.h"
+#include "value.h"
 
 
-/// EndgameType lists all supported endgames
+////
+//// Types
+////
 
-enum EndgameType {
+/// Abstract base class for all special endgame evaluation functions:
 
-  // Evaluation functions
-
-  KNNK,  // KNN vs K
-  KXK,   // Generic "mate lone king" eval
-  KBNK,  // KBN vs K
-  KPK,   // KP vs K
-  KRKP,  // KR vs KP
-  KRKB,  // KR vs KB
-  KRKN,  // KR vs KN
-  KQKP,  // KQ vs KP
-  KQKR,  // KQ vs KR
-
-
-  // Scaling functions
-  SCALING_FUNCTIONS,
-
-  KBPsK,   // KB and pawns vs K
-  KQKRPs,  // KQ vs KR and pawns
-  KRPKR,   // KRP vs KR
-  KRPKB,   // KRP vs KB
-  KRPPKRP, // KRPP vs KRP
-  KPsK,    // K and pawns vs K
-  KBPKB,   // KBP vs KB
-  KBPPKB,  // KBPP vs KB
-  KBPKN,   // KBP vs KN
-  KNPK,    // KNP vs K
-  KNPKB,   // KNP vs KB
-  KPKP     // KP vs KP
-};
-
-
-/// Endgame functions can be of two types depending on whether they return a
-/// Value or a ScaleFactor. Type eg_fun<int>::type returns either ScaleFactor
-/// or Value depending on whether the template parameter is 0 or 1.
-
-template<int> struct eg_fun { typedef Value type; };
-template<> struct eg_fun<1> { typedef ScaleFactor type; };
-
-
-/// Base and derived templates for endgame evaluation and scaling functions
-
-template<typename T>
-struct EndgameBase {
-
-  virtual ~EndgameBase() {}
-  virtual Color strong_side() const = 0;
-  virtual T operator()(const Position&) const = 0;
-};
-
-
-template<EndgameType E, typename T = typename eg_fun<(E > SCALING_FUNCTIONS)>::type>
-struct Endgame : public EndgameBase<T> {
-
-  explicit Endgame(Color c) : strongSide(c), weakSide(~c) {}
-  Color strong_side() const { return strongSide; }
-  T operator()(const Position&) const;
-
-private:
-  Color strongSide, weakSide;
-};
-
-
-/// The Endgames class stores the pointers to endgame evaluation and scaling
-/// base objects in two std::map. We use polymorphism to invoke the actual
-/// endgame function by calling its virtual operator().
-
-class Endgames {
-
-  typedef std::map<Key, EndgameBase<eg_fun<0>::type>*> M1;
-  typedef std::map<Key, EndgameBase<eg_fun<1>::type>*> M2;
-
-  M1 m1;
-  M2 m2;
-
-  M1& map(M1::mapped_type) { return m1; }
-  M2& map(M2::mapped_type) { return m2; }
-
-  template<EndgameType E> void add(const std::string& code);
-
+class EndgameEvaluationFunction {
 public:
-  Endgames();
- ~Endgames();
+  EndgameEvaluationFunction(Color c);
+  virtual ~EndgameEvaluationFunction() { }
 
-  template<typename T> T probe(Key key, T& eg) {
-    return eg = map(eg).count(key) ? map(eg)[key] : NULL;
-  }
+  virtual Value apply(const Position &pos) =0;
+
+protected:
+  Color strongerSide, weakerSide;
 };
 
-#endif // #ifndef ENDGAME_H_INCLUDED
+
+/// Subclasses for various concrete endgames:
+
+// Generic "mate lone king" eval:
+class KXKEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KXKEvaluationFunction(Color c);
+  Value apply(const Position &pos);
+};
+
+// KBN vs K:
+class KBNKEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KBNKEvaluationFunction(Color c);
+  Value apply(const Position &pos);
+};
+
+// KP vs K:
+class KPKEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KPKEvaluationFunction(Color c);
+  Value apply(const Position &pos);
+};
+
+// KR vs KP:
+class KRKPEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KRKPEvaluationFunction(Color c);
+  Value apply(const Position &pos);
+};
+
+// KR vs KB:
+class KRKBEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KRKBEvaluationFunction(Color c);
+  Value apply(const Position &pos);
+};
+
+// KR vs KN:
+class KRKNEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KRKNEvaluationFunction(Color c);
+  Value apply(const Position &pos);
+};
+
+// KQ vs KR:
+class KQKREvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KQKREvaluationFunction(Color c);
+  Value apply(const Position &pos);
+};
+
+// KBB vs KN:
+class KBBKNEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KBBKNEvaluationFunction(Color C);
+  Value apply(const Position &pos);
+};
+
+// K and two minors vs K and one or two minors:
+class KmmKmEvaluationFunction : public EndgameEvaluationFunction {
+public:
+  KmmKmEvaluationFunction(Color c);
+  Value apply(const Position &pos);
+};
+
+
+/// Abstract base class for all evaluation scaling functions:
+
+class ScalingFunction {
+public:
+  ScalingFunction(Color c);
+  virtual ~ScalingFunction() { }
+
+  virtual ScaleFactor apply(const Position &pos) =0;
+
+protected:
+  Color strongerSide, weakerSide;
+};
+
+
+/// Subclasses for various concrete endgames:
+
+// KBP vs K:
+class KBPKScalingFunction : public ScalingFunction {
+public:
+  KBPKScalingFunction(Color c);
+  ScaleFactor apply(const Position &pos);
+};
+
+// KQ vs KRP:
+class KQKRPScalingFunction: public ScalingFunction {
+public:
+  KQKRPScalingFunction(Color c);
+  ScaleFactor apply(const Position &pos);
+};
+
+// KRP vs KR:
+class KRPKRScalingFunction : public ScalingFunction {
+public:
+  KRPKRScalingFunction(Color c);
+  ScaleFactor apply(const Position &pos);
+};
+
+// KRPP vs KRP:
+class KRPPKRPScalingFunction : public ScalingFunction {
+public:
+  KRPPKRPScalingFunction(Color c);
+  ScaleFactor apply(const Position &pos);
+};
+
+// King and pawns vs king:
+class KPsKScalingFunction : public ScalingFunction {
+public:
+  KPsKScalingFunction(Color c);
+  ScaleFactor apply(const Position &pos);
+};
+
+// KBP vs KB:
+class KBPKBScalingFunction : public ScalingFunction {
+public:
+  KBPKBScalingFunction(Color c);
+  ScaleFactor apply(const Position &pos);
+};
+
+// KBP vs KN:
+class KBPKNScalingFunction : public ScalingFunction {
+public:
+  KBPKNScalingFunction(Color c);
+  ScaleFactor apply(const Position &pos);
+};
+
+// KNP vs K:
+class KNPKScalingFunction : public ScalingFunction {
+public:
+  KNPKScalingFunction(Color c);
+  ScaleFactor apply(const Position &pos);
+};
+
+// KP vs KP:
+class KPKPScalingFunction : public ScalingFunction {
+public:
+  KPKPScalingFunction(Color c);
+  ScaleFactor apply(const Position &pos);
+};
+
+
+////
+//// Constants and variables
+////
+
+// Generic "mate lone king" eval:
+extern KXKEvaluationFunction EvaluateKXK, EvaluateKKX;
+
+// KBN vs K:
+extern KBNKEvaluationFunction EvaluateKBNK, EvaluateKKBN;
+
+// KP vs K:
+extern KPKEvaluationFunction EvaluateKPK, EvaluateKKP;
+
+// KR vs KP:
+extern KRKPEvaluationFunction EvaluateKRKP, EvaluateKPKR;
+
+// KR vs KB:
+extern KRKBEvaluationFunction EvaluateKRKB, EvaluateKBKR;
+
+// KR vs KN:
+extern KRKNEvaluationFunction EvaluateKRKN, EvaluateKNKR;
+
+// KQ vs KR:
+extern KQKREvaluationFunction EvaluateKQKR, EvaluateKRKQ;
+
+// KBB vs KN:
+extern KBBKNEvaluationFunction EvaluateKBBKN, EvaluateKNKBB;
+
+// K and two minors vs K and one or two minors:
+extern KmmKmEvaluationFunction EvaluateKmmKm;
+
+
+// KBP vs K:
+extern KBPKScalingFunction ScaleKBPK, ScaleKKBP;
+
+// KQ vs KRP:
+extern KQKRPScalingFunction ScaleKQKRP, ScaleKRPKQ;
+
+// KRP vs KR:
+extern KRPKRScalingFunction ScaleKRPKR, ScaleKRKRP;
+
+// KRPP vs KRP:
+extern KRPPKRPScalingFunction ScaleKRPPKRP, ScaleKRPKRPP;
+
+// King and pawns vs king:
+extern KPsKScalingFunction ScaleKPsK, ScaleKKPs;
+
+// KBP vs KB:
+extern KBPKBScalingFunction ScaleKBPKB, ScaleKBKBP;
+
+// KBP vs KN:
+extern KBPKNScalingFunction ScaleKBPKN, ScaleKNKBP;
+
+// KNP vs K:
+extern KNPKScalingFunction ScaleKNPK, ScaleKKNP;
+
+// KP vs KP:
+extern KPKPScalingFunction ScaleKPKPw, ScaleKPKPb;
+
+
+////
+//// Prototypes
+////
+
+extern void init_bitbases();
+
+
+#endif // !defined(ENDGAME_H_INCLUDED)

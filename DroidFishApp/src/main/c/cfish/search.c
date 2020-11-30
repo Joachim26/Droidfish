@@ -15,11 +15,7 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifdef _WIN32
-#include <Windows.h>
-#else
-#include <unistd.h>
-#endif
+
 #include <assert.h>
 #include <inttypes.h>
 #include <math.h>
@@ -59,7 +55,7 @@ static const uint64_t ttHitAverageResolution = 1024;
 static const int RazorMargin = 510;
 
 INLINE int futility_margin(Depth d, bool improving) {
-  return 223 * (d - improving);
+  return 234 * (d - improving);
 }
 
 // Reductions lookup tables, initialized at startup
@@ -68,7 +64,7 @@ static int Reductions[MAX_MOVES]; // [depth or moveNumber]
 INLINE Depth reduction(int i, Depth d, int mn)
 {
   int r = Reductions[d] * Reductions[mn];
-  return (r + 509) / 1024 + (!i && r > 894);
+  return (r + 503) / 1024 + (!i && r > 915);
 }
 
 INLINE int futility_move_count(bool improving, Depth depth)
@@ -141,7 +137,7 @@ static int extract_ponder_from_tt(RootMove *rm, Position *pos);
 void search_init(void)
 {
   for (int i = 1; i < MAX_MOVES; i++)
-    Reductions[i] = (22.0 + 2 * log(Threads.numThreads)) * log(i + 0.25 * log(i));
+    Reductions[i] = (21.3 + 2 * log(Threads.numThreads)) * log(i + 0.25 * log(i));
 }
 
 
@@ -251,11 +247,6 @@ void mainthread_search(void)
 #endif
 
   base_ct = option_value(OPT_CONTEMPT) * PawnValueEg / 100;
-  Limits.depth  = option_value(OPT_DEPTH);
-  int sleepseconds = option_value(OPT_SLEEP);
-  sleep (sleepseconds);
-
-
 
   const char *s = option_string_value(OPT_ANALYSIS_CONTEMPT);
   if (Limits.infinite || option_value(OPT_ANALYSE_MODE))
@@ -510,7 +501,7 @@ void thread_search(Position *pos)
         beta  = min(previousScore + delta,  VALUE_INFINITE);
 
         // Adjust contempt based on root move's previousScore
-        int ct = base_ct + (105 - base_ct / 2) * previousScore / (abs(previousScore) + 149);
+        int ct = base_ct + (113 - base_ct / 2) * previousScore / (abs(previousScore) + 147);
         pos->contempt = stm() == WHITE ?  make_score(ct, ct / 2)
                                        : -make_score(ct, ct / 2);
       }
@@ -619,9 +610,13 @@ skip_search:
 
       double bestMoveInstability = 1 + 2 * totBestMoveChanges / Threads.numThreads;
 
-      double totalTime = rm->size == 1 ? 0 : time_optimum() * fallingEval * reduction * bestMoveInstability;
+      double totalTime = time_optimum() * fallingEval * reduction * bestMoveInstability;
 
-      // Stop the search if we have exceeded the totalTime (at least 1ms)
+      // In the case of a single legal move, cap total time to 500ms.
+      if (rm->size == 1)
+        totalTime = min(500.0, totalTime);
+
+      // Stop the search if we have exceeded the totalTime
       if (time_elapsed() > totalTime) {
         // If we are allowed to ponder do not stop the search now but
         // keep pondering until the GUI sends "ponderhit" or "stop".
@@ -925,7 +920,7 @@ INLINE Value search_node(Position *pos, Stack *ss, Value alpha, Value beta,
       && (ss-1)->statScore < 22977
       && eval >= beta
       && eval >= ss->staticEval
-      && ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182
+      && ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 168
       && !excludedMove
       && non_pawn_material_c(stm())
       && (ss->ply >= pos->nmpMinPly || stm() != pos->nmpColor))
@@ -933,7 +928,7 @@ INLINE Value search_node(Position *pos, Stack *ss, Value alpha, Value beta,
     assert(eval - beta >= 0);
 
     // Null move dynamic reduction based on depth and value
-    Depth R = (952 + 85 * depth) / 256 + min((eval - beta) / 192, 3);
+    Depth R = (1015 + 85 * depth) / 256 + min((eval - beta) / 191, 3);
 
     ss->currentMove = MOVE_NULL;
     ss->history = &(*pos->counterMoveHistory)[0][0][0][0];
@@ -948,7 +943,7 @@ INLINE Value search_node(Position *pos, Stack *ss, Value alpha, Value beta,
       if (nullValue >= VALUE_TB_WIN_IN_MAX_PLY)
         nullValue = beta;
 
-      if (pos->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
+      if (pos->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
         return nullValue;
 
       assert(!pos->nmpMinPly);
@@ -967,7 +962,7 @@ INLINE Value search_node(Position *pos, Stack *ss, Value alpha, Value beta,
     }
   }
 
-  probCutBeta = beta + 176 - 49 * improving;
+  probCutBeta = beta + 183 - 49 * improving;
 
   // Step 10. ProbCut
   // If we have a good enough capture and a reduced search returns a value
@@ -1138,7 +1133,7 @@ moves_loop: // When in check search starts from here.
         // Futility pruning: parent node
         if (   lmrDepth < 7
             && !inCheck
-            && ss->staticEval + 283 + 170 * lmrDepth <= alpha
+            && ss->staticEval + 266 + 170 * lmrDepth <= alpha
             &&  (*cmh )[movedPiece][to_sq(move)]
               + (*fmh )[movedPiece][to_sq(move)]
               + (*fmh2)[movedPiece][to_sq(move)]
@@ -1147,7 +1142,7 @@ moves_loop: // When in check search starts from here.
 
         // Prune moves with negative SEE at low depths and below a decreasing
         // threshold at higher depths.
-        if (!see_test(pos, move, -(29 - min(lmrDepth, 18)) * lmrDepth * lmrDepth))
+        if (!see_test(pos, move, -(30 - min(lmrDepth, 18)) * lmrDepth * lmrDepth))
           continue;
 
       } else {
@@ -1157,8 +1152,8 @@ moves_loop: // When in check search starts from here.
             && (*pos->captureHistory)[movedPiece][to_sq(move)][type_of_p(piece_on(to_sq(move)))] < 0)
           continue;
 
-        // See based pruning
-        if (!see_test(pos, move, -221 * depth))
+        // SEE based pruning
+        if (!see_test(pos, move, -213 * depth))
           continue;
       }
     }
@@ -1270,21 +1265,26 @@ moves_loop: // When in check search starts from here.
             || moveCountPruning
             || ss->staticEval + PieceValue[EG][captured_piece()] <= alpha
             || cutNode
-            || pos->ttHitAverage < 427 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+            || pos->ttHitAverage < 432 * ttHitAverageResolution * ttHitAverageWindow / 1024))
     {
       Depth r = reduction(improving, depth, moveCount);
 
       // Decrease reduction if the ttHit runing average is large
-      if (pos->ttHitAverage > 509 * ttHitAverageResolution * ttHitAverageWindow / 1024)
+      if (pos->ttHitAverage > 537 * ttHitAverageResolution * ttHitAverageWindow / 1024)
         r--;
 
-      // Reduction if other threads are searching this position.
+      // Increase reduction if other threads are searching this position.
       if (marked)
         r++;
 
       // Decrease reduction if position is or has been on the PV
       if (ss->ttPv)
         r -= 2;
+
+      // Increase reduction at root and non-PV nodes when the best move
+      // does not change frequently
+      if ((rootNode || !PvNode) && depth > 10 && pos->bestMoveChanges <= 2)
+        r++;
 
       if (moveCountPruning && !formerPv)
         r++;
@@ -1324,10 +1324,10 @@ moves_loop: // When in check search starts from here.
                        - 5287;
 
         // Decrease/increase reduction by comparing with opponent's stat score.
-        if (ss->statScore >= -106 && (ss-1)->statScore < -104)
+        if (ss->statScore >= -105 && (ss-1)->statScore < -103)
           r--;
 
-        else if ((ss-1)->statScore >= -119 && ss->statScore < -140)
+        else if ((ss-1)->statScore >= -122 && ss->statScore < -129)
           r++;
 
         // Decrease/increase reduction for moves with a good/bad history.
@@ -1335,14 +1335,9 @@ moves_loop: // When in check search starts from here.
 
       } else {
 
-        // Increase reduction for captures/promotions if late move and at
-        // low depth
-        if (depth < 8 && moveCount > 2)
-          r++;
-
         // Unless giving check, this capture is likely bad
         if (   !givesCheck
-            && ss->staticEval + PieceValue[EG][captured_piece()] + 213 * depth <= alpha)
+            && ss->staticEval + PieceValue[EG][captured_piece()] + 210 * depth <= alpha)
           r++;
       }
 
@@ -1364,9 +1359,6 @@ moves_loop: // When in check search starts from here.
       if (didLMR && !captureOrPromotion) {
         int bonus = value > alpha ?  stat_bonus(newDepth)
                                   : -stat_bonus(newDepth);
-
-        if (move == ss->killers[0])
-          bonus += bonus / 4;
 
         update_cm_stats(ss, movedPiece, to_sq(move), bonus);
       }
@@ -1632,7 +1624,7 @@ INLINE Value qsearch_node(Position *pos, Stack *ss, Value alpha, Value beta,
     if (PvNode && bestValue > alpha)
       alpha = bestValue;
 
-    futilityBase = bestValue + 145;
+    futilityBase = bestValue + 155;
   }
 
   ss->history = &(*pos->counterMoveHistory)[0][0][0][0];
@@ -1652,7 +1644,7 @@ INLINE Value qsearch_node(Position *pos, Stack *ss, Value alpha, Value beta,
     moveCount++;
 
     // Futility pruning
-    if (   !InCheck
+    if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
         && !givesCheck
         &&  futilityBase > -VALUE_KNOWN_WIN
         && !advanced_pawn_push(pos, move))
@@ -1676,8 +1668,7 @@ INLINE Value qsearch_node(Position *pos, Stack *ss, Value alpha, Value beta,
     }
 
     // Do not search moves with negative SEE values
-    if (   !InCheck
-        && !(givesCheck && is_discovery_check_on_king(pos, !stm(), move))
+    if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
         && !see_test(pos, move, 0))
       continue;
 

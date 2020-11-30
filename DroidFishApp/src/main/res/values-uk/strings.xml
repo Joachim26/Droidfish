@@ -2,9 +2,9 @@
 <resources>
     <string name="app_name">Black Diamond Chess</string>
     <string name="engine_hash_default">64</string>
-    <string name="moves_per_session_default">0</string>
-    <string name="time_control_default">300000</string>
-    <string name="time_increment_default">3000</string>
+    <string name="moves_per_session_default">100</string>
+    <string name="time_control_default">100</string>
+    <string name="time_increment_default">10</string>
     <string name="squareSelectType_default">1</string>
     <string name="language_default">default</string>
     <string name="font_size_default">12</string>
@@ -14,7 +14,7 @@
     <string name="viewPieceType_default">1</string>
     <string name="viewPieceSet_default">chessmonk</string>
     <string name="autoDelay_default">5000</string>
-    <string name="sleepDelay_default">0</string>
+    <string name="sleepDelay_default">3000</string>
     <string name="move_announce_type_default">off</string>
     <string name="cpu_warning">\
 <b>Використання процесора (CPU)</b>\
@@ -98,6 +98,7 @@
     <string name="select_color_theme">Обрати колір теми</string>
     <string name="colortheme_honey">Золото</string>
     <string name="colortheme_honey2">Ніч</string>
+    <string name="colortheme_honey3">Зелений</string>
     <string name="colortheme_original">Оригінал</string>
     <string name="colortheme_xboard">XДошка</string>
     <string name="colortheme_blue">Синій</string>
@@ -222,11 +223,20 @@
     <string name="blackdiamond_engine">Black Diamond</string>
     <string name="andscacs_engine">Andscacs 0.921</string>
     <string name="bluefish_engine">Bluefish</string>
+    <string name="corchess_engine">CorChess</string>
     <string name="cfish_engine">Cfish</string>
+    <string name="defenchess_engine">Defenchess 2.2</string>
+    <string name="demolito_engine">Demolito 2020-10-09</string>
     <string name="ethereal_engine">Ethereal 2.75</string>
+    <string name="glaurung_engine">Glaurung 2.2</string>
     <string name="stockfish_engine">Honey</string>
-    <string name="glaurung_engine">Stockfish 6</string>
+    <string name="laser_engine">Laser 1.7</string>
+    <string name="mojo_engine">Mojo 1.0</string>
+    <string name="sf6_engine">Stockfish 6 </string>
     <string name="okimaguro_engine">Oki Maguro</string>
+    <string name="rubichess_engine">Rubichess 1.9-dev</string>
+    <string name="xiphos_engine">Xiphos 0.6</string>
+    <string name="ct800_engine">CT800 1.41</string>
     <string name="cuckoochess_engine">CuckooChess</string>
     <string name="fruit_engine">Fruit 2.1</string>
     <string name="chess_engine">Senpai 1.0</string>
@@ -577,7 +587,9 @@
         <item>100</item>
     </string-array>
     <string-array name="time_control_texts">
-        <item>500 milleseconds</item>
+        <item>100 milliseconds</item>
+        <item>250 milliseconds</item>
+        <item>500 milliseconds</item>
         <item>1 second</item>
         <item>2 seconds</item>
         <item>4 seconds</item>
@@ -593,6 +605,8 @@
         <item>15 minutes</item>
     </string-array>
     <string-array name="time_control_values">
+        <item>100</item>
+        <item>250</item>
         <item>500</item>
         <item>1000</item>
         <item>2000</item>
@@ -610,6 +624,7 @@
     </string-array>
     <string-array name="time_increment_texts">
         <item>0s</item>
+        <item>5ms</item>
         <item>10ms</item>
         <item>20ms</item>
         <item>40ms</item>
@@ -626,6 +641,7 @@
     </string-array>
     <string-array name="time_increment_values">
         <item>0</item>
+        <item>5</item>
         <item>10</item>
         <item>20</item>
         <item>40</item>
@@ -673,18 +689,17 @@
         <item>15 seconds</item>
         <item>30 seconds</item>
         <item>1 minute</item>
-        <item>2 minutes</item>
     </string-array>
     <string-array name="sleepDelay_values">
         <item>0</item>
-        <item>1000</item>
-        <item>2000</item>
-        <item>3000</item>
-        <item>5000</item>
-        <item>10000</item>
-        <item>15000</item>
-        <item>30000</item>
-        <item>60000</item>
+        <item>1100</item>
+        <item>2125</item>
+        <item>3150</item>
+        <item>5200</item>
+        <item>10250</item>
+        <item>15300</item>
+        <item>30450</item>
+        <item>60750</item>
     </string-array>
 
     <string-array name="squareSelectType_texts">

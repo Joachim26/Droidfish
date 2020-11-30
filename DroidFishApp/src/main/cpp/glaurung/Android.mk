@@ -1,9 +1,10 @@
 LOCAL_PATH := $(call my-dir)
 ENGINE := glaurung
 SF_SRC_FILES := \
-  benchmark.cpp bitbase.cpp bitboard.cpp endgame.cpp evaluate.cpp main.cpp \
-	material.cpp misc.cpp movegen.cpp movepick.cpp pawns.cpp position.cpp \
-	search.cpp thread.cpp timeman.cpp tt.cpp uci.cpp ucioption.cpp syzygy/tbprobe.cpp
+  bitboard.cpp color.cpp pawns.cpp material.cpp endgame.cpp evaluate.cpp main.cpp \
+ 	misc.cpp move.cpp movegen.cpp history.cpp movepick.cpp search.cpp piece.cpp \
+ 	position.cpp square.cpp direction.cpp tt.cpp value.cpp uci.cpp ucioption.cpp \
+ 	mersenne.cpp book.cpp bitbase.cpp san.cpp benchmark.cpp
 
 MY_ARCH_DEF += -D$(ENGINE) -DAdd_Features
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)

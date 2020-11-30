@@ -726,7 +726,7 @@ public class DroidComputerPlayer {
     }
 
 
-    private final static long guiUpdateInterval = 100;
+    private final static long guiUpdateInterval = 50;
     private long lastGUIUpdate = 0;
 
     private void monitorLoop(UCIEngine uci) {
@@ -742,7 +742,7 @@ public class DroidComputerPlayer {
                 processEngineOutput(uci, s);
                 s = uci.readLineFromEngine(1);
                 long t1 = System.currentTimeMillis();
-                if (t1 - t0 >= 1000)
+                if (t1 - t0 >= 100)
                     break;
             }
             if ((s == null) || Thread.currentThread().isInterrupted())
@@ -991,7 +991,7 @@ public class DroidComputerPlayer {
         if (needGuiUpdate) {
             long now = System.currentTimeMillis();
             timeout = (int)(lastGUIUpdate + guiUpdateInterval - now + 1);
-            timeout = Math.max(1, Math.min(1000, timeout));
+            timeout = Math.max(1, Math.min(100, timeout));
         }
         return timeout;
     }

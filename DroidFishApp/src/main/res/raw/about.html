@@ -6,7 +6,8 @@
 
 <h2>About</h2>
 <p>
-  <b><i>Black Diamond</i></b>, a fork of the great Android chess app named <b><i>Droidfish</i></b> developed by <b><i>Peter Österlund</b></i>.  <b><i>Black Diamond</i></b> is a feature-rich graphical chess and is combined here with a <b><i>Baker's Dozen</i></b> of very strong <b><i>Stockfish</i></b> chess engines and otehrs that just fun to play.
+  <b><i>Black Diamond</i></b>, a fork of the great Android chess app named <b><i>Droidfish</i></b> developed by <b><i>Peter Österlund</b></i>.  <b><i>Black Diamond</i></b> is a feature-rich graphical chess and is combined here with a <b><i>22 engines</i></b>,
+  It also includes some micro millisecond time controls and a sleep setting to enhance the human playability fun factor.  Enjoy!
 </p>
 <p>
 <b><i>Engines</i></b>:
@@ -19,29 +20,55 @@
 <p>
     In addition, <b><i>Honey</i></b> and <b><i>Oki Maguro</i></b>, are also included.  <b><i>Honey</i></b> uses classical evaluation less often than current-dev-Stockfish and <b><i>Oki Maguro</i></b> is very close to current-dev-Stockfish and is named in honor of our friends in <b><i>Japan</i></b>, who first introduced Neural Net learning in <b><i>Stockfish</i></b>.
 </p>
-
 <p>
-    <b><i>Oki Maguro</i></b> translates to <b><i>Big Tuna</i></b> in Japanese. Neural Net learning increased <b><i>Stockfish’s</i></b> ELo rating by 150 Elo in a two-month span, enabling <b><i>Stockfish</i></b> to solidified its reputation as the strongest freely available chess engine in the world.
+    <b><i>Oki Maguro</i></b> translates to <b><i>Big Tuna</i></b> in Japanese. Neural Net learning increased <b><i>Stockfish’s</i></b> Elo rating by 150 Elo in a two-month span, enabling <b><i>Stockfish</i></b> to solidified its reputation as the strongest freely available chess engine in the world.
 </p>
 <p>
-  Also, I must call out and tip my hat to the very creative and hardworking <a href=https://github.com/official-stockfish/Stockfish/blob/master/AUTHORS> <b><i>Stockfish Authors team</i></b></a>. They epitomize the benefits of open source software and the quality that can be achieved by collaboration from the hundreds of developers around the world who have contributed.  In this package , I have included the great Stockfish fork, <b><i>Cfish</i></b> by <b><i>Ronald De Mann</i></b> and <b><i>Stockfish 6</i></b>, the first <b><i>Stockfish</i></b> release which supported syzygy tablebases.
+  Also, I call out and tip my hat to the very creative and hardworking <a href=https://github.com/official-stockfish/Stockfish/blob/master/AUTHORS> <b><i>Stockfish Authors team</i></b></a>. They epitomize the benefits of open source software and the quality that can be achieved by collaboration from the hundreds of developers around the world who have contributed.  Also included is the great Stockfish fork, <b><i>Cfish</i></b> by <b><i>Ronald De Mann</i></b> and <b><i>Stockfish 6</i></b>, the first <b><i>Stockfish</i></b> release which supported syzygy tablebases (also developed by <b><i>Ronald De Mann</i></b>  ).
 </p>
-  In this release, I am pleased to announce the addition <b><i>Ethereal 2.75</i></b>, perhaps no other engine ever climbed the Elo ladder faster than <b><i>Ethereal</i></b>.  In just a little over 5 years, it has reached the number two ranking of Open Source engines behind <b><i>Stockfish</i></b>.  Great work by <b><i>Andy Grant</i></b> and his team of <b><i>contributors</i></b>.
+<p>
+The <b><i>Stockfish Black Diamond Neural Network</i></b> engines are paired with the <b><i>acclaimed</i></b> neural network <b><i>Night Nurse 0.3</i></b> by <b><i>Dietrich Kappe</i></b>. This is the most appealing net for the human playing experience. For club players, set the base time control to 500 milliseconds (default) and the increment to 10 milliseconds (default). If you find it too easy, slowly increase the base and increment. To avoid <b><i>instant move</i></b> use the <b><i>Engine Sleep</i></b> function (default on) to put the engine to sleep anywhere from 1 second to 1 minute. You can also use <b><i>UCI Limit Strength</i></b> if the lowest time control settings are too strong.
+</p>
+  Previously, <b><i>Ethereal 2.75</i></b> was added, perhaps no other engine ever climbed the Elo ladder faster than <b><i>Ethereal</i></b>.  In just a little over 5 years, it has reached the number two ranking of Open Source engines behind <b><i>Stockfish</i></b>.  Great work by <b><i>Andy Grant</i></b> and his team of <b><i>contributors</i></b>.
 <p>
   Also included are three strong and stable engines: <b><i>Andscacs v.0921</i></b> by <b><i>Daniel José Queraltó</i></b>, and <b><i>Fruit 2.1</i></b> and <b><i>Senpai 1.0</i></b>, both by <b><i>Fabien Letouzey</i></b>.
 <p>
   <b><i>Shallow Blue 2.0</i></b>, by <b><i>Rhys Rustad-Elliott</i></b>, is also included. A rock solid stable engine that may play close to <b><i>FIDE 1850</i></b> on an Android device. A very nice engine for humans to play.
 </p>
 <p>
-  Previously we added a color theme <b><i>Night</i></b>. As the name implies, it is a dark theme for those situations where you want to keep the light down — particularly at night.  With this release, we introduce new time controls with very fast time controls in <b><i>Milliseconds</i></b> and a setting called <b><i>Engine Sleep</i></b> — used to put the engine to sleep for a a few seconds before making its move. A perfect combination to weaken the engine naturally while not having it move instantly. I always appreciated the ability to ponder while the engine is on the clock.
+  Included previously is the <b><i>transformational</i></b> chess engine <b><i>Glaurung 2.2</i></b> written by <b><i>Tord Romstad</i></b>, Tord now works with Grandmaster World Champion Magnus Carlsen and Carsen's PlayMagnus app and <a href=https://www.playmagnus.com>website</a>. It was transformational as it was released open source and it was one of the strongest engines in the world. It directly led to the creation of Stockfish, the current strongest chess engine in the world, with its hundreds of collaborators and authors.  <b><i>Glaurung 2.2</i></b> has many UCI evaluation and search options which the user can customize to his satisfaction for interesting and fun play.
 </p>
+<p>
+  Previously, <b><i>CT800 1.41</i></b> by <b><i>Rasmus Althoff</i></b> was added.  <b><i>CT800</i></b> is one of my all-time favorite engines to play against.  Also included is <b><i>Demolito</i></b>, written by <b><i>Lucas Braesch</i></b>, a very strong engine,  probably slightly stronger than Rybka 4.1 in strength.
+</p>
+<p>
+  Also included previously, were the engines <b><i>Defenchess 2.2</i></b> by <b><i>Can Cetin</i></b> and <b><i>Dogac Eldenk</i></b>, <b><i>Laser 1.7</i></b> by the brothers <b><i>Jeffrey & Michael An</i></b> and <b><i>Xiphos 0.6</i></b> by <b><i>Milos Tatarevic</i></b>.  All three of these engines are top tier open source engines with respect to their strength and reliability.
+</p>
+<p>
+We are adding the Stockfish clone <b><i>Corchess</i></b> by <b><i>Ivan Ivec</i></b> in this release .  Ivan is known for his high level of play on ICCF and  <b><i>Corchess</i></b> mirrors his level of play.  Ivan finished in 3rd place in the  <a href="https://www.iccf.com/event?id=79880"><b><i>World Cup 21 Finals</i></b></a>, while earning his  <b><i>ICCF International Master Title</i></b>.
+</p>
+<p>
+We added the Stockfish clone <b><i>MOJO</i></b> by <b><i>Jörg Oster</i></b> previously.  Jörg is known for his modifications that help reduce Stockfish's occasional chess blindness.
+</p>
+  <p>
+    <b><i>RubiChess</i></b> by <b><i>Andreas Matthies</i></b> was also added previously and it is known for its aggressive style of play.
+  </p>
+
+<p>
+  In a previous releases, we added a two new color themes <b><i>Green</i></b> and <b><i>Night</i></b>.  The <b><i>Green</i></b> theme is based on the ubiquitous vinyl <b><i>Green</i></b> rolled up chess boards sold and in use throughout the world. The <b><i>Night</i></b> color theme is for those situations where you want to keep the <b><i>light down</i></b> — particularly at night.  Previously introduced were the very fast time controls, now in <b><i>Milliseconds</i></b> and a new setting called <b><i>Engine Sleep</i></b> — used to put the engine to sleep for a few seconds before making its move. A perfect combination to weaken the engine naturally while not having it move instantly. I always had appreciated the ability to ponder while the engine is on the clock.
+</p>
+<p>
+BlackDiamond also works on the  <b><i>Amazon Fire Stick</i></b> where you can play on the <b><i>BIG</b></i> screen.
+A <b><i>HUGE</i></b> call out to <b><i>Al Scally</i></b> for his assistance on the <b><i>Fire Stick</b></i> deployment!
+You will need the app <b><i>Toggle Mouse</i></b> or something similiar to select the menu options and move the pieces.
+</p>
+
+
 <p>
   This <b><i>Black Diamond</i></b> Android app is issued by me, <b><i>Michael Byrne — michaelbyrne1978@gmail.com</i></b>. Please do not contact <b><i>Peter Österlund</i></b> for any help or questions regarding this app as he was not involved in the release of this app other than developing the <b><i>Droidfish</i></b> code that was used in this app as previously mentioned.
 </p>
-
 <p>
   The original <b><i>Droidfish</i></b>  full manual is available <a href="https://github.com/peterosterlund2/droidfish/blob/master/README.md">here (website)</a> and <a href="https://github.com/peterosterlund2/droidfish/raw/master/doc/droidfish_manual.pdf">here (pdf)</a>.
-
 </p>
 
 <h3>Features</h3>

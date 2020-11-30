@@ -29,20 +29,20 @@ namespace {
   // Values range from 27 (center squares) to 90 (in the corners)
   inline int push_to_edge(Square s) {
       int rd = edge_distance(rank_of(s)), fd = edge_distance(file_of(s));
-      return 90 - (8 * fd * fd / 2 + 8 * rd * rd / 2);
+      return 90 - (7 * fd * fd / 2 + 7 * rd * rd / 2);
   }
 
   // Table used to drive the king towards a corner square of the
   // right color in KBN vs K endgames.
   constexpr int PushToCorners[SQUARE_NB] = {
     6600, 6280, 5860, 5540, 5170, 4850, 4530, 4160,
-	  6280, 5760, 5490, 5120, 4800, 4280, 4160, 4530,
-	  5860, 5490, 4960, 4680, 4280, 4000, 4480, 4850,
-	  5540, 5120, 4680, 3840, 3520, 4480, 4800, 5170,
-	  5170, 4800, 4480, 3520, 3840, 4680, 5120, 5540,
-	  4850, 4480, 4000, 4280, 4680, 4960, 5490, 5860,
-	  4530, 4160, 4280, 4800, 5120, 5490, 5760, 6280,
-	  4160, 4530, 4850, 5170, 5540, 5860, 6280, 6600
+    6280, 5760, 5490, 5120, 4800, 4280, 4160, 4530,
+    5860, 5490, 4960, 4680, 4280, 4000, 4480, 4850,
+    5540, 5120, 4680, 3840, 3520, 4480, 4800, 5170,
+    5170, 4800, 4480, 3520, 3840, 4680, 5120, 5540,
+    4850, 4480, 4000, 4280, 4680, 4960, 5490, 5860,
+    4530, 4160, 4280, 4800, 5120, 5490, 5760, 6280,
+    4160, 4530, 4850, 5170, 5540, 5860, 6280, 6600
   };
 
   // Drive a piece close to or away from another piece
@@ -559,8 +559,8 @@ ScaleFactor Endgame<KRPPKRP>::operator()(const Position& pos) const {
   assert(verify_material(pos, strongSide, RookValueMg, 2));
   assert(verify_material(pos, weakSide,   RookValueMg, 1));
 
-  Square strongPawn1 = pos.squares<PAWN>(strongSide)[0];
-  Square strongPawn2 = pos.squares<PAWN>(strongSide)[1];
+  Square strongPawn1 = lsb(pos.pieces(strongSide, PAWN));
+  Square strongPawn2 = msb(pos.pieces(strongSide, PAWN));
   Square weakKing = pos.square<KING>(weakSide);
 
   // Does the stronger side have a passed pawn?
@@ -644,8 +644,8 @@ ScaleFactor Endgame<KBPPKB>::operator()(const Position& pos) const {
       return SCALE_FACTOR_NONE;
 
   Square weakKing = pos.square<KING>(weakSide);
-  Square strongPawn1 = pos.squares<PAWN>(strongSide)[0];
-  Square strongPawn2 = pos.squares<PAWN>(strongSide)[1];
+  Square strongPawn1 = lsb(pos.pieces(strongSide, PAWN));
+  Square strongPawn2 = msb(pos.pieces(strongSide, PAWN));
   Square blockSq1, blockSq2;
 
   if (relative_rank(strongSide, strongPawn1) > relative_rank(strongSide, strongPawn2))

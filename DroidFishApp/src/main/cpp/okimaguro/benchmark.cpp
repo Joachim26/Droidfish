@@ -22,7 +22,6 @@
 #include <vector>
 
 #include "position.h"
-#include "evaluate.h"
 
 using namespace std;
 

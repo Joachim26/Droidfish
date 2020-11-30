@@ -7,8 +7,8 @@ android {
         applicationId "org.petero.droidfish"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 1001
-        versionName "2.01"
+        versionCode 1006
+        versionName "2.06 NiNu"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             ndkBuild {
@@ -98,14 +98,28 @@ task copyToAssets(type: Copy, dependsOn: 'externalNativeBuildRelease') {
         include '*/fruit_nosimd'
         include '*/chess'
         include '*/chess_nosimd'
+        include '*/sf6'
+        include '*/sf6_nosimd'
         include '*/glaurung'
         include '*/glaurung_nosimd'
         include '*/andscacs'
         include '*/andscacs_nosimd'
         include '*/shallowblue'
         include '*/shallowblue_nosimd'
-
-
+        include '*/xiphos'
+        include '*/xiphos_nosimd'
+        include '*/defenchess'
+        include '*/defenchess_nosimd'
+        include '*/ct800'
+        include '*/ct800_nosimd'
+        include '*/demolito'
+        include '*/demolito_nosimd'
+        include '*/rubichess'
+        include '*/rubichess_nosimd'
+        include '*/mojo'
+        include '*/mojo_nosimd'
+        include '*/corchess'
+        include '*/corchess_nosimd'
     }
     into 'src/main/assets'
 }

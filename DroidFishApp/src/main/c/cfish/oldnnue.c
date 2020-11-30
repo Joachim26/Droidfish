@@ -31,12 +31,11 @@
 #include "misc.h"
 #include "nnue.h"
 #include "position.h"
-#include "settings.h"
 #include "uci.h"
 
 #ifdef NNUE_EMBEDDED
 #include "incbin.h"
-INCBIN(Network, EvalFileDefaultName);
+INCBIN(Network, DefaultEvalFile);
 #endif
 
 // Old gcc on Windows is unable to provide a 32-byte aligned stack.
@@ -101,21 +100,21 @@ static_assert(kHalfDimensions % 256 == 0, "kHalfDimensions should be a multiple 
 
 #ifdef USE_AVX512
 #define SIMD_WIDTH 512
-typedef __m512i vec16_t;
+typedef __m512i vec_t;
 #define vec_add_16(a,b) _mm512_add_epi16(a,b)
 #define vec_sub_16(a,b) _mm512_sub_epi16(a,b)
 #define NUM_REGS 8 // only 8 are needed
 
 #elif USE_AVX2
 #define SIMD_WIDTH 256
-typedef __m256i vec16_t;
+typedef __m256i vec_t;
 #define vec_add_16(a,b) _mm256_add_epi16(a,b)
 #define vec_sub_16(a,b) _mm256_sub_epi16(a,b)
 #define NUM_REGS 16
 
 #elif USE_SSE2
 #define SIMD_WIDTH 128
-typedef __m128i vec16_t;
+typedef __m128i vec_t;
 #define vec_add_16(a,b) _mm_add_epi16(a,b)
 #define vec_sub_16(a,b) _mm_sub_epi16(a,b)
 #ifdef IS_64BIT
@@ -126,14 +125,14 @@ typedef __m128i vec16_t;
 
 #elif USE_MMX
 #define SIMD_WIDTH 64
-typedef __m64 vec16_t;
+typedef __m64 vec_t;
 #define vec_add_16(a,b) _mm_add_pi16(a,b)
 #define vec_sub_16(a,b) _mm_sub_pi16(a,b)
 #define NUM_REGS 8
 
 #elif USE_NEON
 #define SIMD_WIDTH 128
-typedef int16x8_t vec16_t;
+typedef int16x8_t vec_t;
 #define vec_add_16(a,b) vaddq_s16(a,b)
 #define vec_sub_16(a,b) vsubq_s16(a,b)
 #ifdef IS_64BIT
@@ -173,7 +172,7 @@ INLINE unsigned make_index(Color c, Square s, Piece pc, Square ksq)
   return orient(c, s) + PieceToIndex[c][pc] + PS_END * ksq;
 }
 
-static void append_active_indices(const Position *pos, const Color c,
+static void half_kp_append_active_indices(const Position *pos, const Color c,
     IndexList *active)
 {
   Square ksq = orient(c, square_of(c, KING));
@@ -184,7 +183,7 @@ static void append_active_indices(const Position *pos, const Color c,
   }
 }
 
-static void append_changed_indices(const Position *pos, const Color c,
+static void half_kp_append_changed_indices(const Position *pos, const Color c,
     const DirtyPiece *dp, IndexList *removed, IndexList *added)
 {
   Square ksq = orient(c, square_of(c, KING));
@@ -195,6 +194,41 @@ static void append_changed_indices(const Position *pos, const Color c,
       removed->values[removed->size++] = make_index(c, dp->from[i], pc, ksq);
     if (dp->to[i] != SQ_NONE)
       added->values[added->size++] = make_index(c, dp->to[i], pc, ksq);
+  }
+}
+
+static void append_active_indices(const Position *pos, IndexList active[2])
+{
+  for (unsigned c = 0; c < 2; c++)
+    half_kp_append_active_indices(pos, c, &active[c]);
+}
+
+static void append_changed_indices(const Position *pos, IndexList removed[2],
+    IndexList added[2], bool reset[2])
+{
+  const DirtyPiece *dp = &(pos->st->dirtyPiece);
+  assert(dp->dirtyNum != 0);
+
+  if ((pos->st-1)->accumulator.computedAccumulation) {
+    for (unsigned c = 0; c < 2; c++) {
+      reset[c] = dp->pc[0] == make_piece(c, KING);
+      if (reset[c])
+        half_kp_append_active_indices(pos, c, &added[c]);
+      else
+        half_kp_append_changed_indices(pos, c, dp, &removed[c], &added[c]);
+    }
+  } else {
+    const DirtyPiece *dp2 = &((pos->st-1)->dirtyPiece);
+    for (unsigned c = 0; c < 2; c++) {
+      reset[c] =   dp->pc[0] == make_piece(c, KING)
+                || dp2->pc[0] == make_piece(c, KING);
+      if (reset[c])
+        half_kp_append_active_indices(pos, c, &added[c]);
+      else {
+        half_kp_append_changed_indices(pos, c, dp, &removed[c], &added[c]);
+        half_kp_append_changed_indices(pos, c, dp2, &removed[c], &added[c]);
+      }
+    }
   }
 }
 
@@ -466,119 +500,41 @@ INLINE void clip_propagate(int32_t *input, clipped_t *output, unsigned numDims)
 }
 
 // Input feature converter
-static int16_t *ft_biases; // [kHalfDimensions]
-static int16_t *ft_weights; // [kHalfDimensions * FtInDims]
+static alignas(64) int16_t ft_biases[kHalfDimensions];
+static alignas(64) int16_t ft_weights[kHalfDimensions * FtInDims];
 
 #ifdef VECTOR
 #define TILE_HEIGHT (NUM_REGS * SIMD_WIDTH / 16)
 #endif
 
-// Calculate cumulative value using difference calculation if possible
-INLINE void update_accumulator(const Position *pos, const Color c)
+// Calculate cumulative value without using difference calculation
+INLINE void refresh_accumulator(const Position *pos)
 {
-#ifdef VECTOR
-  vec16_t acc[NUM_REGS];
-#endif
+  Accumulator *accumulator = &(pos->st->accumulator);
 
-  Stack *st = pos->st;
-  int gain = popcount(pieces()) - 2;
-  while (st->accumulator.state[c] == ACC_EMPTY) {
-    DirtyPiece *dp = &st->dirtyPiece;
-    if (   dp->pc[0] == make_piece(c, KING)
-        || (gain -= dp->dirtyNum + 1) < 0)
-      break;
-    st--;
-  }
+  IndexList activeIndices[2];
+  activeIndices[0].size = activeIndices[1].size = 0;
+  append_active_indices(pos, activeIndices);
 
-  if (st->accumulator.state[c] == ACC_COMPUTED) {
-    if (st == pos->st)
-      return;
-
-    IndexList added[2], removed[2];
-    added[0].size = added[1].size = removed[0].size = removed[1].size = 0;
-    append_changed_indices(pos, c, &(st+1)->dirtyPiece, &removed[0], &added[0]);
-    for (Stack *st2 = st + 2; st2 <= pos->st; st2++)
-      append_changed_indices(pos, c, &st2->dirtyPiece, &removed[1], &added[1]);
-
-    (st+1)->accumulator.state[c] = ACC_COMPUTED;
-    pos->st->accumulator.state[c] = ACC_COMPUTED;
-
-    Stack *stack[3] = { st + 1, st + 1 == pos->st ? NULL : pos->st, NULL };
+  for (unsigned c = 0; c < 2; c++) {
 #ifdef VECTOR
     for (unsigned i = 0; i < kHalfDimensions / TILE_HEIGHT; i++) {
-      vec16_t *accTile = (vec16_t *)&st->accumulator.accumulation[c][i * TILE_HEIGHT];
-      for (unsigned j = 0; j < NUM_REGS; j++)
-        acc[j] = accTile[j];
-      for (unsigned l = 0; stack[l]; l++) {
-        // Difference calculation for the deactivated features
-        for (unsigned k = 0; k < removed[l].size; k++) {
-          unsigned index = removed[l].values[k];
-          const unsigned offset = kHalfDimensions * index + i * TILE_HEIGHT;
-          vec16_t *column = (vec16_t *)&ft_weights[offset];
-          for (unsigned j = 0; j < NUM_REGS; j++)
-            acc[j] = vec_sub_16(acc[j], column[j]);
-        }
+      vec_t *ft_biases_tile = (vec_t *)&ft_biases[i * TILE_HEIGHT];
+      vec_t *accTile = (vec_t *)&accumulator->accumulation[c][i * TILE_HEIGHT];
+      vec_t acc[NUM_REGS];
 
-        // Difference calculation for the activated features
-        for (unsigned k = 0; k < added[l].size; k++) {
-          unsigned index = added[l].values[k];
-          const unsigned offset = kHalfDimensions * index + i * TILE_HEIGHT;
-          vec16_t *column = (vec16_t *)&ft_weights[offset];
-          for (unsigned j = 0; j < NUM_REGS; j++)
-            acc[j] = vec_add_16(acc[j], column[j]);
-        }
-
-        accTile = (vec16_t *)&stack[l]->accumulator.accumulation[c][i * TILE_HEIGHT];
-        for (unsigned j = 0; j < NUM_REGS; j++)
-          accTile[j] = acc[j];
-      }
-    }
-#else
-    for (unsigned l = 0; stack[l]; l++) {
-      memcpy(&stack[l]->accumulator.accumulation[c],
-          &st->accumulator.accumulation[c], kHalfDimensions * sizeof(int16_t));
-      st = stack[l];
-
-      // Difference calculation for the deactivated features
-      for (unsigned k = 0; k < removed[l].size; k++) {
-        unsigned index = removed[l].values[k];
-        const unsigned offset = kHalfDimensions * index;
-
-        for (unsigned j = 0; j < kHalfDimensions; j++)
-          st->accumulator.accumulation[c][j] -= ft_weights[offset + j];
-      }
-
-      // Difference calculation for the activated features
-      for (unsigned k = 0; k < added[l].size; k++) {
-        unsigned index = added[l].values[k];
-        const unsigned offset = kHalfDimensions * index;
-
-        for (unsigned j = 0; j < kHalfDimensions; j++)
-          st->accumulator.accumulation[c][j] += ft_weights[offset + j];
-      }
-    }
-#endif
-  } else {
-    Accumulator *accumulator = &pos->st->accumulator;
-    accumulator->state[c] = ACC_COMPUTED;
-    IndexList active;
-    active.size = 0;
-    append_active_indices(pos, c, &active);
-#ifdef VECTOR
-    for (unsigned i = 0; i < kHalfDimensions / TILE_HEIGHT; i++) {
-      vec16_t *ft_biases_tile = (vec16_t *)&ft_biases[i * TILE_HEIGHT];
       for (unsigned j = 0; j < NUM_REGS; j++)
         acc[j] = ft_biases_tile[j];
 
-      for (unsigned k = 0; k < active.size; k++) {
-        unsigned index = active.values[k];
+      for (size_t k = 0; k < activeIndices[c].size; k++) {
+        unsigned index = activeIndices[c].values[k];
         unsigned offset = kHalfDimensions * index + i * TILE_HEIGHT;
-        vec16_t *column = (vec16_t *)&ft_weights[offset];
+        vec_t *column = (vec_t *)&ft_weights[offset];
+
         for (unsigned j = 0; j < NUM_REGS; j++)
           acc[j] = vec_add_16(acc[j], column[j]);
       }
 
-      vec16_t *accTile = (vec16_t *)&accumulator->accumulation[c][i * TILE_HEIGHT];
       for (unsigned j = 0; j < NUM_REGS; j++)
         accTile[j] = acc[j];
     }
@@ -586,8 +542,8 @@ INLINE void update_accumulator(const Position *pos, const Color c)
     memcpy(accumulator->accumulation[c], ft_biases,
         kHalfDimensions * sizeof(int16_t));
 
-    for (unsigned k = 0; k < active.size; k++) {
-      unsigned index = active.values[k];
+    for (size_t k = 0; k < activeIndices[c].size; k++) {
+      unsigned index = activeIndices[c].values[k];
       unsigned offset = kHalfDimensions * index;
 
       for (unsigned j = 0; j < kHalfDimensions; j++)
@@ -595,13 +551,106 @@ INLINE void update_accumulator(const Position *pos, const Color c)
     }
 #endif
   }
+
+  accumulator->computedAccumulation = true;
+}
+
+// Calculate cumulative value using difference calculation if possible
+INLINE bool update_accumulator(const Position *pos)
+{
+  Accumulator *accumulator = &(pos->st->accumulator);
+  if (accumulator->computedAccumulation)
+    return true;
+
+  Accumulator *prevAcc;
+  if (   !(prevAcc = &(pos->st-1)->accumulator)->computedAccumulation
+      && !(prevAcc = &(pos->st-2)->accumulator)->computedAccumulation)
+    return false;
+
+  IndexList removed_indices[2], added_indices[2];
+  removed_indices[0].size = removed_indices[1].size = 0;
+  added_indices[0].size = added_indices[1].size = 0;
+  bool reset[2];
+  append_changed_indices(pos, removed_indices, added_indices, reset);
+
+#ifdef VECTOR
+  for (unsigned i = 0; i< kHalfDimensions / TILE_HEIGHT; i++) {
+    for (unsigned c = 0; c < 2; c++) {
+      vec_t *accTile = (vec_t *)&accumulator->accumulation[c][i * TILE_HEIGHT];
+      vec_t acc[NUM_REGS];
+
+      if (reset[c]) {
+        vec_t *ft_b_tile = (vec_t *)&ft_biases[i * TILE_HEIGHT];
+        for (unsigned j = 0; j < NUM_REGS; j++)
+          acc[j] = ft_b_tile[j];
+      } else {
+        vec_t *prevAccTile = (vec_t *)&prevAcc->accumulation[c][i * TILE_HEIGHT];
+        for (unsigned j = 0; j < NUM_REGS; j++)
+          acc[j] = prevAccTile[j];
+
+        // Difference calculation for the deactivated features
+        for (unsigned k = 0; k < removed_indices[c].size; k++) {
+          unsigned index = removed_indices[c].values[k];
+          const unsigned offset = kHalfDimensions * index + i * TILE_HEIGHT;
+
+          vec_t *column = (vec_t *)&ft_weights[offset];
+          for (unsigned j = 0; j < NUM_REGS; j++)
+            acc[j] = vec_sub_16(acc[j], column[j]);
+        }
+      }
+
+      // Difference calculation for the activated features
+      for (unsigned k = 0; k < added_indices[c].size; k++) {
+        unsigned index = added_indices[c].values[k];
+        const unsigned offset = kHalfDimensions * index + i * TILE_HEIGHT;
+
+        vec_t *column = (vec_t *)&ft_weights[offset];
+        for (unsigned j = 0; j < NUM_REGS; j++)
+          acc[j] = vec_add_16(acc[j], column[j]);
+      }
+
+      for (unsigned j = 0; j < NUM_REGS; j++)
+        accTile[j] = acc[j];
+    }
+  }
+#else
+  for (unsigned c = 0; c < 2; c++) {
+    if (reset[c]) {
+      memcpy(accumulator->accumulation[c], ft_biases,
+          kHalfDimensions * sizeof(int16_t));
+    } else {
+      memcpy(accumulator->accumulation[c], prevAcc->accumulation[c],
+          kHalfDimensions * sizeof(int16_t));
+      // Difference calculation for the deactivated features
+      for (unsigned k = 0; k < removed_indices[c].size; k++) {
+        unsigned index = removed_indices[c].values[k];
+        const unsigned offset = kHalfDimensions * index;
+
+        for (unsigned j = 0; j < kHalfDimensions; j++)
+          accumulator->accumulation[c][j] -= ft_weights[offset + j];
+      }
+    }
+
+    // Difference calculation for the activated features
+    for (unsigned k = 0; k < added_indices[c].size; k++) {
+      unsigned index = added_indices[c].values[k];
+      const unsigned offset = kHalfDimensions * index;
+
+      for (unsigned j = 0; j < kHalfDimensions; j++)
+        accumulator->accumulation[c][j] += ft_weights[offset + j];
+    }
+  }
+#endif
+
+  accumulator->computedAccumulation = true;
+  return true;
 }
 
 // Convert input features
-INLINE void transform(const Position *pos, int8_t *output, mask_t *outMask)
+INLINE void transform(const Position *pos, clipped_t *output, mask_t *outMask)
 {
-  update_accumulator(pos, WHITE);
-  update_accumulator(pos, BLACK);
+  if (!update_accumulator(pos))
+    refresh_accumulator(pos);
 
   int16_t (*accumulation)[2][256] = &pos->st->accumulator.accumulation;
   (void)outMask; // avoid compiler warning
@@ -834,24 +883,8 @@ static bool verify_net(const void *evalData, size_t size)
   return true;
 }
 
-static alloc_t ft_alloc;
-
 static void init_weights(const void *evalData)
 {
-  if (!ft_biases) {
-    if (settings.largePages)
-      ft_biases = allocate_memory(2 * kHalfDimensions * (FtInDims + 1), true,
-          &ft_alloc);
-    if (!ft_biases)
-      ft_biases = allocate_memory(2 * kHalfDimensions * (FtInDims + 1), false,
-          &ft_alloc);
-    if (!ft_biases) {
-      fprintf(stdout, "Could not allocate enough memory.\n");
-      exit(EXIT_FAILURE);
-    }
-    ft_weights = ft_biases + kHalfDimensions;
-  }
-
   const char *d = (const char *)evalData + TransformerStart + 4;
 
   // Read transformer
@@ -933,10 +966,4 @@ void nnue_init(void)
 #endif
          );
   exit(EXIT_FAILURE);
-}
-
-void nnue_free(void)
-{
-  if (ft_biases)
-    free_memory(&ft_alloc);
 }

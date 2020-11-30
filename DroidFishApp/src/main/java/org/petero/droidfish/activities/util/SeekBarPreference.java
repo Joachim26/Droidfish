@@ -147,7 +147,10 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
             String engine1 = settings.getString("engine", "blackdiamond");
             String engine2 = settings.getString("engine", "bluefish");
             String engine3 = settings.getString("engine", "okimaguro");
-            if ( ("stockfish".equals(engine)) || ("blackdiamond".equals(engine1)) || ("okimaguro".equals(engine2)) || ("bluefish".equals(engine3))) {
+            String engine4 = settings.getString("engine", "weakfish");
+            String engine5 = settings.getString("engine", "mojo");
+            String engine6 = settings.getString("engine", "corchess");
+            if ( ("stockfish".equals(engine)) || ("blackdiamond".equals(engine1)) || ("okimaguro".equals(engine3)) || ("bluefish".equals(engine2)) || ("weakfish".equals(engine4)) || ("mojo".equals(engine5)) || ("corchess".equals(engine6))) {
                 showStrengthHint = false;
                 if (getKey().equals("strength"))
                     DroidFishApp.toast(R.string.strength_cuckoo_hint, Toast.LENGTH_LONG);

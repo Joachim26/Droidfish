@@ -51,6 +51,7 @@ OBJS = benchmark.o bitbase.o bitboard.o endgame.o evaluate.o main.o \
 # ----------------------------------------------------------------------------
 #
 # nnue = yes/no       --- -DNNUE           --- Enable/Disable NNUE
+# pure = yes/no       --- -DNNUE_PURE      --- Enable/Disable NNUE pure only
 # debug = yes/no      --- -DNDEBUG         --- Enable/Disable debug mode
 # optimize = yes/no   --- (-O3/-fast etc.) --- Enable/Disable optimizations
 # arch = (name)       --- (-arch)          --- Target architecture
@@ -84,6 +85,7 @@ endif
 
 nnue = yes
 pure = no
+sparse = yes
 optimize = yes
 lto = no
 debug = no
@@ -377,6 +379,10 @@ ifeq ($(ARCH),ppc-64)
 	prefetch = yes
 endif
 
+endif
+
+ifeq ($(avx2),yes)
+	sparse=no
 endif
 
 ### ==========================================================================
@@ -702,6 +708,9 @@ ifeq ($(nnue),yes)
 	endif
 	ifeq ($(pure),yes)
 		CFLAGS += -DNNUE_PURE
+	endif
+	ifeq ($(sparse),yes)
+		CFLAGS += -DNNUE_SPARSE
 	endif
 endif
 

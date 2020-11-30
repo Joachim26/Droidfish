@@ -58,14 +58,32 @@ public abstract class UCIEngineBase implements UCIEngine {
             return new InternalFruit(report, engineOptions.workDir);
         else if ("glaurung".equals(engine))
             return new InternalGlaurung(report, engineOptions.workDir);
+        else if ("sf6".equals(engine))
+            return new InternalSF6(report, engineOptions.workDir);
         else if ("chess".equals(engine))
             return new InternalChess(report, engineOptions.workDir);
         else if ("okimaguro".equals(engine))
             return new InternalOkiMaguro(report, engineOptions.workDir);
+        else if ("corchess".equals(engine))
+            return new InternalCorchess(report, engineOptions.workDir);
+        else if ("mojo".equals(engine))
+            return new InternalMojo(report, engineOptions.workDir);
+        else if ("rubichess".equals(engine))
+            return new InternalRubichess(report, engineOptions.workDir);
         else if ("weakfish".equals(engine))
             return new InternalWeakfish(report, engineOptions.workDir);
         else if ("shallowblue".equals(engine))
             return new InternalShallowBlue(report, engineOptions.workDir);
+        else if ("xiphos".equals(engine))
+            return new InternalXiphos(report, engineOptions.workDir);
+        else if ("laser".equals(engine))
+            return new InternalLaser(report, engineOptions.workDir);
+        else if ("defenchess".equals(engine))
+            return new InternalDefenchess(report, engineOptions.workDir);
+        else if ("demolito".equals(engine))
+            return new InternalDemolito(report, engineOptions.workDir);
+        else if ("ct800".equals(engine))
+            return new InternalCT800(report, engineOptions.workDir);
         else if (EngineUtil.isOpenExchangeEngine(engine))
             return new OpenExchangeEngine(engine, engineOptions.workDir, report);
         else if (EngineUtil.isNetEngine(engine))

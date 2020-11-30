@@ -1,84 +1,130 @@
 /*
-  Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2008 Tord Romstad (Glaurung author)
-  Copyright (C) 2008-2015 Marco Costalba, Joona Kiiski, Tord Romstad
+  Glaurung, a UCI chess playing engine.
+  Copyright (C) 2004-2008 Tord Romstad
 
-  Stockfish is free software: you can redistribute it and/or modify
+  Glaurung is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-
-  Stockfish is distributed in the hope that it will be useful,
+  
+  Glaurung is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-
+  
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PAWNS_H_INCLUDED
+
+#if !defined(PAWNS_H_INCLUDED)
 #define PAWNS_H_INCLUDED
 
-#include "misc.h"
+////
+//// Includes
+////
+
 #include "position.h"
-#include "types.h"
 
-namespace Pawns {
 
-/// Pawns::Entry contains various information about a pawn structure. A lookup
-/// to the pawn hash table (performed by calling the probe function) returns a
-/// pointer to an Entry object.
+////
+//// Types
+////
 
-struct Entry {
+/// PawnInfo is a class which contains various information about a pawn 
+/// structure.  Currently, it only includes a middle game and an end game
+/// pawn structure evaluation, and a bitboard of passed pawns.  We may want
+/// to add further information in the future.  A lookup to the pawn hash table
+/// (performed by calling the get_pawn_info method in a PawnInfoTable object)
+/// returns a pointer to a PawnInfo object.
 
-  Score pawns_score() const { return score; }
-  Bitboard pawn_attacks(Color c) const { return pawnAttacks[c]; }
-  Bitboard passed_pawns(Color c) const { return passedPawns[c]; }
-  int pawn_span(Color c) const { return pawnSpan[c]; }
+class PawnInfo {
 
-  int semiopen_file(Color c, File f) const {
-    return semiopenFiles[c] & (1 << f);
-  }
+  friend class PawnInfoTable;
 
-  int semiopen_side(Color c, File f, bool leftSide) const {
-    return semiopenFiles[c] & (leftSide ? (1 << f) - 1 : ~((1 << (f + 1)) - 1));
-  }
+public:
+  Value mg_value() const;
+  Value eg_value() const;
+  Value kingside_storm_value(Color c) const;
+  Value queenside_storm_value(Color c) const;
+  Bitboard passed_pawns() const;
+  bool file_is_half_open(Color c, File f) const;
+  bool has_open_file_to_left(Color c, File f) const;
+  bool has_open_file_to_right(Color c, File f) const;
 
-  int pawns_on_same_color_squares(Color c, Square s) const {
-    return pawnsOnSquares[c][!!(DarkSquares & s)];
-  }
-
-  template<Color Us>
-  Score king_safety(const Position& pos, Square ksq)  {
-    return  kingSquares[Us] == ksq && castlingRights[Us] == pos.can_castle(Us)
-          ? kingSafety[Us] : (kingSafety[Us] = do_king_safety<Us>(pos, ksq));
-  }
-
-  template<Color Us>
-  Score do_king_safety(const Position& pos, Square ksq);
-
-  template<Color Us>
-  Value shelter_storm(const Position& pos, Square ksq);
+private:
+  void clear();
 
   Key key;
-  Score score;
-  Bitboard passedPawns[COLOR_NB];
-  Bitboard pawnAttacks[COLOR_NB];
-  Square kingSquares[COLOR_NB];
-  Score kingSafety[COLOR_NB];
-  int minKingPawnDistance[COLOR_NB];
-  int castlingRights[COLOR_NB];
-  int semiopenFiles[COLOR_NB];
-  int pawnSpan[COLOR_NB];
-  int pawnsOnSquares[COLOR_NB][COLOR_NB]; // [color][light/dark squares]
+  Bitboard passedPawns;
+  int16_t mgValue, egValue;
+  int8_t ksStormValue[2], qsStormValue[2];
+  uint8_t halfOpenFiles[2];
 };
 
-typedef HashTable<Entry, 16384> Table;
 
-void init();
-Entry* probe(const Position& pos);
+/// The PawnInfoTable class represents a pawn hash table.  It is basically
+/// just an array of PawnInfo objects and a few methods for accessing these
+/// objects.  The most important method is get_pawn_info, which looks up a
+/// position in the table and returns a pointer to a PawnInfo object.
 
-} // namespace Pawns
+class PawnInfoTable {
 
-#endif // #ifndef PAWNS_H_INCLUDED
+public:
+  PawnInfoTable(unsigned numOfEntries);
+  ~PawnInfoTable();
+  void clear();
+  PawnInfo *get_pawn_info(const Position &pos);
+
+private:
+  unsigned size;
+  PawnInfo *entries;
+};
+
+
+////
+//// Inline functions
+////
+
+inline Value PawnInfo::mg_value() const {
+  return Value(mgValue);
+}
+
+inline Value PawnInfo::eg_value() const {
+  return Value(egValue);
+}
+
+inline Bitboard PawnInfo::passed_pawns() const {
+  return passedPawns;
+}
+
+inline Value PawnInfo::kingside_storm_value(Color c) const {
+  return Value(ksStormValue[c]);
+}
+
+inline Value PawnInfo::queenside_storm_value(Color c) const {
+  return Value(qsStormValue[c]);
+}
+
+inline bool PawnInfo::file_is_half_open(Color c, File f) const {
+  return (halfOpenFiles[c] & (1 << int(f)));
+}
+
+inline bool PawnInfo::has_open_file_to_left(Color c, File f) const {
+  return halfOpenFiles[c] & ((1 << int(f)) - 1);
+}
+
+inline bool PawnInfo::has_open_file_to_right(Color c, File f) const {
+  return halfOpenFiles[c] & ~((1 << int(f+1)) - 1);
+}
+
+inline void PawnInfo::clear() {
+  mgValue = egValue = 0;
+  passedPawns = EmptyBoardBB;
+  ksStormValue[WHITE] = ksStormValue[BLACK] = 0;
+  qsStormValue[WHITE] = qsStormValue[BLACK] = 0;
+  halfOpenFiles[WHITE] = halfOpenFiles[BLACK] = 0xFF;
+}
+
+
+#endif // !defined(PAWNS_H_INCLUDED)
