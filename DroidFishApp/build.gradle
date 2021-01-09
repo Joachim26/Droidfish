@@ -7,8 +7,8 @@ android {
         applicationId "org.petero.droidfish"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 1008
-        versionName "2.08"
+        versionCode 1009
+        versionName "2.09"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             ndkBuild {
@@ -88,8 +88,8 @@ task copyToAssets(type: Copy, dependsOn: 'externalNativeBuildRelease') {
         include '*/bluefish_nosimd'
         include '*/okimaguro'
         include '*/okimaguro_nosimd'
-        include '*/weakfish'
-        include '*/weakfish_nosimd'
+        include '*/wyldchess'
+        include '*/wyldchess_nosimd'
         include '*/cfish'
         include '*/cfish_nosimd'
         include '*/ethereal'
@@ -118,8 +118,15 @@ task copyToAssets(type: Copy, dependsOn: 'externalNativeBuildRelease') {
         include '*/rubichess_nosimd'
         include '*/mojo'
         include '*/mojo_nosimd'
+        include '*/harmon'
+        include '*/harmon_nosimd'
+        include '*/laser'
+        include '*/laser_nosimd'
         include '*/corchess'
         include '*/corchess_nosimd'
+        include '*/crystal'
+        include '*/crystal_nosimd'
+
     }
     into 'src/main/assets'
 }

@@ -39,11 +39,11 @@ namespace Eval {
   void NNUE::init() {
 
     useNNUE = Options["Use NNUE"];
-    std::string eval_file = std::string(Options["EvalFile"]);
-    if (useNNUE && eval_file_loaded != eval_file)
-        if (Eval::NNUE::load_eval_file(eval_file))
-            eval_file_loaded = eval_file;
-  }
+std::string eval_file = std::string(Options["EvalFile"]);
+if (useNNUE && eval_file_loaded != eval_file)
+    if (Eval::NNUE::load_eval_file(eval_file))
+        eval_file_loaded = eval_file;
+}
 
   void NNUE::verify() {
 
@@ -53,12 +53,12 @@ namespace Eval {
         UCI::OptionsMap defaults;
         UCI::init(defaults);
 
-        sync_cout << "info string ERROR: NNUE evaluation used, but the network file " << eval_file << " was not loaded successfully." << sync_endl;
+      /*  sync_cout << "info string ERROR: NNUE evaluation used, but the network file " << eval_file << " was not loaded successfully." << sync_endl;
         sync_cout << "info string ERROR: The UCI option EvalFile might need to specify the full path, including the directory/folder name, to the file." << sync_endl;
         sync_cout << "info string ERROR: The default net can be downloaded from: https://tests.stockfishchess.org/api/nn/"+std::string(defaults["EvalFile"]) << sync_endl;
         sync_cout << "info string ERROR: If the UCI option Use NNUE is set to true, network evaluation parameters compatible with the program must be available." << sync_endl;
         sync_cout << "info string ERROR: The engine will be terminated now." << sync_endl;
-        std::exit(EXIT_FAILURE);
+        std::exit(EXIT_FAILURE);*/
     }
 
     if (useNNUE)

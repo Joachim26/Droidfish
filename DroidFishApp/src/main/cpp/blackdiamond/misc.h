@@ -1,6 +1,6 @@
 /*
   Honey, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2020 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2021 The Stockfish developers (see AUTHORS file)
 
   Honey is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -163,6 +163,7 @@ namespace WinProcGroup {
        return os << "\033[40m\033[1;92m";  //green
     }
 #ifdef Stockfish
+#ifndef Harmon
   template < class CharT, class Traits >
   constexpr
   std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
@@ -170,7 +171,9 @@ namespace WinProcGroup {
      return os << "\033[40m\033[1;92m";  //green
   }
 #endif
+#endif
 #ifdef Sullivan
+#ifndef Harmon
   template < class CharT, class Traits >
   constexpr
   std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
@@ -178,7 +181,9 @@ namespace WinProcGroup {
      return os << "\033[40m\033[1;93m";  //yellow
   }
 #endif
+#endif
 #ifdef Blau
+#ifndef Harmon
   template < class CharT, class Traits >
   constexpr
   std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
@@ -186,14 +191,8 @@ namespace WinProcGroup {
      return os << "\033[1;106m\033[1;94m";  //blue & cyan
   }
 #endif
-#ifdef Weakfish
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[40m\033[1;97m"; //white
-  }
 #endif
+
 #ifdef Noir
   template < class CharT, class Traits >
   constexpr
@@ -202,6 +201,15 @@ namespace WinProcGroup {
      return os << "\033[1;107m\033[1;90m";  //black
   }
 #endif
+#ifdef Harmon
+  template < class CharT, class Traits >
+  constexpr
+  std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
+  {
+     return os << "\033[37m\033[38;5;200m";
+  }
+#endif
+
   template < class CharT, class Traits >
   constexpr
   std::basic_ostream< CharT, Traits > & blue( std::basic_ostream< CharT, Traits > &os )

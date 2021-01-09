@@ -77,12 +77,12 @@ void init(OptionsMap& o) {
   o["UCI_LimitStrength"]     << Option(false);
   o["UCI_Elo"]               << Option(1350, 1350, 2850);
   o["UCI_ShowWDL"]           << Option(false);
-  o["SyzygyPath"]            << Option("<empty>", on_tb_path);
+  o["SyzygyPath"]            << Option("/storage/emulated/0/DroidFish/rtb/", on_tb_path);
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
-  o["Syzygy50MoveRule"]      << Option(true);
+  o["Syzygy50MoveRule"]      << Option(false);
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
   o["Use NNUE"]              << Option("Hybrid var Classic var Hybrid var Pure", "Hybrid");
-  o["EvalFile"]              << Option(EvalFileDefaultName, on_eval_file);
+  o["EvalFile"]              << Option(EvalFileDefaultPath, on_eval_file);
 }
 
 

@@ -192,6 +192,7 @@ public class NetworkEngine extends UCIEngineBase {
     private int hashMB = -1;
     private String gaviotaTbPath = "";
     private String syzygyPath = "";
+    private String nnuePath = "";
     private boolean optionsInitialized = false;
 
     @Override
@@ -203,6 +204,8 @@ public class NetworkEngine extends UCIEngineBase {
         setOption("SyzygyPath", syzygyPath);
         gaviotaTbPath = engineOptions.getEngineGtbPath(true);
         setOption("GaviotaTbPath", gaviotaTbPath);
+        nnuePath = engineOptions.getEngineNnuePath(true);
+        setOption("NNUEPath", nnuePath);
         optionsInitialized = true;
     }
 
@@ -224,6 +227,8 @@ public class NetworkEngine extends UCIEngineBase {
         if (hasOption("gaviotatbpath") && !gaviotaTbPath.equals(engineOptions.getEngineGtbPath(true)))
             return false;
         if (hasOption("syzygypath") && !syzygyPath.equals(engineOptions.getEngineRtbPath(true)))
+            return false;
+        if (hasOption("nnuepath") && !nnuePath.equals(engineOptions.getEngineNnuePath(true)))
             return false;
         return true;
     }

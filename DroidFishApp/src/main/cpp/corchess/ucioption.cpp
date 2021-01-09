@@ -74,14 +74,14 @@ void init(OptionsMap& o) {
   o["UCI_LimitStrength"]     << Option(false);
   o["UCI_Elo"]               << Option(1350, 1350, 2850);
   o["UCI_ShowWDL"]           << Option(false);
-  o["SyzygyPath"]            << Option("<empty>", on_tb_path);
+  o["SyzygyPath"]            << Option("/storage/emulated/0/DroidFish/rtb/", on_tb_path);
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
-  o["Syzygy50MoveRule"]      << Option(true);
+  o["Syzygy50MoveRule"]      << Option(false);
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
   o["Use NNUE"]              << Option(true, on_use_NNUE);
   // The default must follow the format nn-[SHA256 first 12 digits].nnue
   // for the build process (profile-build and fishtest) to work.
-  o["EvalFile"]              << Option("nn-62ef826d1a6d.nnue", on_eval_file);
+  o["EvalFile"]              << Option(EvalFileDefaultPath, on_eval_file);
 }
 
 

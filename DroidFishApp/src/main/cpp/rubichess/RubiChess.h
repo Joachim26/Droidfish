@@ -50,7 +50,7 @@
 
 #if 1
 #define NNUE
-#define NNUEDEFAULT "./nn-c3ca321c51c9.nnue"
+#define NNUEDEFAULT /storage/emulated/0/Droidfish/nnue/ninu.bin
 #endif
 
 #ifdef FINDMEMORYLEAKS
@@ -1577,20 +1577,20 @@ public:
 #ifdef NNUE
     bool usennue;
     string NnueNetpath;
-    string NnueSha256FromName() {
+    /*string NnueSha256FromName() {
         size_t s2 = NnueNetpath.rfind('-');
         size_t s1 = NnueNetpath.rfind('-', s2 - 1) + 1;
         if (s1 && s2 && s2 - s1 == 10)
             return NnueNetpath.substr(s1, s2 - s1);
         else
             return "<unknown>";
-    }
+    }*/
 #endif
     string name() {
         string sbinary = compinfo->PrintCpuFeatures(compinfo->binarySupports, true);
         string sNnue = "";
 #ifdef NNUE
-        if (NnueReady) sNnue = " NN-" + NnueSha256FromName();
+        if (NnueReady) sNnue = "ninu.bin";
 #endif
         return string(ENGINEVER) + sNnue +  (sbinary != "" ? " (" + sbinary + ")" : "");
     };

@@ -173,7 +173,7 @@ struct Position {
 
   // Pointers to thread-specific tables.
   CounterMoveStat *counterMoves;
-  ButterflyHistory *history;
+  ButterflyHistory *mainHistory;
   LowPlyHistory *lowPlyHistory;
   CapturePieceToHistory *captureHistory;
   PawnEntry *pawnTable;

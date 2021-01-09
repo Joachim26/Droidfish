@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Black Diamond Chess</string>
+    <string name="app_name">Beth Harmon Chess App</string>
     <string name="engine_hash_default">64</string>
     <string name="moves_per_session_default">100</string>
     <string name="time_control_default">100</string>
@@ -55,9 +55,9 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
     <string name="tools_menu">도구</string>
     <string name="load_save_menu">게임 저장/불러오기</string>
     <string name="goto_move">이동으로 가기</string>
-    <string name="limit_strength">Limit Strength</string>
-    <string name="set_engine_strength">Set Engine Strength</string>
-    <string name="engine_cannot_reduce_strength">Engine cannot reduce playing strength</string>
+    <string name="limit_strength">한계 강도</string>
+    <string name="set_engine_strength">엔진 강도 설정</string>
+    <string name="engine_cannot_reduce_strength">엔진은 연주 강도를 줄일 수 없습니다.</string>
     <string name="edit_randomization">랜덤화 편집</string>
     <string name="invalid_number_format">잘못된 숫자 형식</string>
     <string name="side_to_move">이동할 사이드</string>
@@ -195,7 +195,7 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
     <string name="failed_to_read_pgn_data">PGN 데이터 읽기 실패</string>
     <string name="variation">변수:</string>
     <string name="add_analysis">분석 추가</string>
-    <string name="copy_to_clipboard">Copy to Clipboard</string>
+    <string name="copy_to_clipboard">클립 보드에 복사</string>
     <string name="num_variations">변수의 수</string>
     <string name="hide_statistics">통계 숨기기</string>
     <string name="show_statistics">통계 보기</string>
@@ -229,10 +229,13 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
     <string name="bluefish_engine">Bluefish</string>
     <string name="corchess_engine">CorChess</string>
     <string name="cfish_engine">Cfish</string>
+    <string name="crystal_engine">Crystal</string>
+    <string name="harmon_engine">Harmon</string>
     <string name="defenchess_engine">Defenchess 2.2</string>
     <string name="demolito_engine">Demolito 2020-10-09</string>
     <string name="ethereal_engine">Ethereal 2.75</string>
     <string name="glaurung_engine">Glaurung 2.2</string>
+    <string name="wyldchess_engine">WyldChess</string>
     <string name="stockfish_engine">Honey</string>
     <string name="laser_engine">Laser 1.7</string>
     <string name="mojo_engine">Mojo 1.0</string>
@@ -245,7 +248,7 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
     <string name="fruit_engine">Fruit 2.1</string>
     <string name="chess_engine">Senpai 1.0</string>
     <string name="shallowblue_engine">Shallow Blue 2.0</string>
-    <string name="weakfish_engine">Weakfish</string>
+
     <string name="select_engine">엔진 선택</string>
     <string name="engine_options">엔진 옵션</string>
     <string name="set_engine_options">설정된 옵션</string>
@@ -304,6 +307,8 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
     <string name="prefs_engine_settings">엔진 설정</string>
     <string name="prefs_ponderMode_title">숙고하기</string>
     <string name="prefs_ponderMode_summary">상대방의 이동을 기다리는 동안 엔진이 생각하도록 합니다. 대부분의 엔진에 의해 지원됩니다.</string>
+    <string name="prefs_fiftyMoveRule_title">50 이동 규칙</string>
+    <string name="prefs_fiftyMoveRule_summary">50 개의 Move Draw Rule을 활성화합니다. 대부분의 엔진에서 지원됩니다.</string>
     <string name="prefs_hash_title">해시 테이블</string>
     <string name="prefs_hash_summary">해시 테이블 크기(MB)</string>
     <string name="prefs_time_control">시간 컨트롤</string>
@@ -316,7 +321,7 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
     <string name="prefs_autoDelay_title">자동 이동 지연</string>
     <string name="prefs_autoDelay_summary">자동 앞으로/뒤로 모드에서 이동 간 지연</string>
     <string name="prefs_sleepDelay_title">Engine Sleep</string>
-    <string name="prefs_sleepDelay_summary">Engine sleeps a few seconds before making a move — avoids instant move at very fast time controls</string>
+    <string name="prefs_sleepDelay_summary">엔진이 움직이기 전에 몇 초 동안 잠자기 — 매우 빠른 시간 제어에서 즉각적인 움직임 방지</string>
 
     <string name="prefs_hints">힌트</string>
     <string name="prefs_showThinking_title">컴퓨터 생각 보기</string>
@@ -337,8 +342,8 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
     <string name="prefs_autoScrollTitle_summary">플레이어 이름이 너무 길 경우 타이틀바 자동 스크롤</string>
     <string name="prefs_quickMoveInput_title">빠른 이동 입력</string>
     <string name="prefs_quickMoveInput_summary">어떤 순서로든 모든 사각형을 터치할 수 있습니다. 이동은 고유하게 정의된 대로 진행됩니다.</string>
-    <string name="prefs_moveSoundEnabled_title">Move sound</string>
-    <string name="prefs_moveSoundEnabled_summary">Play sound when computer makes a move</string>
+    <string name="prefs_moveSoundEnabled_title">소리 이동</string>
+    <string name="prefs_moveSoundEnabled_summary">컴퓨터가 움직일 때 소리 재생</string>
     <string name="prefs_moveAnnounceType_title">Speak moves</string>
     <string name="prefs_moveAnnounceType_summary">Speak when computer makes a move</string>
     <string name="prefs_vibrateEnabled_title">진동 사용</string>
@@ -474,6 +479,10 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
     <string name="prefs_rtbPath_summary">Syzygy 테이블베이스가 설치되어 있는 디렉토리. 기본 디렉토리를 사용하려면 비워두기</string>
     <string name="prefs_rtbPathNet_title">Syzygy 네트워크 디렉토리</string>
     <string name="prefs_rtbPathNet_summary">네트워크 엔진을 위한 Syzygy 테이블베이스가 설치되어 있는 디렉토리.</string>
+    <string name="prefs_nnuePath_title">NNUE 디렉토리</string>
+    <string name="prefs_nnuePath_summary">NNUE 네트워크가 설치된 디렉토리입니다. 기본 디렉토리를 사용하려면 비워 둡니다.</string>
+    <string name="prefs_nnuePathNet_title">NNUE 네트워크 디렉토리</string>
+    <string name="prefs_nnuePathNet_summary">NNUE 네트워크가 설치된 네트워크 엔진 용 디렉토리입니다.</string>
     <string name="prefs_guideShowOnStart_title">시작 가이드</string>
     <string name="prefs_guideShowOnStart_summary">다음에 프로그램을 시작할 때 시작 가이드 표시</string>
     <string name="tour_leftMenu_title">왼쪽 메뉴</string>
@@ -627,21 +636,23 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
         <item>900000</item>
     </string-array>
     <string-array name="time_increment_texts">
-        <item>0s</item>
-        <item>5ms</item>
-        <item>10ms</item>
-        <item>20ms</item>
-        <item>40ms</item>
-        <item>60ms</item>
-        <item>100ms</item>
-        <item>250ms</item>
-        <item>500ms</item>
-        <item>1s</item>
-        <item>2s</item>
-        <item>3s</item>
-        <item>5s</item>
-        <item>10s</item>
-        <item>15s</item>
+        <item>None</item>
+        <item>5 milliseconds</item>
+        <item>10 milliseconds</item>
+        <item>20 milliseconds</item>
+        <item>40 milliseconds</item>
+        <item>60 milliseconds</item>
+        <item>100 milliseconds</item>
+        <item>250 milliseconds</item>
+        <item>500 milliseconds</item>
+        <item>1 second</item>
+        <item>2 seconds</item>
+        <item>3 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
     </string-array>
     <string-array name="time_increment_values">
         <item>0</item>
@@ -659,17 +670,19 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
         <item>5000</item>
         <item>10000</item>
         <item>15000</item>
+        <item>30000</item>
+        <item>60000</item>
     </string-array>
     <string-array name="autoDelay_texts">
-        <item>0.5s</item>
-        <item>1s</item>
-        <item>2s</item>
-        <item>3s</item>
-        <item>5s</item>
-        <item>10s</item>
-        <item>15s</item>
-        <item>30s</item>
-        <item>60s</item>
+        <item>0.5 second</item>
+        <item>1 seconds</item>
+        <item>2 seconds</item>
+        <item>3 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
     </string-array>
     <string-array name="autoDelay_values">
         <item>500</item>
@@ -696,14 +709,14 @@ DroidFish는 백그라운드에 실행 중인 상태에서 다음과 같이 설�
     </string-array>
     <string-array name="sleepDelay_values">
         <item>0</item>
-        <item>1100</item>
-        <item>2125</item>
-        <item>3150</item>
-        <item>5200</item>
-        <item>10250</item>
-        <item>15300</item>
-        <item>30450</item>
-        <item>60750</item>
+        <item>990</item>
+        <item>1990</item>
+        <item>2990</item>
+        <item>4990</item>
+        <item>9990</item>
+        <item>14990</item>
+        <item>29990</item>
+        <item>59990</item>
     </string-array>
 
     <string-array name="squareSelectType_texts">

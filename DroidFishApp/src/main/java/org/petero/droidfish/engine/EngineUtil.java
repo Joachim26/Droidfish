@@ -148,6 +148,24 @@ public class EngineUtil {
         }
         return abi + "/corchess" + (isSimdSupported() ? "" : "_nosimd");
     }
+    public static String internalCrystalName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/crystal" + (isSimdSupported() ? "" : "_nosimd");
+    }
+    public static String internalWyldChessName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/wyldchess" + (isSimdSupported() ? "" : "_nosimd");
+    }
     public static String internalMojoName() {
         String abi = Build.CPU_ABI;
         if (!"x86".equals(abi) &&
@@ -166,14 +184,14 @@ public class EngineUtil {
         }
         return abi + "/rubichess" + (isSimdSupported() ? "" : "_nosimd");
     }
-    public static String internalWeakfishName() {
+    public static String internalHarmonName() {
         String abi = Build.CPU_ABI;
         if (!"x86".equals(abi) &&
                 !"x86_64".equals(abi) &&
                 !"arm64-v8a".equals(abi)) {
             abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
         }
-        return abi + "/weakfish" + (isSimdSupported() ? "" : "_nosimd");
+        return abi + "/harmon" + (isSimdSupported() ? "" : "_nosimd");
     }
     public static String internalShallowBlueName() {
         String abi = Build.CPU_ABI;

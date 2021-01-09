@@ -229,13 +229,14 @@ public class DroidFish extends Activity
     /** State of WRITE_EXTERNAL_STORAGE permission. */
     private PermissionState storagePermission = PermissionState.UNKNOWN;
 
-    private static String bookDir = "DroidFish/book";
+    private static String bookDir = "Droidfish/book";
     private static String pgnDir = "DroidFish/pgn";
     private static String fenDir = "DroidFish/epd";
     private static String engineDir = "DroidFish/uci";
     private static String engineLogDir = "DroidFish/uci/logs";
     private static String gtbDefaultDir = "DroidFish/gtb";
-    private static String rtbDefaultDir = "DroidFish/rtb";
+    private static String rtbDefaultDir = "Droidfish/rtb";
+    private static String nnueDefaultDir = "Droidfish/nnue";
     private BookOptions bookOptions = new BookOptions();
     private PGNOptions pgnOptions = new PGNOptions();
     private EngineOptions engineOptions = new EngineOptions();
@@ -732,6 +733,7 @@ public class DroidFish extends Activity
         new File(extDir + sep + engineLogDir).mkdirs();
         new File(extDir + sep + gtbDefaultDir).mkdirs();
         new File(extDir + sep + rtbDefaultDir).mkdirs();
+        new File(extDir + sep + nnueDefaultDir).mkdirs();
     }
 
     @Override
@@ -1101,12 +1103,13 @@ public class DroidFish extends Activity
 
         mPonderMode = settings.getBoolean("ponderMode", false);
         if (!mPonderMode)
-            ctrl.stopPonder();
+            ctrl.stopPonder();;
 
         timeControl = getIntSetting("timeControl", 100);
         movesPerSession = getIntSetting("movesPerSession",100);
         timeIncrement = getIntSetting("timeIncrement", 10);
         engineOptions.sleepDelay = getIntSetting("sleepDelay", 3000);
+
 
         autoMoveDelay = getIntSetting("autoDelay", 5000);
 
@@ -1178,6 +1181,11 @@ public class DroidFish extends Activity
             rtbPath = extDir.getAbsolutePath() + sep + rtbDefaultDir;
         engineOptions.rtbPath = rtbPath;
         engineOptions.rtbPathNet = settings.getString("rtbPathNet", "").trim();
+        String nnuePath = settings.getString("nnuePath", "").trim();
+        if (nnuePath.length() == 0)
+            nnuePath = extDir.getAbsolutePath() + sep + nnueDefaultDir;
+        engineOptions.nnuePath = nnuePath;
+        engineOptions.nnuePathNet = settings.getString("nnuePathNet", "").trim();
         engineOptions.workDir = Environment.getExternalStorageDirectory() + sep + engineLogDir;
 
         setEngineOptions(false);
@@ -1866,7 +1874,6 @@ public class DroidFish extends Activity
     public boolean ponderMode() {
         return mPonderMode;
     }
-
     @Override
     public String playerName() {
         return playerName;
@@ -2568,13 +2575,15 @@ public class DroidFish extends Activity
                 "glaurung".equals(name) ||
                 "sf6".equals(name) ||
                 "honey".equals(name) ||
+                "harmon".equals(name) ||
                 "rubichess".equals(name) ||
                 "chess".equals(name) ||
                 "okimaguro".equals(name) ||
                 "corchess".equals(name) ||
+                "crystal".equals(name) ||
+                "wyldchess".equals(name) ||
                 "mojo".equals(name) ||
                 "stockfish".equals(name) ||
-                "weakfish".equals(name) ||
                 "shallowblue".equals(name) ||
                 "laser".equals(name) ||
                 "defenchess".equals(name) ||
@@ -2587,14 +2596,15 @@ public class DroidFish extends Activity
     private Dialog selectEngineDialog(final boolean abortOnCancel) {
         final ArrayList<String> items = new ArrayList<>();
         final ArrayList<String> ids = new ArrayList<>();
-
+        ids.add("harmon"); items.add(getString(R.string.harmon_engine)); //harmon
         ids.add("blackdiamond"); items.add(getString(R.string.blackdiamond_engine));
         ids.add("andscacs"); items.add(getString(R.string.andscacs_engine));
         ids.add("bluefish"); items.add(getString(R.string.bluefish_engine));
         ids.add("cfish"); items.add(getString(R.string.cfish_engine));
+        ids.add("corchess"); items.add(getString(R.string.corchess_engine));
+        ids.add("crystal"); items.add(getString(R.string.crystal_engine));
         ids.add("ct800"); items.add(getString(R.string.ct800_engine));
         ids.add("cuckoochess"); items.add(getString(R.string.cuckoochess_engine));
-        ids.add("corchess"); items.add(getString(R.string.corchess_engine));
         ids.add("defenchess"); items.add(getString(R.string.defenchess_engine));
         ids.add("demolito"); items.add(getString(R.string.demolito_engine));
         ids.add("fruit"); items.add(getString(R.string.fruit_engine));
@@ -2608,8 +2618,8 @@ public class DroidFish extends Activity
         ids.add("chess"); items.add(getString(R.string.chess_engine)); //senpai 1.0
         ids.add("shallowblue"); items.add(getString(R.string.shallowblue_engine));
         ids.add("sf6"); items.add(getString(R.string.sf6_engine));
-        ids.add("weakfish"); items.add(getString(R.string.weakfish_engine));
         ids.add("xiphos"); items.add(getString(R.string.xiphos_engine));
+        ids.add("wyldchess"); items.add(getString(R.string.wyldchess_engine));
 
         if (storageAvailable()) {
             final String sep = File.separator;

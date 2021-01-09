@@ -146,7 +146,7 @@ public class InternalLaser extends ExternalEngine {
      *  It would be inefficient to remove the network file every time
      *  an engine different from Stockfish is used, so this is a static
      *  check performed for all engines. */
-    /*public static boolean keepExeDirFile(File f) {
+    /* public static boolean keepExeDirFile(File f) {
         return defaultNet.equals(f.getName());
     }*/
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Black Diamond Chess</string>
+    <string name="app_name">Beth Harmon Chess App</string>
     <string name="engine_hash_default">64</string>
     <string name="moves_per_session_default">100</string>
     <string name="time_control_default">100</string>
@@ -51,9 +51,9 @@
     <string name="tools_menu">工具</string>
     <string name="load_save_menu">加载/保存对局</string>
     <string name="goto_move">转到着法</string>
-    <string name="limit_strength">Limit Strength</string>
-    <string name="set_engine_strength">Set Engine Strength</string>
-    <string name="engine_cannot_reduce_strength">Engine cannot reduce playing strength</string>
+    <string name="limit_strength">极限强度</string>
+    <string name="set_engine_strength">设定引擎强度</string>
+    <string name="engine_cannot_reduce_strength">引擎无法降低比赛强度</string>
     <string name="edit_randomization">编辑随机性</string>
     <string name="invalid_number_format">编号格式无效</string>
     <string name="side_to_move">轮走棋方</string>
@@ -85,7 +85,7 @@
     <string name="select_pgn_file_save">保存到 PGN 文件</string>
     <string name="select_fen_file">打开 FEN/EPD 文件</string>
     <string name="select_file">选择文件</string>
-    <string name="select_directory">Select directory</string>
+    <string name="select_directory">选择目录</string>
     <string name="pgn_load">加载</string>
     <string name="pgn_save">保存</string>
     <string name="reading_pgn_file">正在读取 PGN 文件&#8230;</string>
@@ -225,10 +225,13 @@
     <string name="bluefish_engine">Bluefish</string>
     <string name="corchess_engine">CorChess</string>
     <string name="cfish_engine">Cfish</string>
+    <string name="crystal_engine">Crystal</string>
+    <string name="harmon_engine">Harmon</string>
     <string name="defenchess_engine">Defenchess 2.2</string>
     <string name="demolito_engine">Demolito 2020-10-09</string>
     <string name="ethereal_engine">Ethereal 2.75</string>
     <string name="glaurung_engine">Glaurung 2.2</string>
+    <string name="wyldchess_engine">WyldChess</string>
     <string name="stockfish_engine">Honey</string>
     <string name="laser_engine">Laser 1.7</string>
     <string name="mojo_engine">Mojo 1.0</string>
@@ -241,7 +244,6 @@
     <string name="fruit_engine">Fruit 2.1</string>
     <string name="chess_engine">Senpai 1.0</string>
     <string name="shallowblue_engine">Shallow Blue 2.0</string>
-    <string name="weakfish_engine">Weakfish</string>
     <string name="select_engine">选择引擎</string>
     <string name="engine_options">引擎选项</string>
     <string name="set_engine_options">设置选项</string>
@@ -300,6 +302,8 @@
     <string name="prefs_engine_settings">引擎设置</string>
     <string name="prefs_ponderMode_title">思考</string>
     <string name="prefs_ponderMode_summary">引擎在等待对手走棋时思考。支持大多数引擎</string>
+    <string name="prefs_fiftyMoveRule_title">50 移动规则</string>
+    <string name="prefs_fiftyMoveRule_summary">启用50移动抽奖规则。 大多数引擎支持。</string>
     <string name="prefs_hash_title">哈希表</string>
     <string name="prefs_hash_summary">哈希表大小，单位: MB</string>
     <string name="prefs_time_control">时间限制</string>
@@ -311,8 +315,8 @@
     <string name="prefs_timeIncrement_summary">每走一步棋补充的思考时间</string>
     <string name="prefs_autoDelay_title">自动走棋延迟</string>
     <string name="prefs_autoDelay_summary">自动前进/后退模式中两步棋之间的延迟</string>
-    <string name="prefs_sleepDelay_title">Engine Sleep</string>
-    <string name="prefs_sleepDelay_summary">Engine sleeps a few seconds before making a move — avoids instant move at very fast time controls</string>
+    <string name="prefs_sleepDelay_title">引擎睡眠</string>
+    <string name="prefs_sleepDelay_summary">发动机在移动之前会休眠几秒钟-避免在非常快速的时间控制下立即移动</string>
 
     <string name="prefs_hints">提示</string>
     <string name="prefs_showThinking_title">显示电脑思考</string>
@@ -350,7 +354,7 @@
     <string name="prefs_scrollSensitivity_summary">对局导航的滚动速度</string>
     <string name="prefs_invertScrollDirection_title">反向滚动</string>
     <string name="prefs_invertScrollDirection_summary">如果认为滚动着法的方向不对，启用该选项</string>
-    <string name="prefs_scrollGames_title">Sweep horizontally loads game</string>
+    <string name="prefs_scrollGames_title">横扫加载游戏</string>
     <string name="prefs_scrollGames_summary">如果启用，在棋盘上左右滑动将加载 下一/上一 对局</string>
     <string name="prefs_autoScrollMoveList_title">自动滚动着法列表</string>
     <string name="prefs_autoScrollMoveList_summary">自动滚动着法列表到当前棋盘局面</string>
@@ -470,6 +474,10 @@
     <string name="prefs_rtbPath_summary">Syzygy 残局库安装目录，留空使用默认目录</string>
     <string name="prefs_rtbPathNet_title">Syzygy 网络目录</string>
     <string name="prefs_rtbPathNet_summary">网络引擎的 Syzygy 残局库安装目录</string>
+    <string name="prefs_nnuePath_title">NNUE目录</string>
+    <string name="prefs_nnuePath_summary">NNUE网络的安装目录。 保留空白以使用默认目录</string>
+    <string name="prefs_nnuePathNet_title">NNUE网络目录</string>
+    <string name="prefs_nnuePathNet_summary">安装NNUE网络的网络引擎的目录。</string>
     <string name="prefs_guideShowOnStart_title">启动指南</string>
     <string name="prefs_guideShowOnStart_summary">下次启动程序时，显示启动指南</string>
     <string name="tour_leftMenu_title">左菜单</string>
@@ -623,21 +631,23 @@
         <item>900000</item>
     </string-array>
     <string-array name="time_increment_texts">
-        <item>0s</item>
-        <item>5ms</item>
-        <item>10ms</item>
-        <item>20ms</item>
-        <item>40ms</item>
-        <item>60ms</item>
-        <item>100ms</item>
-        <item>250ms</item>
-        <item>500ms</item>
-        <item>1s</item>
-        <item>2s</item>
-        <item>3s</item>
-        <item>5s</item>
-        <item>10s</item>
-        <item>15s</item>
+        <item>None</item>
+        <item>5 milliseconds</item>
+        <item>10 milliseconds</item>
+        <item>20 milliseconds</item>
+        <item>40 milliseconds</item>
+        <item>60 milliseconds</item>
+        <item>100 milliseconds</item>
+        <item>250 milliseconds</item>
+        <item>500 milliseconds</item>
+        <item>1 second</item>
+        <item>2 seconds</item>
+        <item>3 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
     </string-array>
     <string-array name="time_increment_values">
         <item>0</item>
@@ -655,17 +665,19 @@
         <item>5000</item>
         <item>10000</item>
         <item>15000</item>
+        <item>30000</item>
+        <item>60000</item>
     </string-array>
     <string-array name="autoDelay_texts">
-        <item>0.5s</item>
-        <item>1s</item>
-        <item>2s</item>
-        <item>3s</item>
-        <item>5s</item>
-        <item>10s</item>
-        <item>15s</item>
-        <item>30s</item>
-        <item>60s</item>
+        <item>0.5 second</item>
+        <item>1 seconds</item>
+        <item>2 seconds</item>
+        <item>3 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
     </string-array>
     <string-array name="autoDelay_values">
         <item>500</item>
@@ -692,14 +704,14 @@
     </string-array>
     <string-array name="sleepDelay_values">
         <item>0</item>
-        <item>1100</item>
-        <item>2125</item>
-        <item>3150</item>
-        <item>5200</item>
-        <item>10250</item>
-        <item>15300</item>
-        <item>30450</item>
-        <item>60750</item>
+        <item>990</item>
+        <item>1990</item>
+        <item>2990</item>
+        <item>4990</item>
+        <item>9990</item>
+        <item>14990</item>
+        <item>29990</item>
+        <item>59990</item>
     </string-array>
 
     <string-array name="squareSelectType_texts">

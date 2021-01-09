@@ -66,12 +66,16 @@ public abstract class UCIEngineBase implements UCIEngine {
             return new InternalOkiMaguro(report, engineOptions.workDir);
         else if ("corchess".equals(engine))
             return new InternalCorchess(report, engineOptions.workDir);
+        else if ("crystal".equals(engine))
+            return new InternalCrystal(report, engineOptions.workDir);
+        else if ("wyldchess".equals(engine))
+            return new InternalWyldChess(report, engineOptions.workDir);
         else if ("mojo".equals(engine))
             return new InternalMojo(report, engineOptions.workDir);
         else if ("rubichess".equals(engine))
             return new InternalRubichess(report, engineOptions.workDir);
-        else if ("weakfish".equals(engine))
-            return new InternalWeakfish(report, engineOptions.workDir);
+        else if ("harmon".equals(engine))
+            return new InternalHarmon(report, engineOptions.workDir);
         else if ("shallowblue".equals(engine))
             return new InternalShallowBlue(report, engineOptions.workDir);
         else if ("xiphos".equals(engine))
@@ -174,7 +178,7 @@ public abstract class UCIEngineBase implements UCIEngine {
             return false;
         } else {
             String[] ignored = { "hash", "ponder", "multipv",
-                                 "gaviotatbpath", "syzygypath" };
+                                 "gaviotatbpath", "syzygypath", "nnuepath" };
             return !Arrays.asList(ignored).contains(name);
         }
     }

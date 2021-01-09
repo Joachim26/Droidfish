@@ -44,6 +44,12 @@
             android:summary="@string/prefs_ponderMode_summary"
             android:defaultValue="false">
         </CheckBoxPreference>
+        <CheckBoxPreference
+            android:key="fiftyMoveRule"
+            android:title="@string/prefs_fiftyMoveRule_title"
+            android:summary="@string/prefs_fiftyMoveRule_summary"
+            android:defaultValue="false">
+        </CheckBoxPreference>
         <ListPreference
             android:key="hashMB"
             android:title="@string/prefs_hash_title"
@@ -739,13 +745,27 @@
                 android:title="@string/prefs_rtbPath_title"
                 android:summary="@string/prefs_rtbPath_summary"
                 pickDirectory="true"
-                defaultPath="DroidFish/rtb"
+                defaultPath="Internal storaage/DroidFish/rtb"
                 android:defaultValue="">
             </org.petero.droidfish.activities.util.EditFilePreference>
             <EditTextPreference
                 android:key="rtbPathNet"
                 android:title="@string/prefs_rtbPathNet_title"
                 android:summary="@string/prefs_rtbPathNet_summary"
+                android:defaultValue="">
+            </EditTextPreference>
+            <org.petero.droidfish.activities.util.EditFilePreference
+                android:key="nnuePath"
+                android:title="@string/prefs_nnuePath_title"
+                android:summary="@string/prefs_nnuePath_summary"
+                pickDirectory="true"
+                defaultPath="/Internal storaage/DroidFish/nnue"
+                android:defaultValue="">
+            </org.petero.droidfish.activities.util.EditFilePreference>
+            <EditTextPreference
+                android:key="nnuePathNet"
+                android:title="@string/prefs_nnuePathNet_title"
+                android:summary="@string/prefs_nnuePathNet_summary"
                 android:defaultValue="">
             </EditTextPreference>
             </PreferenceScreen>

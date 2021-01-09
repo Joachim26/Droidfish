@@ -20,8 +20,9 @@ package org.petero.droidfish;
 
 /** Engine options, including endgame tablebase probing options. */
 public final class EngineOptions {
-    public int hashMB;          // Engine hash table size in MB
-    public int sleepDelay;      //Sleep setting to avoid instant move
+    public int hashMB;            // Engine hash table size in MB
+    public int sleepDelay;        //Sleep setting to avoid instant move
+    public boolean fiftyMoveRule; // toggle 50 move rule off/on
     public boolean unSafeHash;  // True if allocating very large hash is allowed
     public boolean hints;       // Hints when playing/analyzing
     public boolean hintsEdit;   // Hints in "edit board" mode
@@ -31,12 +32,15 @@ public final class EngineOptions {
     String gtbPathNet;          // GTB directory path for network engines
     String rtbPath;             // Syzygy directory path
     String rtbPathNet;          // Syzygy directory path for network engines
+    String nnuePath;             // Syzygy directory path
+    String nnuePathNet;          // Syzygy directory path for network engines
     public String networkID;    // host+port network settings
     public String workDir;      // Working directory for engine process
 
     public EngineOptions() {
         hashMB = 16;
         sleepDelay = 0;
+        fiftyMoveRule = false;
         unSafeHash = false;
         hints = false;
         hintsEdit = false;
@@ -46,6 +50,8 @@ public final class EngineOptions {
         gtbPathNet = "";
         rtbPath = "";
         rtbPathNet = "";
+        nnuePath = "";
+        nnuePathNet = "";
         networkID = "";
         workDir = "";
     }
@@ -53,6 +59,7 @@ public final class EngineOptions {
     public EngineOptions(EngineOptions other) {
         hashMB = other.hashMB;
         sleepDelay = other.sleepDelay;
+        fiftyMoveRule = other.fiftyMoveRule;
         unSafeHash = other.unSafeHash;
         hints = other.hints;
         hintsEdit = other.hintsEdit;
@@ -62,6 +69,8 @@ public final class EngineOptions {
         gtbPathNet = other.gtbPathNet;
         rtbPath = other.rtbPath;
         rtbPathNet = other.rtbPathNet;
+        nnuePath = other.nnuePath;
+        nnuePathNet = other.nnuePathNet;
         networkID = other.networkID;
         workDir = other.workDir;
     }
@@ -80,6 +89,13 @@ public final class EngineOptions {
         return networkEngine ? rtbPathNet : rtbPath;
     }
 
+    /** Get the NNUE path for an engine. */
+    public String getEngineNnuePath(boolean networkEngine) {
+        if (!engineProbe)
+            return "";
+        return networkEngine ? nnuePathNet : nnuePath;
+    }
+
     @Override
     public boolean equals(Object o) {
         if ((o == null) || (o.getClass() != this.getClass()))
@@ -88,6 +104,7 @@ public final class EngineOptions {
 
         return ((hashMB == other.hashMB) &&
                 (sleepDelay == other.sleepDelay) &&
+                (fiftyMoveRule == other.fiftyMoveRule) &&
                 (unSafeHash == other.unSafeHash) &&
                 (hints == other.hints) &&
                 (hintsEdit == other.hintsEdit) &&
@@ -97,6 +114,8 @@ public final class EngineOptions {
                 gtbPathNet.equals(other.gtbPathNet) &&
                 rtbPath.equals(other.rtbPath) &&
                 rtbPathNet.equals(other.rtbPathNet) &&
+                nnuePath.equals(other.nnuePath) &&
+                nnuePathNet.equals(other.nnuePathNet) &&
                 networkID.equals(other.networkID) &&
                 workDir.equals(other.workDir));
     }

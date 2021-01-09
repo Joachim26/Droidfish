@@ -904,9 +904,10 @@ public class DroidComputerPlayer {
      * @param move The move that may have to be made before claiming draw.
      * @return The draw string that claims the draw, or empty string if draw claim not valid.
      */
-    private static String canClaimDraw(Position pos, long[] posHashList, int posHashListSize, Move move) {
+
+    private  String canClaimDraw(Position pos, long[] posHashList, int posHashListSize, Move move) {
         String drawStr = "";
-        if (canClaimDraw50(pos)) {
+        if (canClaimDraw50(pos) && engineOptions.fiftyMoveRule) {
             drawStr = "draw 50";
         } else if (canClaimDrawRep(pos, posHashList, posHashListSize, posHashListSize)) {
             drawStr = "draw rep";
@@ -915,7 +916,7 @@ public class DroidComputerPlayer {
             posHashList[posHashListSize++] = pos.zobristHash();
             UndoInfo ui = new UndoInfo();
             pos.makeMove(move, ui);
-            if (canClaimDraw50(pos)) {
+            if (canClaimDraw50(pos) && engineOptions.fiftyMoveRule) {
                 drawStr = "draw 50 " + strMove;
             } else if (canClaimDrawRep(pos, posHashList, posHashListSize, posHashListSize)) {
                 drawStr = "draw rep " + strMove;
@@ -926,7 +927,7 @@ public class DroidComputerPlayer {
     }
 
     private static boolean canClaimDraw50(Position pos) {
-        return (pos.halfMoveClock >= 100);
+        return (pos.halfMoveClock >= 1500);
     }
 
     private static boolean canClaimDrawRep(Position pos, long[] posHashList, int posHashListSize, int posHashFirstNew) {

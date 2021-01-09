@@ -1,6 +1,6 @@
 /*
   Honey, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2020 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2021 The Stockfish developers (see AUTHORS file)
 
   Honey is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -185,17 +185,17 @@ enum Value : int {
   VALUE_MATED_IN_MAX_PLY = -VALUE_MATE_IN_MAX_PLY,
 
 //Code idea below by Ed Schröder
-#if defined (Weakfish)
-  #define PVM 80/100
-  #define PVE 80/100
-  #define NVM 70/100
-  #define NVE 70/100
-  #define BVM 60/100
-  #define BVE 60/100
-  #define RVM 50/100
-  #define RVE 50/100
-  #define QVM 40/100
-  #define QVE 40/100
+#ifdef Harmon
+#define PVM 130/100
+#define PVE 130/100
+#define NVM 130/100
+#define NVE 130/100
+#define BVM 130/100
+#define BVE 130/100
+#define RVM 130/100
+#define RVE 130/100
+#define QVM 130/100
+#define QVE 130/100
 
 
 #elif (defined Blau)
@@ -236,7 +236,7 @@ enum Value : int {
 
 #endif
 
-  PawnValueMg   = 124*PVM,   PawnValueEg   = 208*PVE,
+  PawnValueMg   = 126*PVM,   PawnValueEg   = 208*PVE,
   KnightValueMg = 781*NVM,   KnightValueEg = 854*NVE,
   BishopValueMg = 825*BVM,   BishopValueEg = 915*BVE,
   RookValueMg   = 1276*RVM,  RookValueEg   = 1380*RVE,
@@ -259,8 +259,8 @@ enum PieceType {
 
 enum Piece {
   NO_PIECE,
-  W_PAWN = PAWN,     W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
-  B_PAWN = PAWN + 8, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING,
+  W_PAWN = 1, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
+  B_PAWN = 9, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING,
   PIECE_NB = 16
 };
 

@@ -127,7 +127,7 @@ static const Score BishopPawns[8] = {
 };
 
 static const Score RookOnClosedFile = S(10, 5);
-static const Score RookOnOpenFile[2] = { S(19, 7), S(48, 27) };
+static const Score RookOnOpenFile[2] = { S(19, 6), S(47, 26) };
 
 // ThreatByMinor/ByRook[attacked PieceType] contains bonuses according to
 // which piece type attacks which one. Attacks on lesser pieces which are
@@ -144,8 +144,8 @@ static const Score ThreatByRook[8] = {
 // pawns. We don't use a Score because we process the two components
 // independently.
 static const Value PassedRank[2][8] = {
-  { V(0), V( 9), V(15), V(17), V(64), V(171), V(277) },
-  { V(0), V(28), V(31), V(39), V(70), V(177), V(260) }
+  { V(0), V( 7), V(16), V(17), V(64), V(170), V(278) },
+  { V(0), V(27), V(32), V(40), V(71), V(174), V(262) }
 };
 
 // PassedFile[File] contains a bonus according to the file of a passed pawn
@@ -428,7 +428,7 @@ INLINE Score evaluate_king(const Position *pos, EvalInfo *ei, Score *mobility,
   int kingFlankDefense = popcount(b3);
 
   kingDanger +=  ei->kingAttackersCount[Them] * ei->kingAttackersWeight[Them]
-               + 185 * popcount(ei->kingRing[Us] & weak)
+               + 183 * popcount(ei->kingRing[Us] & weak)
                + 148 * popcount(unsafeChecks)
                +  98 * popcount(blockers_for_king(pos, Us))
                +  69 * ei->kingAttacksCount[Them]
@@ -617,11 +617,11 @@ INLINE Score evaluate_passed(const Position *pos, EvalInfo *ei, const Color Us)
         bb = forward_file_bb(Them, s) & pieces_pp(ROOK, QUEEN);
 
         if (!(pieces_c(Them) & bb))
-          unsafeSquares &= ei->attackedBy[Them][0];
+          unsafeSquares &= ei->attackedBy[Them][0] | pieces_c(Them);
 
-        // If there are no enemy attacks on passed pawn span, assign a big
-        // bonus. Otherwise, assign a smaller bonus if the path to queen is
-        // not attacked and an even smaller bonus if it is attacked but
+        // If there are no enemy pieces or attacks on passed pawn span, assign
+        // a big bonus. Otherwise, assign a smaller bonus if the path to queen
+        // is not attacked and an even smaller bonus if it is attacked but
         // block square is not.
         int k =  !unsafeSquares                    ? 35
                : !(unsafeSquares & squaresToQueen) ? 20
@@ -850,8 +850,8 @@ Value evaluate(const Position *pos)
 
 #ifdef NNUE
 
+  const int mat = non_pawn_material() + PawnValueMg * popcount(pieces_p(PAWN));
   if (useNNUE == EVAL_HYBRID) {
-    const int mat = non_pawn_material() + PawnValueMg * popcount(pieces_p(PAWN));
     Value psq = abs(eg_value(psq_score()));
     int r50 = 16 + rule50_count();
     bool largePsq = psq * 16 > (NNUEThreshold1 + non_pawn_material() / 64) * r50;
@@ -870,7 +870,7 @@ Value evaluate(const Position *pos)
       v = nnue_evaluate(pos) * (679 + mat / 32) / 1024 + Tempo;
 
   } else if (useNNUE == EVAL_PURE)
-    v = nnue_evaluate(pos) * 5 / 4 + Tempo;
+    v = nnue_evaluate(pos) * (679 + mat / 32) / 1024 + Tempo;
   else
     v = evaluate_classical(pos);
 
@@ -893,7 +893,7 @@ Value evaluate(const Position *pos)
   Value v;
   int mat = non_pawn_material() + PieceValue[MG][PAWN] * popcount(pieces_p(PAWN));
 
-  v = nnue_evaluate(pos) * (720 + mat / 32) / 1024 + Tempo;
+  v = nnue_evaluate(pos) * (679 + mat / 32) / 1024 + Tempo;
   v = v * (100 - rule50_count()) / 100;
   return clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 }

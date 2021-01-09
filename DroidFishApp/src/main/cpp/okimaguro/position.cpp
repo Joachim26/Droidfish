@@ -1,6 +1,6 @@
 /*
   Honey, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2020 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2021 The Stockfish developers (see AUTHORS file)
 
   Honey is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -196,6 +196,7 @@ Position& Position::set(const string& fenStr, bool isChess960, StateInfo* si, Th
 
   std::memset(this, 0, sizeof(Position));
   std::memset(si, 0, sizeof(StateInfo));
+  std::fill_n(&pieceList[0][0], sizeof(pieceList) / sizeof(Square), SQ_NONE);
   st = si;
 
   ss >> std::noskipws;
@@ -1330,9 +1331,15 @@ bool Position::pos_is_ok() const {
       assert(0 && "pos_is_ok: State");
 
   for (Piece pc : Pieces)
+  {
       if (   pieceCount[pc] != popcount(pieces(color_of(pc), type_of(pc)))
           || pieceCount[pc] != std::count(board, board + SQUARE_NB, pc))
           assert(0 && "pos_is_ok: Pieces");
+
+      for (int i = 0; i < pieceCount[pc]; ++i)
+          if (board[pieceList[pc][i]] != pc || index[pieceList[pc][i]] != i)
+              assert(0 && "pos_is_ok: Index");
+  }
 
   for (Color c : { WHITE, BLACK })
       for (CastlingRights cr : {c & KING_SIDE, c & QUEEN_SIDE})
@@ -1369,7 +1376,6 @@ bool Position::is_scb(Color Us) const {
 #endif
 
 #ifndef Stockfish
-#ifndef Weakfish
 bool Position::king_danger() const {
 
     Square ksq = square<KING>(sideToMove);
@@ -1405,5 +1411,4 @@ bool Position::king_danger() const {
 
     return false;
 }
-#endif
 #endif

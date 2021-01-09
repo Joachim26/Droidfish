@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Black Diamond Chess</string>
+    <string name="app_name">Beth Harmon Chess App</string>
     <string name="engine_hash_default">64</string>
     <string name="moves_per_session_default">100</string>
     <string name="time_control_default">100</string>
@@ -51,9 +51,9 @@
     <string name="tools_menu">Прылады</string>
     <string name="load_save_menu">Загрузіць/Захаваць партыю</string>
     <string name="goto_move">Зрабіць ход</string>
-    <string name="limit_strength">Limit Strength</string>
-    <string name="set_engine_strength">Set Engine Strength</string>
-    <string name="engine_cannot_reduce_strength">Engine cannot reduce playing strength</string>
+    <string name="limit_strength">Гранічная трываласць</string>
+    <string name="set_engine_strength">Усталюйце трываласць рухавіка</string>
+    <string name="engine_cannot_reduce_strength">Рухавік не можа знізіць гульнявую сілу</string>
     <string name="edit_randomization">Змяніць рандамізацыю (выпадковасць)</string>
     <string name="invalid_number_format">Няправільны фармат ліку</string>
     <string name="side_to_move">Задаць кірунак ходу</string>
@@ -84,8 +84,8 @@
     <string name="select_pgn_file">Адкрыць PGN-файл</string>
     <string name="select_pgn_file_save">Захаваць у PGN-файле</string>
     <string name="select_fen_file">Адкрыць FEN/EPD-файл</string>
-    <string name="select_file">Select file</string>
-    <string name="select_directory">Select directory</string>
+    <string name="select_file">Выберыце файл</string>
+    <string name="select_directory">Выберыце каталог</string>
     <string name="pgn_load">Загрузіць</string>
     <string name="pgn_save">Захаваць</string>
     <string name="reading_pgn_file">Чытанне PGN файла&#8230;</string>
@@ -191,7 +191,7 @@
     <string name="failed_to_read_pgn_data">Не атрымалася прачытаць pgn дадзеныя</string>
     <string name="variation">Змена:</string>
     <string name="add_analysis">Дадаць аналіз</string>
-    <string name="copy_to_clipboard">Copy to Clipboard</string>
+    <string name="copy_to_clipboard">Скапіруйце ў буфер абмену</string>
     <string name="num_variations">Колькасць варыяцый</string>
     <string name="hide_statistics">Схаваць статыстыку</string>
     <string name="show_statistics">Паказаць статыстыку</string>
@@ -225,10 +225,13 @@
     <string name="bluefish_engine">Bluefish</string>
     <string name="corchess_engine">CorChess</string>
     <string name="cfish_engine">Cfish</string>
+    <string name="crystal_engine">Crystal</string>
+    <string name="harmon_engine">Harmon</string>
     <string name="defenchess_engine">Defenchess 2.2</string>
     <string name="demolito_engine">Demolito 2020-10-09</string>
     <string name="ethereal_engine">Ethereal 2.75</string>
     <string name="glaurung_engine">Glaurung 2.2</string>
+    <string name="wyldchess_engine">WyldChess</string>
     <string name="stockfish_engine">Honey</string>
     <string name="laser_engine">Laser 1.7</string>
     <string name="mojo_engine">Mojo 1.0</string>
@@ -241,76 +244,77 @@
     <string name="fruit_engine">Fruit 2.1</string>
     <string name="chess_engine">Senpai 1.0</string>
     <string name="shallowblue_engine">Shallow Blue 2.0</string>
-    <string name="weakfish_engine">Weakfish</string>
-    <string name="select_engine">Выбраць рухавічок</string>
-    <string name="engine_options">Параметры рухавічка</string>
-    <string name="set_engine_options">Параметры SET</string>
-    <string name="configure_network_engine">Налада сеткавага рухавічка</string>
-    <string name="create_network_engine">Стварыць сеткавы рухавічок</string>
-    <string name="delete_network_engine">Выдаліць сеткавы рухавічок?</string>
-    <string name="host_name">Імя хаста</string>
-    <string name="network_port">Порт</string>
-    <string name="network_engine">Сеткавы рухавічок</string>
-    <string name="failed_to_start_engine">Не атрымалася запусціць рухавічок</string>
-    <string name="tts_failed_to_init">Не атрымалася ператварыць тэкст у маўленне</string>
-    <string name="tts_data_missing">Тэкст для ператварэння ў маўленне адсутнічае</string>
-    <string name="tts_not_supported_for_lang">Тэкст для ператварэння ў маўленне не падтрымваецца для гэтай мовы</string>
-    <string name="engine_terminated">Праца рухавічка спынена</string>
-    <string name="uci_protocol_error">Абмыла UCI пратакола</string>
-    <string name="network_engine_config_error">Абмыла канфігурацыі сеткавага рухавічка</string>
-    <string name="invalid_network_port">Недапушчальны сеткавы порт</string>
-    <string name="start_new_game">Пачаць новую партыю?</string>
-    <string name="strength_cuckoo_hint">Скарыстаць рухавічок CuckooChess для найменшага роўня складанасці.</string>
-    <string name="piece_names">П К А Л Ф Кр</string>
-    <string name="highlight_last_move_title">Падсвятляць апошні ход</string>
-    <string name="highlight_last_move_summary">Намаляваць прастакутнік вакол апошняй перасунутай фігуры</string>
-    <string name="material_diff_title">Паказаць істотнае адрозненне</string>
-    <string name="material_diff_summary">Адлюстроўваць дадатковыя субтытры для збітых фігур</string>
-    <string name="err_too_few_spaces">Занадта малая прастора</string>
-    <string name="err_invalid_piece">Няслушная фігура</string>
-    <string name="err_invalid_side">Няслушнае месцазнаходжанне</string>
-    <string name="err_invalid_castling_flags">Няправільная пазнака ракіроўкі</string>
-    <string name="err_invalid_en_passant_square">Няправільная клетка для ўзяцця на праходзе</string>
-    <string name="err_white_num_kings">У белых павінен быць толькі адзін кароль</string>
-    <string name="err_black_num_kings">У чорных павінен быць толькі адзін кароль</string>
-    <string name="err_king_capture_possible">Магчымая пагроза каралю</string>
-    <string name="err_too_many_rows">Зашмат шэрагаў</string>
-    <string name="err_too_many_columns">Зашмат слупкоў</string>
-    <string name="err_pawn_on_first_last_rank">Пешка ў першым/апошнім шэрагу</string>
-    <string name="err_too_many_white_pieces">Зашмат белых фігур</string>
-    <string name="err_too_many_black_pieces">Зашмат чорных фігур</string>
-    <string name="option_new_game">Новая партыя</string>
-    <string name="option_file">Файл</string>
-    <string name="option_resign_game">Здацца</string>
-    <string name="option_edit_board">Рэдагаваць дошку</string>
-    <string name="option_settings">Налады</string>
-    <string name="option_force_computer_move">Фарсіраваць ход кампутара</string>
-    <string name="option_draw">Заявіць/Запрапанаваць/Прыняць нічыю</string>
-    <string name="option_select_book">Выбраць адкрываную кнігу</string>
-    <string name="option_manage_engines">Кіраванне шахматнымі рухавічкамі</string>
-    <string name="option_color_theme">Усталяваць колеравую тэму</string>
-    <string name="option_about">Інфармацыя / Дапамога</string>
-    <string name="prefs_playing_options">Опцыі партыі</string>
-    <string name="prefs_playerName_title">Імя гульца</string>
-    <string name="prefs_playerName_summary">Імя гульца ў новай гульні па змаўчанні</string>
-    <string name="prefs_autoSwapSides_title">Паварочваць дошку: аўтаматычна</string>
-    <string name="prefs_autoSwapSides_summary">Скарыстаць бок для аўтаматычнага павароту дошкі</string>
-    <string name="prefs_playerNameFlip_title">Паварочваць дошку: гулец</string>
-    <string name="prefs_playerNameFlip_summary">Скарыстаць імя гульца для аўтаматычнага павароту дошкі</string>
-    <string name="prefs_engine_settings">Налады рухавічка</string>
-    <string name="prefs_ponderMode_title">Разважанне</string>
-    <string name="prefs_ponderMode_summary">Дазволіць рухавічку абдумванне падчас чакання ходу апанента. Падтрымваецца большасцю рухавічкоў.</string>
-    <string name="prefs_hash_title">Хэш-табліца</string>
-    <string name="prefs_hash_summary">Памер хэш-табліцы ў мегабайтах</string>
-    <string name="prefs_time_control">Кантроль часу</string>
-    <string name="prefs_movesPerSession_title">Хады</string>
-    <string name="prefs_movesPerSession_summary">Колькасць хадоў паміж адсечкамі часу</string>
-    <string name="prefs_timeControl_title">Час</string>
-    <string name="prefs_timeControl_summary">Максімальны час для разважання паміж адсечкамі</string>
-    <string name="prefs_timeIncrement_title">Павелічэнне</string>
-    <string name="prefs_timeIncrement_summary">Дададзены час разважання для кожнага ходу</string>
-    <string name="prefs_autoDelay_title">Аўтаматычнае перасоўванне затрымкі</string>
-    <string name="prefs_autoDelay_summary">Затрымка паміж хадамі рухаецца ў аўтаматычным рэжыме наперад/назад</string>
+    <string name="select_engine">Select Engine</string>
+    <string name="engine_options">Engine Options</string>
+    <string name="set_engine_options">Set options</string>
+    <string name="configure_network_engine">Configure Network Engine</string>
+    <string name="create_network_engine">Create Network Engine</string>
+    <string name="delete_network_engine">Delete Network Engine?</string>
+    <string name="host_name">Host name</string>
+    <string name="network_port">Port</string>
+    <string name="network_engine">Network Engine</string>
+    <string name="failed_to_start_engine">Failed to start engine</string>
+    <string name="tts_failed_to_init">Failed to initialize text to speech</string>
+    <string name="tts_data_missing">Text to speech data missing</string>
+    <string name="tts_not_supported_for_lang">Text to speech not supported for this language</string>
+    <string name="engine_terminated">Engine terminated</string>
+    <string name="uci_protocol_error">UCI protocol error</string>
+    <string name="network_engine_config_error">Network engine configuration error</string>
+    <string name="invalid_network_port">Invalid network port</string>
+    <string name="start_new_game">Start New Game?</string>
+    <string name="strength_cuckoo_hint">Use the CuckooChess engine for even lower strength.</string>
+    <string name="piece_names">P N B R Q K</string>
+    <string name="highlight_last_move_title">Highlight last move</string>
+    <string name="highlight_last_move_summary">Draw rectangle around last moved piece</string>
+    <string name="material_diff_title">Show Material Difference</string>
+    <string name="material_diff_summary">Displays an additional subtitle for captured pieces</string>
+    <string name="err_too_few_spaces">Too few spaces</string>
+    <string name="err_invalid_piece">Invalid piece</string>
+    <string name="err_invalid_side">Invalid side</string>
+    <string name="err_invalid_castling_flags">Invalid castling flags</string>
+    <string name="err_invalid_en_passant_square">Invalid en passant square</string>
+    <string name="err_white_num_kings">White must have exactly one king</string>
+    <string name="err_black_num_kings">Black must have exactly one king</string>
+    <string name="err_king_capture_possible">King capture possible</string>
+    <string name="err_too_many_rows">Too many rows</string>
+    <string name="err_too_many_columns">Too many columns</string>
+    <string name="err_pawn_on_first_last_rank">Pawn on first/last rank</string>
+    <string name="err_too_many_white_pieces">Too many white pieces</string>
+    <string name="err_too_many_black_pieces">Too many black pieces</string>
+    <string name="option_new_game">New Game</string>
+    <string name="option_file">File</string>
+    <string name="option_resign_game">Resign game</string>
+    <string name="option_edit_board">Edit Board</string>
+    <string name="option_settings">Settings</string>
+    <string name="option_force_computer_move">Force Computer Move</string>
+    <string name="option_draw">Claim/Offer/Accept Draw</string>
+    <string name="option_select_book">Select Opening Book</string>
+    <string name="option_manage_engines">Manage Chess Engines</string>
+    <string name="option_color_theme">Set Color Theme</string>
+    <string name="option_about">About / Help</string>
+    <string name="prefs_playing_options">Playing Options</string>
+    <string name="prefs_playerName_title">Player Name</string>
+    <string name="prefs_playerName_summary">Default player name in new games</string>
+    <string name="prefs_autoSwapSides_title">Flip Board: Auto</string>
+    <string name="prefs_autoSwapSides_summary">Use side to move to flip board automatically</string>
+    <string name="prefs_playerNameFlip_title">Flip Board: Player</string>
+    <string name="prefs_playerNameFlip_summary">Use Player Name to flip board automatically</string>
+    <string name="prefs_engine_settings">Engine Settings</string>
+    <string name="prefs_ponderMode_title">Pondering</string>
+    <string name="prefs_ponderMode_summary">Let engine think while waiting for opponent\'s move. Supported by most engines.</string>
+    <string name="prefs_fiftyMoveRule_title">50 Правіла перамяшчэння</string>
+    <string name="prefs_fiftyMoveRule_summary">Уключыце правіла 50 малявання. Падтрымліваецца большасцю рухавікоў.</string>
+    <string name="prefs_hash_title">Hash Table</string>
+    <string name="prefs_hash_summary">Hash table size in megabytes</string>
+    <string name="prefs_time_control">Time Control</string>
+    <string name="prefs_movesPerSession_title">Moves</string>
+    <string name="prefs_movesPerSession_summary">Number of moves between time controls</string>
+    <string name="prefs_timeControl_title">Time</string>
+    <string name="prefs_timeControl_summary">Maximum thinking time between time controls</string>
+    <string name="prefs_timeIncrement_title">Increment</string>
+    <string name="prefs_timeIncrement_summary">Extra thinking time for each completed move</string>
+    <string name="prefs_autoDelay_title">Auto Move Delay</string>
+    <string name="prefs_autoDelay_summary">Delay between moves in automatic forward/backward mode</string>
     <string name="prefs_sleepDelay_title">Engine Sleep</string>
     <string name="prefs_sleepDelay_summary">Engine sleeps a few seconds before making a move — avoids instant move at very fast time controls</string>
     <string name="prefs_hints">Падказкі</string>
@@ -469,6 +473,10 @@
     <string name="prefs_rtbPath_summary">Дырэкторыя, дзе ўсталявана база дадзеных Гавіёты. Пакінуць пустой для выкарыстання дырэкторыі па змаўчанні</string>
     <string name="prefs_rtbPathNet_title">Сеткавы каталог Syzygy</string>
     <string name="prefs_rtbPathNet_summary">Каталог для сеткавых рухавічкоў, дзе ўсталяваны базы дадзеных Syzygy.</string>
+    <string name="prefs_nnuePath_title">Каталог NNUE</string>
+    <string name="prefs_nnuePath_summary">Каталог, дзе ўстаноўлены сеткі NNUE. Пакіньце пустым, каб выкарыстоўваць дырэктар па змаўчанніy</string>
+    <string name="prefs_nnuePathNet_title">Каталог сеткі NNUE</string>
+    <string name="prefs_nnuePathNet_summary">Каталог сеткавых рухавікоў, дзе ўстаноўлены сеткі NNUE.</string>
     <string name="prefs_guideShowOnStart_title">Кіраўніцтва па запуску</string>
     <string name="prefs_guideShowOnStart_summary">Паказаць пачатковае кіраўніцтва ў наступны раз, калі праграма будзе запушчана.</string>
     <string name="tour_leftMenu_title">Левае меню</string>
@@ -622,21 +630,23 @@
         <item>900000</item>
     </string-array>
     <string-array name="time_increment_texts">
-        <item>0s</item>
-        <item>5ms</item>
-        <item>10ms</item>
-        <item>20ms</item>
-        <item>40ms</item>
-        <item>60ms</item>
-        <item>100ms</item>
-        <item>250ms</item>
-        <item>500ms</item>
-        <item>1s</item>
-        <item>2s</item>
-        <item>3s</item>
-        <item>5s</item>
-        <item>10s</item>
-        <item>15s</item>
+        <item>None</item>
+        <item>5 milliseconds</item>
+        <item>10 milliseconds</item>
+        <item>20 milliseconds</item>
+        <item>40 milliseconds</item>
+        <item>60 milliseconds</item>
+        <item>100 milliseconds</item>
+        <item>250 milliseconds</item>
+        <item>500 milliseconds</item>
+        <item>1 second</item>
+        <item>2 seconds</item>
+        <item>3 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
     </string-array>
     <string-array name="time_increment_values">
         <item>0</item>
@@ -654,17 +664,19 @@
         <item>5000</item>
         <item>10000</item>
         <item>15000</item>
+        <item>30000</item>
+        <item>60000</item>
     </string-array>
     <string-array name="autoDelay_texts">
-        <item>0.5s</item>
-        <item>1s</item>
-        <item>2s</item>
-        <item>3s</item>
-        <item>5s</item>
-        <item>10s</item>
-        <item>15s</item>
-        <item>30s</item>
-        <item>60s</item>
+        <item>0.5 second</item>
+        <item>1 seconds</item>
+        <item>2 seconds</item>
+        <item>3 seconds</item>
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
     </string-array>
     <string-array name="autoDelay_values">
         <item>500</item>
@@ -691,14 +703,14 @@
     </string-array>
     <string-array name="sleepDelay_values">
         <item>0</item>
-        <item>1100</item>
-        <item>2125</item>
-        <item>3150</item>
-        <item>5200</item>
-        <item>10250</item>
-        <item>15300</item>
-        <item>30450</item>
-        <item>60750</item>
+        <item>990</item>
+        <item>1990</item>
+        <item>2990</item>
+        <item>4990</item>
+        <item>9990</item>
+        <item>14990</item>
+        <item>29990</item>
+        <item>59990</item>
     </string-array>
 
     <string-array name="squareSelectType_texts">

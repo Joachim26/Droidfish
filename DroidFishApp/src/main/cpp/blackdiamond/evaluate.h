@@ -1,6 +1,6 @@
 /*
   Honey, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2020 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2021 The Stockfish developers (see AUTHORS file)
 
   Honey is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,10 @@
 
 class Position;
 
+
+
+
+
 namespace Eval {
 
   std::string trace(const Position& pos);
@@ -36,8 +40,13 @@ namespace Eval {
   // The default net name MUST follow the format nn-[SHA256 first 12 digits].nnue
   // for the build process (profile-build and fishtest) to work. Do not change the
   // name of the macro, as it is used in the Makefile.
-  #define EvalFileDefaultName     "nn-62ef826d1a6d.nnue"
-  #define SHA256NET   "nn-62ef826d1a6d.nnue"
+
+
+  #define EvalFileDefaultName   "ninu.bin"
+
+  #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/ninu.bin"
+
+  #define SHA256NET   "nn-62ef826d1a6d.nnue" // eval.bin
 
   namespace NNUE {
 
