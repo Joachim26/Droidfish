@@ -131,7 +131,7 @@ static Option optionsMap[] = {
 #ifdef NNUE
   { "EvalFile", OPT_TYPE_STRING, 0, 0, 0, EvalFileDefaultPath, NULL, 0, NULL },
 #ifndef NNUE_PURE
-  { "Use NNUE", OPT_TYPE_COMBO, 0, 0, 0,
+  { "UseNN", OPT_TYPE_COMBO, 0, 0, 0,
     "Hybrid var Hybrid var Pure var Classical", NULL, 0, NULL },
 #endif
 #endif

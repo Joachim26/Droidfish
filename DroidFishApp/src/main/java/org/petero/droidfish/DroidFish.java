@@ -2569,6 +2569,7 @@ public class DroidFish extends Activity
                 "blackdiamond".equals(name) ||
                 "bluefish".equals(name) ||
                 "cfish".equals(name) ||
+                "ditto".equals(name) ||
                 "ethereal".equals(name) ||
                 "cuckoochess".equals(name) ||
                 "fruit".equals(name) ||
@@ -2597,14 +2598,15 @@ public class DroidFish extends Activity
         final ArrayList<String> items = new ArrayList<>();
         final ArrayList<String> ids = new ArrayList<>();
         ids.add("harmon"); items.add(getString(R.string.harmon_engine)); //harmon
-        ids.add("blackdiamond"); items.add(getString(R.string.blackdiamond_engine));
         ids.add("andscacs"); items.add(getString(R.string.andscacs_engine));
+        ids.add("blackdiamond"); items.add(getString(R.string.blackdiamond_engine));
         ids.add("bluefish"); items.add(getString(R.string.bluefish_engine));
         ids.add("cfish"); items.add(getString(R.string.cfish_engine));
         ids.add("corchess"); items.add(getString(R.string.corchess_engine));
         ids.add("crystal"); items.add(getString(R.string.crystal_engine));
         ids.add("ct800"); items.add(getString(R.string.ct800_engine));
         ids.add("cuckoochess"); items.add(getString(R.string.cuckoochess_engine));
+        ids.add("ditto"); items.add(getString(R.string.ditto_engine));
         ids.add("defenchess"); items.add(getString(R.string.defenchess_engine));
         ids.add("demolito"); items.add(getString(R.string.demolito_engine));
         ids.add("fruit"); items.add(getString(R.string.fruit_engine));

@@ -28,20 +28,21 @@ ifeq ($(KERNEL),Linux)
 endif
 
 ### Executable name
-EXE = cfish
+EXE = ditto
 
 ### Installation dir definitions
 PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 
 ### Built-in benchmark for pgo-builds
-PGOBENCH = ./$(EXE) bench 16 1 15 default depth nnue
+PGOBENCH = ./$(EXE) bench 16 1 16 default depth nnue
+PGOBENCH2 = ./$(EXE) bench 16 2 13 default depth nnue
 
 ### Object files
 OBJS = benchmark.o bitbase.o bitboard.o endgame.o evaluate.o main.o \
 	material.o misc.o movegen.o movepick.o pawns.o position.o psqt.o \
 	search.o tbprobe.o thread.o timeman.o tt.o uci.o ucioption.o \
-        numa.o settings.o polybook.o
+        settings.o polybook.o
 
 ### ==========================================================================
 ### Section 2. High-level Configuration
@@ -85,14 +86,14 @@ endif
 
 nnue = yes
 pure = no
-sparse = yes
+sparse = no
 optimize = yes
 lto = no
 debug = no
 sanitize = no
-numa = yes
+numa = no
 bits = 64
-prefetch = no
+makprefetch = no
 popcnt = no
 pext = no
 sse = no
@@ -149,17 +150,19 @@ ifeq ($(x86),yes)
 		arch = x86_64
 		bits = 64
 	endif
-#	ifneq ($(findstring __AVX512__,$(props)),)
-#		avx512 = yes
-#	endif
+	ifneq ($(findstring __AVX512__,$(props)),)
+		avx512 = yes
+	endif
 	ifneq ($(findstring __VNNI__,$(props)),)
 		vnni = yes
 	endif
 	ifeq ($(bits),64)
 	ifneq ($(findstring __BMI2__,$(props)),)
-	# Let's not use pext on Zen
-	ifeq ($(findstring __znver,$(props)),)
+	# Let's not use pext on Zen 1 and Zen 2
+	ifeq ($(findstring __znver1,$(props)),)
+	ifeq ($(findstring __znver2,$(props)),)
 		pext = yes
+	endif
 	endif
 	endif
 	endif
@@ -391,8 +394,8 @@ endif
 
 ### 3.1 Selecting compiler (default = gcc)
 
-CFLAGS += -Wall -std=c11 $(EXTRACFLAGS)
-DEPENDFLAGS += -std=c11
+CFLAGS += -Wall -std=c17 $(EXTRACFLAGS)
+DEPENDFLAGS += -std=c17
 LDFLAGS += $(EXTRALDFLAGS) -lm
 
 ifeq ($(COMP),)
@@ -403,11 +406,19 @@ ifeq ($(COMP),gcc)
 	comp=gcc
 	CC=gcc
 	CFLAGS += -pedantic -Wextra -Wshadow
-	ifeq ($(ARCH),$(filter $(ARCH),armv7 armv8))
+	ifeq ($(ARCH),armv7)
+	CFLAGS += -mcpu=native -mfloat-abi=hard -mfpu=neon-fp-armv8 -mneon-for-64bits -mtune=native
+	endif
+	ifeq ($(ARCH),armv7)
 		ifeq ($(OS),Android)
 			CFLAGS += -m$(bits)
 			LDFLAGS += -m$(bits)
 		endif
+	else ifeq ($(ARCH),armv8)
+	  ifeq ($(OS),Android)
+		  CFLAGS += -m$(bits)
+		  LDFLAGS += -m$(bits)
+	  endif
 	else
 		CFLAGS += -m$(bits)
 		LDFLAGS += -m$(bits)
@@ -421,14 +432,14 @@ ifeq ($(COMP),gcc)
 		LDFLAGS += -Wl,--no-as-needed
 	endif
 
-	ifneq ($(KERNEL),$(filter $(KERNEL),Linux Darwin Haiku))
+	ifneq ($(KERNEL),$(filter $(KERNEL),Linux Haiku))
 		CFLAGS += -Wno-pedantic-ms-format
 	endif
 endif
 
 ifeq ($(COMP),mingw)
 	comp=mingw
-	CFLAGS += -pedantic -Wextra -Wshadow -Wno-pedantic-ms-format -m$(bits)
+	CFLAGS += -pedantic -Wextra -Wshadow  -m$(bits)
 	LDFLAGS += -m$(bits)
 	ifeq ($(KERNEL),Linux)
 		ifeq ($(bits),64)
@@ -486,6 +497,7 @@ endif
 ifeq ($(KERNEL),Darwin)
 	CFLAGS += -arch $(arch) -mmacosx-version-min=10.14
 	LDFLAGS += -arch $(arch) -mmacosx-version-min=10.14
+	XCRUN = xcrun
 endif
 
 # To cross-compile for Android, NDK version r21 or later is recommended.
@@ -721,7 +733,7 @@ ifeq ($(lto),yes)
 ifeq ($(optimize),yes)
 ifeq ($(debug),no)
 	ifeq ($(comp),clang)
-		CFLAGS += -flto=thin
+		CFLAGS += -flto
 		ifneq ($(findstring MINGW,$(KERNEL)),)
 			CFLAGS += -fuse-ld=lld
 		else ifneq ($(findstring MSYS,$(KERNEL)),)
@@ -768,90 +780,24 @@ endif
 ### Section 4. Public targets
 ### ==========================================================================
 
-help:
-	@echo ""
-	@echo "To compile Cfish, type: "
-	@echo ""
-	@echo "make target [ARCH=arch] [COMP=compiler] [COMPCC=cc]"
-	@echo ""
-	@echo "Supported targets:"
-	@echo ""
-	@echo "help                    > Display architecture details"
-	@echo "build                   > Standard build"
-	@echo "net                     > Download the default nnue net"
-	@echo "profile-build (or pgo)  > PGO build"
-	@echo "strip                   > Strip executable"
-	@echo "install                 > Install executable"
-	@echo "clean                   > Clean up"
-	@echo ""
-	@echo "Supported archs:"
-	@echo ""
-	@echo "auto                    > Auto-detect optimal architecture (default)"
-	@echo "x86-64-avx512-vnni      > x86 64-bit with 512-bit AVX512/VNNI support"
-	@echo "x86-64-avx512           > x86 64-bit with 512-bit AVX512 support"
-	@echo "x86-64-vnni             > x86 64-bit with 256-bit AVX2/VNNI support"
-	@echo "x86-64-bmi2             > x86 64-bit with AVX2 and BMI2 support"
-	@echo "x86-64-avx2             > x86 64-bit with 256-bit AVX2 support"
-	@echo "x86-64-avx              > x86 64-bit with AVX support (VEX encoding)"
-	@echo "x86-64-sse41-popcnt     > x86 64-bit with SSE4.1 and popcount support"
-	@echo "x86-64-modern           > common modern CPU, currently x86-64-sse41-popcnt"
-	@echo "x86-64-ssse3            > x86 64-bit with SSSE3 support"
-	@echo "x86-64-sse3-popcnt      > x86 64-bit with SSE3 and popcount support"
-	@echo "x86-64                  > x86 64-bit generic (with SSE2 support)"
-	@echo "x86-32-avx512-vnni      |"
-	@echo "x86-32-...              | same as for x86-64"
-	@echo "x86-32-sse3-popcnt      |"
-	@echo "x86-32-sse2             > x86 32-bit with SSE2 support"
-	@echo "x86-32-mmx-sse          > x86 32-bit with MMX and SSE support"
-	@echo "x86-32-mmx              > x86 32-bit with MMX support"
-	@echo "x86-32                  > x86 32-bit generic"
-	@echo "ppc-64                  > PPC 64-bit"
-	@echo "ppc-32                  > PPC 32-bit"
-	@echo "armv8                   > ARMv8 64-bit with popcnt and neon"
-	@echo "armv7-neon              > ARMv7 32-bit with popcnt and neon"
-	@echo "armv7                   > ARMv7 32-bit"
-	@echo "apple-silicon           > Apple silicon ARM64"
-	@echo "general-64              > unspecified 64-bit"
-	@echo "general-32              > unspecified 32-bit"
-	@echo ""
-	@echo "When using many threads, 256-bit AVX2 may perform better than 512-bit AVX512."
-	@echo ""
-	@echo "Supported compilers:"
-	@echo ""
-	@echo "gcc                     > Gnu compiler (default)"
-	@echo "mingw                   > Gnu compiler with MinGW under Windows"
-	@echo "clang                   > LLVM Clang compiler"
-	@echo "icc                     > Intel compiler"
-	@echo ""
-	@echo "Advanced examples:"
-	@echo "make profile-build ARCH=x86-64-bmi2 COMP=gcc COMPCC=gcc-9.0"
-	@echo "make build ARCH=x86-64-ssse3 COMP=clang"
-	@echo ""
-	@echo "For best performance, try one or both of:"
-	@echo "make pgo"
-	@echo "make pgo COMP=clang"
-	@echo ""
-ifneq ($(empty_arch),yes)
-	@echo "-------------------------------"
-	@echo "The selected architecture $(ARCH) will enable the following configuration: "
-	@$(MAKE) ARCH=$(ARCH) COMP=$(COMP) config-sanity
-endif
+
 
 
 .PHONY: help build profile-build strip install clean net objclean profileclean \
         config-sanity icc-profile-use icc-profile-make gcc-profile-use \
         gcc-profile-make clang-profile-use clang-profile-make pgo
 
-build: net config-sanity
+build:
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) all
 
-profile-build: net config-sanity objclean profileclean
+profile-build: objclean profileclean
 	@echo ""
 	@echo "Step 1/4. Building instrumented executable ..."
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) $(profile_make)
 	@echo ""
 	@echo "Step 2/4. Running benchmark for pgo-build ..."
 	$(PGOBENCH) > /dev/null
+	$(PGOBENCH2) > /dev/null
 	@echo ""
 	@echo "Step 3/4. Building optimized executable ..."
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) objclean
@@ -890,10 +836,9 @@ objclean:
 profileclean:
 	@rm -rf profdir
 	@rm -f bench.txt *.gcda *.gcno
-	@rm -f cfish.profdata *.profraw
+	@rm -f ditto.profdata *.profraw
 
-default:
-	help
+
 
 ### ==========================================================================
 ### Section 5. Private targets
@@ -969,21 +914,22 @@ clang-profile-make:
 	all
 
 clang-profile-use:
-	llvm-profdata merge -output=cfish.profdata *.profraw
+	##$(XCRUN) llvm-profdata merge -output=ditto.profdata *.profraw
+	$(llvm) merge -output=ditto.profdata *.profraw
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) \
-	EXTRACFLAGS='-fprofile-instr-use=cfish.profdata' \
+	EXTRACFLAGS='-fprofile-instr-use=ditto.profdata' \
 	EXTRALDFLAGS='-fprofile-use ' \
 	all
 
 gcc-profile-make:
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) \
-	EXTRACFLAGS='-fprofile-generate' \
+	EXTRACFLAGS='-fprofile-generate -fprofile-correction -mbmi -march=native' \
 	EXTRALDFLAGS='-lgcov' \
 	all
 
 gcc-profile-use:
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) \
-	EXTRACFLAGS='-fprofile-use -fno-peel-loops -fno-tracer' \
+	EXTRACFLAGS='-fprofile-use -fprofile-correction -mbmi -march=native -fno-peel-loops -fno-tracer' \
 	EXTRALDFLAGS='-lgcov' \
 	all
 

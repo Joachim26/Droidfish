@@ -505,7 +505,7 @@ bool Position::legal(Move m) const {
   // En passant captures are a tricky special case. Because they are rather
   // uncommon, we do it simply by testing whether the king is attacked after
   // the move is made.
-  if (type_of(m) == ENPASSANT)
+  if (type_of(m) == EN_PASSANT)
   {
       Square ksq = square<KING>(us);
       Square capsq = to - pawn_push(us);
@@ -533,11 +533,9 @@ bool Position::legal(Move m) const {
           if (attackers_to(s) & pieces(~us))
               return false;
 
-      // In case of Chess960, verify that when moving the castling rook we do
-      // not discover some hidden checker.
+      // In case of Chess960, verify if the Rook blocks some checks
       // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
-      return   !chess960
-            || !(attacks_bb<ROOK>(to, pieces() ^ to_sq(m)) & pieces(~us, ROOK, QUEEN));
+      return !chess960 || !(blockers_for_king(us) & to_sq(m));
   }
 
   // If the moving piece is a king, check whether the destination square is
@@ -564,8 +562,10 @@ bool Position::pseudo_legal(const Move m) const {
   Piece pc = moved_piece(m);
 
   // Use a slower but simpler function for uncommon cases
+  // yet we skip the legality check of MoveList<LEGAL>().
   if (type_of(m) != NORMAL)
-      return MoveList<LEGAL>(*this).contains(m);
+      return checkers() ? MoveList<    EVASIONS>(*this).contains(m)
+                        : MoveList<NON_EVASIONS>(*this).contains(m);
 
   // Is not a promotion, so promotion piece must be empty
   if (promotion_type(m) - KNIGHT != NO_PIECE_TYPE)
@@ -655,7 +655,7 @@ bool Position::gives_check(Move m) const {
   // of direct checks and ordinary discovered check, so the only case we
   // need to handle is the unusual case of a discovered check through
   // the captured pawn.
-  case ENPASSANT:
+  case EN_PASSANT:
   {
       Square capsq = make_square(file_of(to), rank_of(from));
       Bitboard b = (pieces() ^ from ^ capsq) | to;
@@ -663,19 +663,15 @@ bool Position::gives_check(Move m) const {
       return  (attacks_bb<  ROOK>(square<KING>(~sideToMove), b) & pieces(sideToMove, QUEEN, ROOK))
             | (attacks_bb<BISHOP>(square<KING>(~sideToMove), b) & pieces(sideToMove, QUEEN, BISHOP));
   }
-  case CASTLING:
+  default: //CASTLING
   {
-      Square kfrom = from;
-      Square rfrom = to; // Castling is encoded as 'king captures the rook'
-      Square kto = relative_square(sideToMove, rfrom > kfrom ? SQ_G1 : SQ_C1);
-      Square rto = relative_square(sideToMove, rfrom > kfrom ? SQ_F1 : SQ_D1);
+      // Castling is encoded as 'king captures the rook'
+      Square ksq = square<KING>(~sideToMove);
+      Square rto = relative_square(sideToMove, to > from ? SQ_F1 : SQ_D1);
 
-      return   (attacks_bb<ROOK>(rto) & square<KING>(~sideToMove))
-            && (attacks_bb<ROOK>(rto, (pieces() ^ kfrom ^ rfrom) | rto | kto) & square<KING>(~sideToMove));
+      return   (attacks_bb<ROOK>(rto) & ksq)
+            && (attacks_bb<ROOK>(rto, pieces() ^ from ^ to) & ksq);
   }
-  default:
-      assert(false);
-      return false;
   }
 }
 
@@ -717,7 +713,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
   Square from = from_sq(m);
   Square to = to_sq(m);
   Piece pc = piece_on(from);
-  Piece captured = type_of(m) == ENPASSANT ? make_piece(them, PAWN) : piece_on(to);
+  Piece captured = type_of(m) == EN_PASSANT ? make_piece(them, PAWN) : piece_on(to);
 
   assert(color_of(pc) == us);
   assert(captured == NO_PIECE || color_of(captured) == (type_of(m) != CASTLING ? them : us));
@@ -743,7 +739,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
       // update non-pawn material.
       if (type_of(captured) == PAWN)
       {
-          if (type_of(m) == ENPASSANT)
+          if (type_of(m) == EN_PASSANT)
           {
               capsq -= pawn_push(us);
 
@@ -770,7 +766,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
       // Update board and piece lists
       remove_piece(capsq);
 
-      if (type_of(m) == ENPASSANT)
+      if (type_of(m) == EN_PASSANT)
           board[capsq] = NO_PIECE;
 
       // Update material hash key and prefetch access to materialTable
@@ -816,7 +812,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
   // If the moving piece is a pawn do some special extra work
   if (type_of(pc) == PAWN)
   {
-      // Set en-passant square if the moved pawn can be captured
+      // Set en passant square if the moved pawn can be captured
       if (   (int(to) ^ int(from)) == 16
           && (pawn_attacks_bb(us, to - pawn_push(us)) & pieces(them, PAWN)))
       {
@@ -939,7 +935,7 @@ void Position::undo_move(Move m) {
       {
           Square capsq = to;
 
-          if (type_of(m) == ENPASSANT)
+          if (type_of(m) == EN_PASSANT)
           {
               capsq -= pawn_push(us);
 
@@ -1018,7 +1014,7 @@ void Position::do_null_move(StateInfo& newSt) {
   }
 
   st->key ^= Zobrist::side;
-  prefetch(TT.first_entry(st->key));
+  prefetch(TT.first_entry(key()));
 
   ++st->rule50;
   st->pliesFromNull = 0;
@@ -1043,7 +1039,7 @@ void Position::undo_null_move() {
 
 /// Position::key_after() computes the new hash key after the given move. Needed
 /// for speculative prefetch. It doesn't recognize special moves like castling,
-/// en-passant and promotions.
+/// en passant and promotions.
 
 Key Position::key_after(Move m) const {
 
@@ -1068,7 +1064,7 @@ bool Position::see_ge(Move m, Value threshold) const {
 
   assert(is_ok(m));
 
-  // Only deal with normal moves, assume others pass a simple see
+  // Only deal with normal moves, assume others pass a simple SEE
   if (type_of(m) != NORMAL)
       return VALUE_ZERO >= threshold;
 

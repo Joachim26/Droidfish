@@ -1,0 +1,5 @@
+attack.cpp  hash.cpp      move_check.cpp    nnue_eval.cpp  protocol.cpp  search.cpp       trans.cpp
+board.cpp   list.cpp      move_do.cpp       option.cpp     pst.cpp       search_full.cpp  util.cpp
+book.cpp    main.cpp      move_evasion.cpp  pawn.cpp       pv.cpp        see.cpp          value.cpp
+eval.cpp    material.cpp  move_gen.cpp      piece.cpp      random.cpp    sort.cpp         vector.cpp
+fen.cpp     move.cpp      move_legal.cpp    posix.cpp      recog.cpp     square.cpp

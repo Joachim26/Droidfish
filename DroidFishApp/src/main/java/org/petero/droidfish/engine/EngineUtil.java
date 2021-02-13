@@ -83,7 +83,15 @@ public class EngineUtil {
         }
         return abi + "/cfish" + (isSimdSupported() ? "" : "_nosimd");
     }
-
+    public static String internalDittoName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/ditto" + (isSimdSupported() ? "" : "_nosimd");
+    }
     public static String internalEtherealName() {
         String abi = Build.CPU_ABI;
         if (!"x86".equals(abi) &&

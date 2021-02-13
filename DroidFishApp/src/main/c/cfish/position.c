@@ -265,7 +265,7 @@ void pos_set(Position *pos, char *fen, int isChess960)
 
   // En passant square. Ignore if no pawn capture is possible.
   if (   ((col = *fen++) && (col >= 'a' && col <= 'h'))
-      && ((row = *fen++) && (row == (stm() == WHITE ? '3' : '6'))))
+      && ((row = *fen++) && (row == (stm() == WHITE ? '6' : '3'))))
   {
     st->epSquare = make_square(col - 'a', row - '1');
 
@@ -1302,15 +1302,9 @@ static int pos_is_ok(Position *pos, int *failedStep)
 
     if (step == Lists)
       for (int c = 0; c < 2; c++)
-        for (int pt = PAWN; pt <= KING; pt++) {
+        for (int pt = PAWN; pt <= KING; pt++)
           if (piece_count(c, pt) != popcount(pieces_cp(c, pt)))
             return 0;
-
-          for (int i = 0; i < piece_count(c, pt); i++)
-            if (   piece_on(piece_list(c, pt)[i]) != make_piece(c, pt)
-                || pos->index[piece_list(c, pt)[i]] != i)
-              return 0;
-        }
 
     if (step == Castling)
       for (int c = 0; c < 2; c++)

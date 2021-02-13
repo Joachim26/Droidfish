@@ -41,7 +41,7 @@ DATE2=$(shell date +"%m%d")
 
 ### Release versions , enter yes and release version below foor releases
 RELEASEVER = yes
-RELVERSION = 12-R2-09
+RELVERSION = 12-R2-10
 CORES = 64
 
 ### TEST versions, enter yes and labels below to build named test exe's
@@ -82,6 +82,10 @@ ifeq ($(NiNu),yes)
   CXXFLAGS += -DEvalNu
   NNET = Eval
   NETBIN = eval.bin
+	else ifeq ($(Toga),yes)
+	CXXFLAGS += -DTogaNu
+	NNET = Toga
+	NETBIN = toga.bin
 endif
 
 ifeq ($(HONEY),yes)
@@ -130,6 +134,7 @@ ifneq ($(HONEY),yes)
 		ifeq ($(BLAU),yes)
 			CXXFLAGS += -DBlau
 			PRE=Blue
+			NAME=$(PRE)fish$(SUF)
 		else ifeq ($(BETH),yes)
 			CXXFLAGS += -DHarmon
 			NAME=Harmon$(SUF)
@@ -879,14 +884,7 @@ endif
 
 
 help:
-	@echo ""
-	@echo "To compile Honey, type: "
-	@echo "'make <target> ARCH=arch [COMP=compiler] [COMPCXX=cxx]'"
-	@echo "<target> would be 'build' or 'profile-build'"
-	@echo ""
-	@echo "To compile stockfish, uncomment this line in the makefile: "
-	@echo "'### HONEY=yes' by remvoing the 3 #(pound signs)"
-	@echo "then type: 'make <target> ARCH=<arch> [COMP=compiler] [COMPCXX=cxx]'"
+
 	@echo ""
 	@echo "Supported targets:"
 	@echo ""
@@ -962,7 +960,7 @@ $(directory):
 
 build:
 	@$(MAKE) ARCH=$(ARCH) COMP=$(COMP) all
-	@$(STRIP) $(EXE)
+	strip $(EXE)
 	@rm -f *.o syzygy/*.o
 
 ##profile-build: net config-sanity objclean profileclean
@@ -1197,38 +1195,28 @@ icc-profile-use:
 #
 #
 #
-### Based on commits through 01/08/2021:
+#
+#
+### Based on commits through 02/09/2021:
 ### ======================================================
-### Black-Diamond-12-R2-09-Eval.bench:Nodes searched  : 26921803
-### Black-Diamond-12-R2-09-Eval.bench:Nodes/second    : 2140388
-### Black-Diamond-12-R2-09-Eval-64_Cores.bench:Nodes searched  : 1009175170
-### Black-Diamond-12-R2-09-Eval-64_Cores.bench:Nodes/second    : 84868k
-### Black-Diamond-12-R2-09-NiNu.bench:Nodes searched  : 34273090
-### Black-Diamond-12-R2-09-NiNu.bench:Nodes/second    : 2231466
-### Black-Diamond-12-R2-09-NiNu-64_Cores.bench:Nodes searched  : 1170992227
-### Black-Diamond-12-R2-09-NiNu-64_Cores.bench:Nodes/second    : 84548k
-### Harmon-12-R2-09-Eval.bench:Nodes searched  : 14420613
-### Harmon-12-R2-09-Eval.bench:Nodes/second    : 2442929
-### Harmon-12-R2-09-Eval-64_Cores.bench:Nodes searched  : 1037619593
-### Harmon-12-R2-09-Eval-64_Cores.bench:Nodes/second    : 121146k
-### Harmon-12-R2-09-NiNu.bench:Nodes searched  : 12410387
-### Harmon-12-R2-09-NiNu.bench:Nodes/second    : 2307192
-### Harmon-12-R2-09-NiNu-64_Cores.bench:Nodes searched  : 902226639
-### Harmon-12-R2-09-NiNu-64_Cores.bench:Nodes/second    : 116056k
-### Honey-12-R2-09-Eval.bench:Nodes searched  : 14579410
-### Honey-12-R2-09-Eval.bench:Nodes/second    : 2377982
-### Honey-12-R2-09-Eval-64_Cores.bench:Nodes searched  : 983006351
-### Honey-12-R2-09-Eval-64_Cores.bench:Nodes/second    : 117010k
-### Honey-12-R2-09-NiNu.bench:Nodes searched  : 16460199
-### Honey-12-R2-09-NiNu.bench:Nodes/second    : 2332133
-### Honey-12-R2-09-NiNu-64_Cores.bench:Nodes searched  : 899616068
-### Honey-12-R2-09-NiNu-64_Cores.bench:Nodes/second    : 113760k
-### Oki-Maguro-12-R2-09-Eval.bench:Nodes searched  : 13234381
-### Oki-Maguro-12-R2-09-Eval.bench:Nodes/second    : 2388446
-### Oki-Maguro-12-R2-09-Eval-64_Cores.bench:Nodes searched  : 839047861
-### Oki-Maguro-12-R2-09-Eval-64_Cores.bench:Nodes/second    : 119182k
-### Oki-Maguro-12-R2-09-NiNu.bench:Nodes searched  : 12985716
-### Oki-Maguro-12-R2-09-NiNu.bench:Nodes/second    : 2183574
-### Oki-Maguro-12-R2-09-NiNu-64_Cores.bench:Nodes searched  : 712840539
-### Oki-Maguro-12-R2-09-NiNu-64_Cores.bench:Nodes/second    : 106696k
+### Black-Diamond-12-R2-10-Eval.bench:Nodes searched  : 28962590
+### Black-Diamond-12-R2-10-Eval.bench:Nodes/second    : 2058025
+### Black-Diamond-12-R2-10-Eval-64_Cores.bench:Nodes searched  : 1046117118
+### Black-Diamond-12-R2-10-Eval-64_Cores.bench:Nodes/second    : 80297k
+### Bluefish-12-R2-10-Eval.bench:Nodes searched  : 15349950
+### Bluefish-12-R2-10-Eval.bench:Nodes/second    : 2258674
+### Bluefish-12-R2-10-Eval-64_Cores.bench:Nodes searched  : 1168374789
+### Bluefish-12-R2-10-Eval-64_Cores.bench:Nodes/second    : 119039k
+### Harmon-12-R2-10-Eval.bench:Nodes searched  : 14806621
+### Harmon-12-R2-10-Eval.bench:Nodes/second    : 2385087
+### Harmon-12-R2-10-Eval-64_Cores.bench:Nodes searched  : 935783577
+### Harmon-12-R2-10-Eval-64_Cores.bench:Nodes/second    : 118124k
+### Honey-12-R2-10-Eval.bench:Nodes searched  : 15944363
+### Honey-12-R2-10-Eval.bench:Nodes/second    : 2223450
+### Honey-12-R2-10-Eval-64_Cores.bench:Nodes searched  : 1036277055
+### Honey-12-R2-10-Eval-64_Cores.bench:Nodes/second    : 111848k
+### Oki-Maguro-12-R2-10-Eval.bench:Nodes searched  : 15218449
+### Oki-Maguro-12-R2-10-Eval.bench:Nodes/second    : 2290900
+### Oki-Maguro-12-R2-10-Eval-64_Cores.bench:Nodes searched  : 849738895
+### Oki-Maguro-12-R2-10-Eval-64_Cores.bench:Nodes/second    : 112757k
 ### ======================================================

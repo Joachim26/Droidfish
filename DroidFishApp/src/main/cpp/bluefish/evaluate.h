@@ -44,7 +44,7 @@ namespace Eval {
 
   #define EvalFileDefaultName   "ninu.bin"
 
-  #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/ninu.bin"
+  #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/"
 
   #define SHA256NET   "nn-62ef826d1a6d.nnue" // eval.bin
 

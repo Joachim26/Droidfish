@@ -21,6 +21,7 @@ include src/main/cpp/mojo/Android.mk
 include src/main/cpp/corchess/Android.mk
 include src/main/cpp/crystal/Android.mk
 include src/main/c/cfish/Android.mk
+include src/main/c/ditto/Android.mk
 include src/main/c/ethereal/Android.mk
 include src/main/c/xiphos/Android.mk
 include src/main/c/ct800/Android.mk

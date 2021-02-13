@@ -104,7 +104,7 @@ namespace {
     return d > 14 ? 29 : 8 * d * d + 224 * d - 215;
   }
 #ifndef Noir
-  // Add a small random component to draw evaluations to avoid 3fold-blindness
+  // Add a small random component to draw evaluations to avoid 3-fold blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
   }
@@ -730,7 +730,11 @@ void Thread::search() {
           selDepth = 0;
 
           // Reset aspiration window starting size
+#if defined (Sullivan) ||(Blau)
+          if (rootDepth >= 5)
+#else
           if (rootDepth >= 4)
+#endif
           {
               Value prev = rootMoves[pvIdx].previousScore;
 
@@ -1190,7 +1194,11 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
+#if defined (Sullivan) ||(Blau)
+        &&  depth < 7
+#else
         &&  depth < 9
+#endif
         &&  !(pos.this_thread()->profound_test)
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
@@ -1198,6 +1206,9 @@ namespace {
 
     // Step 8.. Null move search with verification search (~40 Elo)
     if (   !PvNode
+#if defined (Sullivan) ||(Blau)
+        && depth > 5
+#endif
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 22977
         &&  eval >= beta
@@ -1215,7 +1226,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
+        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 256, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1342,7 +1353,11 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= 6
+#if defined (Sullivan) ||(Blau)
+        && depth >=7
+#else
+        && depth >=6
+#endif
         && !ttMove)
         depth -= 2;
 
@@ -1510,7 +1525,7 @@ moves_loop: // When in check, search starts from here
 
       // Check extension (~2 Elo)
       else if (    givesCheck
-               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
+               && (pos.is_discovered_check_on_king(~us, move) || pos.see_ge(move)))
           extension = 1;
 
 #ifndef Stockfish
@@ -1574,7 +1589,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (!PvNode && !formerPv && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
+              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1654,7 +1669,13 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 14884;
+              // If we are not in check use statScore, if we are in check
+              // use sum of main history and first continuation history with an offset
+              if (ss->inCheck)
+                  r -= (thisThread->mainHistory[us][from_to(move)]
+                     + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
+              else
+                  r -= ss->statScore / 14884;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
@@ -1979,7 +2000,7 @@ moves_loop: // When in check, search starts from here
           &&  futilityBase > -VALUE_KNOWN_WIN
           && !pos.advanced_pawn_push(move))
       {
-          assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
+          assert(type_of(move) != EN_PASSANT); // Due to !pos.advanced_pawn_push
 
           // moveCount pruning
           if (moveCount > 2)
@@ -3196,7 +3217,7 @@ namespace {
       else if (!extension)
       {
         if (    givesCheck
-            && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
+            && (pos.is_discovered_check_on_king(~us, move) || pos.see_ge(move)))
             extension = 1;
 
         // Last captures extension
@@ -3659,7 +3680,7 @@ namespace {
 
          // Do not search moves with negative SEE values
          if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-             && !(givesCheck && pos.is_discovery_check_on_king(~pos.side_to_move(), move))
+             && !(givesCheck && pos.is_discovered_check_on_king(~pos.side_to_move(), move))
              && !pos.see_ge(move))
              continue;
       }

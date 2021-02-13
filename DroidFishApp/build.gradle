@@ -8,7 +8,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 28
         versionCode 1009
-        versionName "2.09"
+        versionName "2.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             ndkBuild {
@@ -80,6 +80,8 @@ preBuild.dependsOn buildEco
 // Copy engine executables to assets directory
 task copyToAssets(type: Copy, dependsOn: 'externalNativeBuildRelease') {
     from('build/intermediates/ndkBuild/release/obj/local') {
+        include '*/ditto'
+        include '*/ditto_nosimd'
         include '*/stockfish'
         include '*/stockfish_nosimd'
         include '*/blackdiamond'
@@ -126,6 +128,7 @@ task copyToAssets(type: Copy, dependsOn: 'externalNativeBuildRelease') {
         include '*/corchess_nosimd'
         include '*/crystal'
         include '*/crystal_nosimd'
+
 
     }
     into 'src/main/assets'

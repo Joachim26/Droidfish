@@ -52,6 +52,8 @@ public abstract class UCIEngineBase implements UCIEngine {
             return new InternalBluefish(report, engineOptions.workDir);
         else if ("cfish".equals(engine))
             return new InternalCfish(report, engineOptions.workDir);
+        else if ("ditto".equals(engine))
+            return new InternalDitto(report, engineOptions.workDir);            
         else if ("ethereal".equals(engine))
             return new InternalEthereal(report, engineOptions.workDir);
         else if ("fruit".equals(engine))

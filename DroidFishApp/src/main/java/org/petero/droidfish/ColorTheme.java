@@ -68,6 +68,7 @@ public class ColorTheme {
         R.string.colortheme_honey,
         R.string.colortheme_honey2,
         R.string.colortheme_honey3,
+        R.string.colortheme_honey4,
         R.string.colortheme_original,
         R.string.colortheme_xboard,
         R.string.colortheme_blue,
@@ -92,6 +93,12 @@ public class ColorTheme {
         "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
         "#FF00FF00", "#FF808080", "#FFE2E200", "#FFE2E200", "#FF1A221A"
     },
+    { // Honey4 Harmon
+        "#FF591722", "#FFD2CFD5", "#FF24CC48", "#FF070707", "#FFF6F6F6", "#FF7B2555",
+        "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
+        "#FF3AA133", "#FF808080", "#FFE2E200", "#FFE2E200", "#FF24060B"
+    },
+
 
     { // Original
         "#FF808080", "#FFBEBE5A", "#FFFF0000", "#FF000000", "#FFFFFFFF", "#FF888888",
