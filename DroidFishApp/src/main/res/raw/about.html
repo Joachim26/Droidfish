@@ -10,7 +10,39 @@
       It includes some micro millisecond time controls and a sleep setting to enhance the human playability fun factor.  Enjoy!
     </p>
     <p>
-      In this release we are excited to announce that we added 3 new pieces set.  The first two are by the renowned chess piece artist <b><i>Bryan Whitby</i></b>.  He has been producing pieces for many of the commercial and free chess apps for two decades and he has graciously offered two of his piece sets for use with Black Diamond. Look for the chess sets <b><i>London</i></b> and <b><i>Madrid</i></b> in the app.  There are no better chess piece sets.  For those that like to go back in time,  we are also announcing the <b><i> “Isle of Lewis” </i></b> chess pieces, based on the on the pieces that were discovered in Scotland on the Isle of Lewis nearly two centuries ago, carved from Walrus tusks back around <b><i>1200 AD</i></b>.  The pieces are based on actual photos at the <b><i><a href=https://www.nms.ac.uk/explore-our-collections/stories/scottish-history-and-archaeology/lewis-chess-pieces/>National Museums of Scotland</a></i></b>
+      In this release we are celebrating  the release of <b><i>Stockfish 13</b></i>. With all of the Honey engines updated with the most recent SF 12 patches.  In addition, we are including the open source version of  <b><i><a href=https://github.com/DanielUranga/Stockfish/tree/ff2/src/>Stockfish/Fat Fritz 2</a></i></b> , appropriately named <b><i>Fat Fish</i></b> here, as it uses a <b><i>40 MB NNUE</i></b> file.
+    </p>
+    <p>
+      Due to the number of engines and to keep the download size down, we are no longer embedding any NNUE files.
+    </p>
+    <p>
+
+<b><i>Recommended Nets to Download:</i></b>
+</p>
+<p>
+<b><i>Harmon:</i></b> Harmon NNUE should be labeled as harmon.bin <a href=https://www.patreon.com/file?h=44549655&i=6848074/>Harmon NNUE</a>
+</p>
+<p>
+<b><i>Bluefish:</i></b> NightNurse 0.4b  should be labeled as  ninu.bin <a href=https://www.patreon.com/posts/night-nurse-0-4b-46830152/>Night Nurse NNUE</a>
+</p>
+<p>
+<b><i>Ditto:</i></b> The White Rose NNUE should be labeled as whiterose.bin <a href=https://www.patreon.com/file?h=47771982&i=7432759/>White Rose NNUE</a>
+</p>
+<p>
+<b><i>Crystal:</i></b> same as Ditto above
+</p>
+<p>
+<b><i>Black Diamond:</i></b> same as Ditto above
+</p>
+<p>
+<b><i>OkiMaguro & FatFish must use the FatFritz2 net </i></b> <a href=https://github.com/DanielUranga/Stockfish/blob/ff2/src/FatFritz2_v1.bin/>Fat Fritz NNUE</a>
+</p>
+<p>
+All the rest are default to current SF net. should be labeled as "eval.bin".  <b><i>Download here:</i></b> <a href=https://tests.stockfishchess.org/api/nn/nn-62ef826d1a6d.nnue/>Current Stockfish NNUE</a>
+
+</p>
+<p>
+      We remind users that we added 3 new pieces set in the previous release.  The first two are by the renowned chess piece artist <b><i>Bryan Whitby</i></b>.  He has been producing pieces for many of the commercial and free chess apps for two decades and he has graciously offered two of his piece sets for use with Black Diamond. Look for the chess sets <b><i>London</i></b> and <b><i>Madrid</i></b> in the app.  There are no better chess piece sets.  For those that like to go back in time,  we are also announcing the <b><i> “Isle of Lewis” </i></b> chess pieces, based on the on the pieces that were discovered in Scotland on the Isle of Lewis nearly two centuries ago, carved from Walrus tusks back around <b><i>1200 AD</i></b>.  The pieces are based on actual photos at the <b><i><a href=https://www.nms.ac.uk/explore-our-collections/stories/scottish-history-and-archaeology/lewis-chess-pieces/>National Museums of Scotland</a></i></b>
     </p>
     <p>
     Also new in this release, we are presenting the SF clone <b><i> “Ditto” </i></b> based on the great work by <b><i>Ronald De Mann</i></b> and his <b><i> Cfish fork of Stockfish</i></b>.  <b><i> Cfish</i></b> is currently the <b><i>strongest engine</i></b> in the world!
@@ -38,7 +70,7 @@
   Also, I call out and tip my hat to the very creative and hardworking <a href=https://github.com/official-stockfish/Stockfish/blob/master/AUTHORS> <b><i>Stockfish Authors team</i></b></a>. They epitomize the benefits of open source software and the quality that can be achieved by collaboration from the hundreds of developers around the world who have contributed.  Also included is the great Stockfish fork, <b><i>Cfish</i></b> by <b><i>Ronald De Mann</i></b> and <b><i>Stockfish 6</i></b>, the first <b><i>Stockfish</i></b> release which supported syzygy tablebases (also developed by <b><i>Ronald De Mann</i></b>  ).
 </p>
 <p>
-The <b><i>Stockfish Black Diamond Neural Network</i></b> engines are paired with the <b><i>acclaimed</i></b> neural network <b><i>Night Nurse 0.4b</i></b> by <b><i>Dietrich Kappe</i></b>. Dietrich had stuck gold again with this version. This is the most appealing net for the human playing experience. For club and advanced players, set the base time control to 500 milliseconds (default) and the increment to 10 milliseconds (default). If you find it too easy, slowly increase the base and increment. To avoid <b><i>instant move</i></b> use the <b><i>Engine Sleep</i></b> function (default on) to put the engine to sleep anywhere from 1 second to 1 minute. You can also use <b><i>UCI Limit Strength</i></b> if the lowest time control settings are too strong.
+For club and advanced players, set the base time control to 500 milliseconds (default) and the increment to 10 milliseconds (default). If you find it too easy, slowly increase the base and increment. To avoid <b><i>instant move</i></b> use the <b><i>Engine Sleep</i></b> function (default on) to put the engine to sleep anywhere from 1 second to 1 minute. You can also use <b><i>UCI Limit Strength</i></b> if the lowest time control settings are too strong.
 </p>
   Previously, <b><i>Ethereal 2.75</i></b> was added, perhaps no other engine ever climbed the Elo ladder faster than <b><i>Ethereal</i></b>.  In just a little over 5 years, it has reached the number two ranking of Open Source engines behind <b><i>Stockfish</i></b>.  Great work by <b><i>Andy Grant</i></b> and his team of <b><i>contributors</i></b>.
 <p>
