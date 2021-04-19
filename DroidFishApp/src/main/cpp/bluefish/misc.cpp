@@ -69,18 +69,16 @@ using namespace std;
 namespace {
 /// Version number. If Version is left empty, then compile date in the format
 /// DD-MM-YY and show in engine_info.
+
 #if (defined Add_Features && ReleaseVer)
-const string Version = " v12-R2.10";
+const string Version = " v13.1";
 #else
 const string Version = "";
 #endif
 
 
-#ifdef Fortress  // will need to remove
-const string Suffix = "FD ";
-#else
+
 const string Suffix = "";
-#endif
 
 /// Our fancy logging facility. The trick here is to replace cin.rdbuf() and
 /// cout.rdbuf() with two Tie objects that tie cin and cout to a file stream. We

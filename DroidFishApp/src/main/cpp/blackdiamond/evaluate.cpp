@@ -44,6 +44,7 @@
 //     const unsigned char *const gEmbeddedNNUEEnd;     // a marker to the end
 //     const unsigned int         gEmbeddedNNUESize;    // the size of the embedded file
 // Note that this does not work in Microsoft Visual Studio.
+#define NNUE_EMBEDDING_OFF
 #if !defined(_MSC_VER) && !defined(NNUE_EMBEDDING_OFF)
   INCBIN(EmbeddedNNUE, EvalFileDefaultName);
 #else
@@ -52,6 +53,7 @@
   const unsigned int         gEmbeddedNNUESize = 1;
 #endif
 
+bool pureNN = Options["PureNN"];
 
 using namespace std;
 using namespace Eval::NNUE;
@@ -73,8 +75,10 @@ namespace Eval {
 
     useNNUE = Options["UseNN"];
     if (!useNNUE)
+      {
+        pureNN = false;
         return;
-
+      }
     string eval_file = string(Options["EvalFile"]);
 
     #if defined(DEFAULT_NNUE_DIRECTORY)
@@ -259,7 +263,8 @@ namespace {
   constexpr Score UncontestedOutpost  = S(  1, 10);
   constexpr Score BishopOnKingRing    = S( 24,  0);
   constexpr Score BishopXRayPawns     = S(  4,  5);
-  constexpr Score CorneredBishop      = S( 50, 50);
+  constexpr Value CorneredBishopV     = Value(50);
+  constexpr Score CorneredBishop      = S(CorneredBishopV, CorneredBishopV);
   constexpr Score FlankAttacks        = S(  8,  0);
   constexpr Score Hanging             = S( 69, 36);
   constexpr Score KnightOnQueen       = S( 16, 11);
@@ -424,7 +429,6 @@ namespace {
             score += BishopOnKingRing;
 
         int mob = popcount(b & mobilityArea[Us]);
-
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -477,9 +481,8 @@ namespace {
                 {
                     Direction d = pawn_push(Us) + (file_of(s) == FILE_A ? EAST : WEST);
                     if (pos.piece_on(s + d) == make_piece(Us, PAWN))
-                        score -= !pos.empty(s + d + pawn_push(Us))                ? CorneredBishop * 4
-                                : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? CorneredBishop * 2
-                                                                                  : CorneredBishop;
+                        score -= !pos.empty(s + d + pawn_push(Us)) ? CorneredBishop * 4
+                                                                   : CorneredBishop * 3;
                 }
             }
         }
@@ -984,8 +987,12 @@ namespace {
     // Initialize score by reading the incrementally updated scores included in
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
+#if defined (Noir) || (Stockfish) || (Sullivan) || (Beth) || (Blau)
+    Score score = Score(0);
+    score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
+#else
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
-
+#endif
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
     score += pe->pawn_score(WHITE) - pe->pawn_score(BLACK);
@@ -994,33 +1001,34 @@ namespace {
     auto lazy_skip = [&](Value lazyThreshold) {
         return abs(mg_value(score) + eg_value(score)) / 2 > lazyThreshold + pos.non_pawn_material() / 64;
     };
+    if (!pureNN)
+      {
+      if (lazy_skip(LazyThreshold1))
+          goto make_v;
 
-    if (lazy_skip(LazyThreshold1))
-        goto make_v;
+      // Main evaluation begins here
+      initialize<WHITE>();
+      initialize<BLACK>();
 
-    // Main evaluation begins here
-    initialize<WHITE>();
-    initialize<BLACK>();
+      // Pieces evaluated first (also populates attackedBy, attackedBy2).
+      // Note that the order of evaluation of the terms is left unspecified.
+      score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
+              + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
+              + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
+              + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
-    // Pieces evaluated first (also populates attackedBy, attackedBy2).
-    // Note that the order of evaluation of the terms is left unspecified.
-    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
-            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
-            + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
+      score += mobility[WHITE] - mobility[BLACK];
 
-    score += mobility[WHITE] - mobility[BLACK];
+      // More complex interactions that require fully populated attack bitboards
+      score +=  king<   WHITE>() - king<   BLACK>()
+              + passed< WHITE>() - passed< BLACK>();
 
-    // More complex interactions that require fully populated attack bitboards
-    score +=  king<   WHITE>() - king<   BLACK>()
-            + passed< WHITE>() - passed< BLACK>();
+      if (lazy_skip(LazyThreshold2))
+          goto make_v;
 
-    if (lazy_skip(LazyThreshold2))
-        goto make_v;
-
-    score +=  threats<WHITE>() - threats<BLACK>()
-            + space<  WHITE>() - space<  BLACK>();
-
+      score +=  threats<WHITE>() - threats<BLACK>()
+              + space<  WHITE>() - space<  BLACK>();
+     }
 make_v:
     // Derive single value from mg and eg parts of score
     Value v = winnable(score);
@@ -1036,6 +1044,40 @@ make_v:
 
     return (pos.side_to_move() == WHITE ? v : -v) + Tempo;
 
+  }
+
+  // specifically correct for cornered bishops to fix FRC with NNUE.
+  Value fix_FRC(const Position& pos) {
+
+    constexpr Bitboard Corners =  1ULL << SQ_A1 | 1ULL << SQ_H1 | 1ULL << SQ_A8 | 1ULL << SQ_H8;
+
+    if (!(pos.pieces(BISHOP) & Corners))
+        return VALUE_ZERO;
+
+    int correction = 0;
+
+    if (   pos.piece_on(SQ_A1) == W_BISHOP
+        && pos.piece_on(SQ_B2) == W_PAWN)
+        correction += !pos.empty(SQ_B3) ? -CorneredBishopV * 4
+                                        : -CorneredBishopV * 3;
+
+    if (   pos.piece_on(SQ_H1) == W_BISHOP
+        && pos.piece_on(SQ_G2) == W_PAWN)
+        correction += !pos.empty(SQ_G3) ? -CorneredBishopV * 4
+                                        : -CorneredBishopV * 3;
+
+    if (   pos.piece_on(SQ_A8) == B_BISHOP
+        && pos.piece_on(SQ_B7) == B_PAWN)
+        correction += !pos.empty(SQ_B6) ? CorneredBishopV * 4
+                                        : CorneredBishopV * 3;
+
+    if (   pos.piece_on(SQ_H8) == B_BISHOP
+        && pos.piece_on(SQ_G7) == B_PAWN)
+        correction += !pos.empty(SQ_G6) ? CorneredBishopV * 4
+                                        : CorneredBishopV * 3;
+
+    return pos.side_to_move() == WHITE ?  Value(correction)
+                                       : -Value(correction);
   }
 
 } // namespace
@@ -1054,29 +1096,41 @@ Value Eval::evaluate(const Position& pos) {
   else
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
-      auto  adjusted_NNUE = [&](){
-         int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         return NNUE::evaluate(pos) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
+      auto  adjusted_NNUE = [&]()
+      {
+         int material = pos.non_pawn_material() + 4 * PawnValueMg * pos.count<PAWN>();
+         int scale =  580
+                    + material / 32
+                    - 4 * pos.rule50_count();
+
+         Value  nnueValue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
+
+         if (pos.is_chess960())
+            nnueValue += fix_FRC(pos);
+
+         return nnueValue;
       };
 
-      // If there is PSQ imbalance use classical eval, with small probability if it is small
+      // If there is PSQ imbalance we use the classical eval. We also introduce
+      // a small probability of using the classical eval when PSQ imbalance is small.
       Value psq = Value(abs(eg_value(pos.psq_score())));
       int   r50 = 16 + pos.rule50_count();
       bool  largePsq = psq * 16 > (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50;
       bool  classical = largePsq || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB));
 
       // Use classical evaluation for really low piece endgames.
-      // The most critical case is a bishop + A/H file pawn vs naked king draw.
-      bool strongClassical = pos.non_pawn_material() < 2 * RookValueMg && pos.count<PAWN>() < 2;
-      //if (strongClassical)  playNNUE = false;
+      // One critical case is the draw for bishop + A/H file pawn vs naked king.
+      bool lowPieceEndgame =   pos.non_pawn_material() == BishopValueMg
+                            || (pos.non_pawn_material() < 2 * RookValueMg && pos.count<PAWN>() < 2);
 
-
-      v = classical || strongClassical ? Evaluation<NO_TRACE>(pos).value() : adjusted_NNUE();
+      v = classical || lowPieceEndgame ? Evaluation<NO_TRACE>(pos).value()
+                                       : adjusted_NNUE();
 
       // If the classical eval is small and imbalance large, use NNUE nevertheless.
-      // For the case of opposite colored bishops, switch to NNUE eval with
-      // small probability if the classical eval is less than the threshold.
-      if (   largePsq && !strongClassical
+      // For the case of opposite colored bishops, switch to NNUE eval with small
+      // probability if the classical eval is less than the threshold.
+      if (    largePsq
+          && !lowPieceEndgame
           && (   abs(v) * 16 < NNUEThreshold2 * r50
               || (   pos.opposite_bishops()
                   && abs(v) * 16 < (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50
@@ -1085,7 +1139,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (100 - pos.rule50_count()) / 100;
+  v = v * (128 - pos.rule50_count()) / 128;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);

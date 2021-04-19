@@ -109,8 +109,10 @@ void init(OptionsMap& o) {
 #else
     o["Bench_KNPS"]               << Option (1000, 500, 6000);//used for UCI Play By Elo
 #endif
-
+    o["Search_Nodes"]             << Option(0, 0, 100000);
+    o["Search_Depth"]             << Option(0, 0, 25);
     o["Tactical"]                 << Option(0, 0, 8);
+    o["Variety"]                  << Option(false);
     o["UCI_ShowWDL"]              << Option(false);
     o["NPS_Level"]                << Option(0, 0, 60);// Do not use with other reduce strength levels
                                                       //can be used with adaptive play of variety,
@@ -141,6 +143,7 @@ void init(OptionsMap& o) {
     o["SyzygyProbeDepth"]         << Option(1, 1, 100);
     o["Syzygy50MoveRule"]         << Option(false);
     o["SyzygyProbeLimit"]         << Option(7, 0, 7);
+    o["PureNN"]                   << Option(true);
     o["UseNN"]                    << Option(true, on_use_NNUE);
     o["EvalFile"]                 << Option(EvalFileDefaultPath, on_eval_file);
 }
