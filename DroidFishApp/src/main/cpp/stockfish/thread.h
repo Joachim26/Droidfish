@@ -7,7 +7,7 @@
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Honey is distributed in the hope that it will be useful,
+  Stockfish is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -32,6 +32,7 @@
 #include "search.h"
 #include "thread_win32_osx.h"
 
+namespace Stockfish {
 
 /// Thread class keeps together all the thread-related stuff. We use
 /// per-thread pawn and material hash tables so that once we get a
@@ -54,21 +55,14 @@ public:
   void idle_loop();
   void start_searching();
   void wait_for_search_finished();
-#if defined (Sullivan) || (Noir) || (Blau) || (Harmon)
-  int best_move_count(Move move) const;
-#endif
+  size_t id() const { return idx; }
 
   Pawns::Table pawnsTable;
   Material::Table materialTable;
   size_t pvIdx, pvLast;
   uint64_t ttHitAverage;
-#ifndef Noir
   int selDepth, nmpMinPly;
   Color nmpColor;
-#else
-  int selDepth;
-  bool nmpGuard;
-#endif
   std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
 
   Position rootPos;
@@ -77,17 +71,10 @@ public:
   Depth rootDepth, completedDepth;
   CounterMoveHistory counterMoves;
   ButterflyHistory mainHistory;
-#ifdef Noir
-  ButterflyHistory staticHistory;
-#endif
   LowPlyHistory lowPlyHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
   Score contempt;
-  bool profound_test;
-  int shashinValue, shashinQuiescentCapablancaMiddleHighScore, shashinQuiescentCapablancaMaxScore;//shashinValue
-  int failedHighCnt;
-
 };
 
 
@@ -141,5 +128,7 @@ private:
 };
 
 extern ThreadPool Threads;
+
+} // namespace Stockfish
 
 #endif // #ifndef THREAD_H_INCLUDED

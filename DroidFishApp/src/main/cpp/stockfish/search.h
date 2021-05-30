@@ -25,6 +25,8 @@
 #include "movepick.h"
 #include "types.h"
 
+namespace Stockfish {
+
 class Position;
 
 namespace Search {
@@ -71,9 +73,6 @@ struct RootMove {
   Value previousScore = -VALUE_INFINITE;
   int selDepth = 0;
   int tbRank = 0;
-#if defined (Sullivan) || (Blau) || (Noir) || (Harmon)
-  int best_move_count = 0;
-#endif
   Value tbScore;
   std::vector<Move> pv;
 };
@@ -108,5 +107,7 @@ void init();
 void clear();
 
 } // namespace Search
+
+} // namespace Stockfish
 
 #endif // #ifndef SEARCH_H_INCLUDED

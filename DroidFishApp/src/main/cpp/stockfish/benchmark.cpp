@@ -26,6 +26,7 @@
 using namespace std;
 
 namespace {
+
 const vector<string> Defaults = {
   "setoption name UCI_Chess960 value false",
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -63,24 +64,25 @@ const vector<string> Defaults = {
   "r3k2r/3nnpbp/q2pp1p1/p7/Pp1PPPP1/4BNN1/1P5P/R2Q1RK1 w kq - 0 16",
   "3Qb1k1/1r2ppb1/pN1n2q1/Pp1Pp1Pr/4P2p/4BP2/4B1R1/1R5K b - - 11 40",
   "4k3/3q1r2/1N2r1b1/3ppN2/2nPP3/1B1R2n1/2R1Q3/3K4 w - - 5 1",
-  "8/1p2KP2/1p4q1/1Pp5/2P5/N1Pp1k2/3P4/1N6 b - - 76 40", //draw
 
   // 5-man positions
   "8/8/8/8/5kp1/P7/8/1K1N4 w - - 0 1",     // Kc2 - mate
   "8/8/8/5N2/8/p7/8/2NK3k w - - 0 1",      // Na2 - mate
+  "8/3k4/8/8/8/4B3/4KB2/2B5 w - - 0 1",    // draw
 
   // 6-man positions
   "8/8/1P6/5pr1/8/4R3/7k/2K5 w - - 0 1",   // Re5 - mate
   "8/2p4P/8/kr6/6R1/8/8/1K6 w - - 0 1",    // Ka2 - mate
   "8/8/3P3k/8/1p6/8/1P6/1K3n2 b - - 0 1",  // Nd2 - draw
 
-  // 7-man position
-  "8/4n3/8/2n5/kp1N2P1/8/8/3K4 b - - 0 1", // Mate
-
+  // 7-man positions
+  "8/R7/2q5/8/6k1/8/1P5p/K6R w - - 0 124", // Draw
 
   // Mate and stalemate positions
   "6k1/3b3r/1p1p4/p1n2p2/1PPNpP1q/P3Q1p1/1R1RB1P1/5K2 b - - 0 1",
   "r2r1n2/pp2bk2/2p1p2p/3q4/3PN1QP/2P3R1/P4PP1/5RK1 w - - 0 1",
+//  "8/8/8/8/8/6k1/6p1/6K1 w - -",
+//  "7k/7P/6K1/8/3B4/8/8/8 b - -",
 
   // Chess 960
   "setoption name UCI_Chess960 value true",
@@ -93,6 +95,8 @@ const vector<string> Defaults = {
   //http://talkchess.com/forum3/viewtopic.php?f=2&t=74992
   //Tough Tactical Test, the 35 hardest positions
 
+   "8/4n3/8/2n5/kp1N2P1/8/8/3K4 b - - 0 1", // Mate
+   "8/1p2KP2/1p4q1/1Pp5/2P5/N1Pp1k2/3P4/1N6 b - - 76 40", //draw
   "r1b1r1k1/p3nppp/2p1p3/q3P1B1/2P5/P1pB4/5PPP/1R1Q1RK1 w - - 0 1 bm Bxh7+; id TTT1.004",
   "2b2rk1/N1p3b1/p2p1n2/2PPp1q1/2B1Pn1p/PrN2P2/5RPB/R1Q4K b - - 0 1 bm N6h5; id TTT1.005",
   "r2b4/1r5k/2p1p1p1/1pPpPpPp/pQ1P1P1P/1bP3KB/8/1N6 b - - 0 1 bm a3; id TTT1.009",
@@ -145,17 +149,21 @@ const vector<string> Defaults = {
   "7r/p3k3/2p5/1pPp4/3P4/PP4P1/3P1PB1/2K5 w - - 0 1; Vitaly Chekhover, Parna Ty Bull 1947, draw",
   "2br4/r2pp3/8/1p1p1kN1/pP1P4/2P3R1/PP3PP1/2K5 w - - 0 1; F. Simkovitch, L'Italia Scacchistica 1923, draw",
   "8/1p6/1p6/kPp2P1K/2P5/N1Pp4/q2P4/1N6 w - - 0 1; Noam Elkies, 1991, draw",
-  "4K1k1/8/1p5p/1Pp3b1/8/1P3P2/P1B2P2/8 w - - 0 1 bm f4; 1st Prize, Ladislav Salai Jr, Šachová skladba 2011-12, win"
+  "4K1k1/8/1p5p/1Pp3b1/8/1P3P2/P1B2P2/8 w - - 0 1 bm f4; 1st Prize, Ladislav Salai Jr, Šachová skladba 2011-12, win",
+  "3r4/3r4/2p1k3/p1pbPp1p/Pp1p1PpP/1P1P2R1/2P4R/2K1Q3 w - - 0 1 bm Rxg4:  False Fortress"
 #endif
 };
 
 } // namespace
 
+namespace Stockfish {
+
 /// setup_bench() builds a list of UCI commands to be run by bench. There
 /// are five parameters: TT size in MB, number of search threads that
 /// should be used, the limit value spent for each position, a file name
-/// where to look for positions in FEN format and the type of the limit:
-/// depth, perft, nodes and movetime (in millisecs).
+/// where to look for positions in FEN format, the type of the limit:
+/// depth, perft, nodes and movetime (in millisecs), and evaluation type
+/// mixed (default), classical, NNUE.
 ///
 /// bench -> search default positions up to depth 13
 /// bench 64 1 15 -> search default positions up to depth 15 (TT = 64MB)
@@ -222,3 +230,5 @@ vector<string> setup_bench(const Position& current, istream& is) {
 
   return list;
 }
+
+} // namespace Stockfish

@@ -63,7 +63,7 @@ public class ColorTheme {
     };
     private static final String prefPrefix = "color_";
 
-    private final static int defaultTheme = 2;
+    private final static int defaultTheme = 3;
     final static int[] themeNames = {
         R.string.colortheme_honey,
         R.string.colortheme_honey2,
@@ -84,9 +84,9 @@ public class ColorTheme {
     },
 
     { // Honey2 Night
-        "#FF89807A", "#FFB6AFA5", "#FF00FF00", "#FF0F0F0F", "#FFE6E6E6", "#FFFF0000",
+        "#FF333333", "#FF5E5E5E", "#FF00FF00", "#FF0F0F0F", "#FFE6E6E6", "#FFFF0000",
         "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
-        "#FFFF0000", "#FF808080", "#FFC0CC0C", "#FFFFFF66", "#FF414040"
+        "#FFFF0000", "#FF808080", "#FFC0CC0C", "#FFFFFF66", "#FF202020"
     },
     { // Honey3 Stockfish Green
         "#FF538835", "#FFDEDEDE", "#FFFF0000", "#FF070707", "#FFF6F6F6", "#FFEE114A",
@@ -94,7 +94,7 @@ public class ColorTheme {
         "#FF00FF00", "#FF808080", "#FFE2E200", "#FFE2E200", "#FF1A221A"
     },
     { // Honey4 Harmon
-        "#FF591722", "#FFD2CFD5", "#FF24CC48", "#FF070707", "#FFF6F6F6", "#FF7B2555",
+        "#FF591722", "#FFE1D4AC", "#FF24CC48", "#FF070707", "#FFF6F6F6", "#FF7B2555",
         "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
         "#FF3AA133", "#FF808080", "#FFE2E200", "#FFE2E200", "#FF24060B"
     },
@@ -105,10 +105,10 @@ public class ColorTheme {
         "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
         "#FFFF0000", "#FF9F9F66", "#FFC0C000", "#FFF7FBC6", "#FF292C10"
     },
-    { // XBoard
-        "#FF77A26D", "#FFC8C365", "#FFFFFF00", "#FF202020", "#FFFFFFCC", "#FF6B9262",
+    { // XBoard/Organic
+        "#FF623304", "#FFDDCB9B", "#FF24CC48", "#FF070707", "#FFF6F6F6", "#FF7B2555",
         "#A01F1FFF", "#A0FF1F1F", "#501F1FFF", "#50FF1F1F", "#371F1FFF", "#3CFF1F1F", "#1E1F1FFF", "#28FF1F1F",
-        "#FFFF0000", "#FF808080", "#FFC0C000", "#FFEFFBBC", "#FF28320C"
+        "#FF3AA133", "#FF808080", "#FFE2E200", "#FFE2E200", "#FF2D1C04"
     },
     { // Blue
         "#FF83A5D2", "#FFFFFFFA", "#FF3232D1", "#FF282828", "#FFF0F0F0", "#FF3333FF",

@@ -50,7 +50,7 @@
 
 #if 1
 #define NNUE
-#define NNUEDEFAULT /storage/emulated/0/Droidfish/nnue/ninu.bin
+#define NNUEDEFAULT /storage/emulated/0/Droidfish/nnue/eval.bin
 #endif
 
 #ifdef FINDMEMORYLEAKS
@@ -1590,7 +1590,7 @@ public:
         string sbinary = compinfo->PrintCpuFeatures(compinfo->binarySupports, true);
         string sNnue = "";
 #ifdef NNUE
-        if (NnueReady) sNnue = "ninu.bin";
+        if (NnueReady) sNnue = "eval.bin";
 #endif
         return string(ENGINEVER) + sNnue +  (sbinary != "" ? " (" + sbinary + ")" : "");
     };

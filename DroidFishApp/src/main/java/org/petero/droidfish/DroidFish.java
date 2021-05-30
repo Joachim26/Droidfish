@@ -1098,7 +1098,7 @@ public class DroidFish extends Activity
         mShowBookHints = settings.getBoolean("bookHints", false);
         mEcoHints = getIntSetting("ecoHints", ECO_HINTS_AUTO);
 
-        String engine = settings.getString("engine", "blackdiamond");
+        String engine = settings.getString("engine", "stockfish");
         setEngine(engine);
 
         mPonderMode = settings.getBoolean("ponderMode", false);
@@ -1114,7 +1114,7 @@ public class DroidFish extends Activity
         autoMoveDelay = getIntSetting("autoDelay", 5000);
 
 
-        dragMoveEnabled = settings.getBoolean("dragMoveEnabled", false);
+        dragMoveEnabled = settings.getBoolean("dragMoveEnabled", true);
         scrollSensitivity = Float.parseFloat(settings.getString("scrollSensitivity", "2"));
         invertScrollDirection = settings.getBoolean("invertScrollDirection", false);
         scrollGames = settings.getBoolean("scrollGames", false);
@@ -1143,8 +1143,8 @@ public class DroidFish extends Activity
         }
         initSpeech();
         vibrateEnabled = settings.getBoolean("vibrateEnabled", false);
-        animateMoves = settings.getBoolean("animateMoves", false);
-        autoScrollTitle = settings.getBoolean("autoScrollTitle", true);
+        animateMoves = settings.getBoolean("animateMoves", true);
+        autoScrollTitle = settings.getBoolean("autoScrollTitle", false);
         setTitleScrolling();
 
         custom1ButtonActions.readPrefs(settings, actionFactory);
@@ -1323,8 +1323,8 @@ public class DroidFish extends Activity
 
     private void setEngine(String engine) {
     /*    if (!storageAvailable()) {
-            if (!"stockfish".equals(engine) && !"cuckoochess".equals(engine))
-                engine = "stockfish";
+            if (!"".equals(engine) && !"cuckoochess".equals(engine))
+                engine = "";
         }*/
         ctrl.setEngine(engine);
         setEngineTitle(engine, ctrl.eloData().getEloToUse());
@@ -1346,9 +1346,77 @@ public class DroidFish extends Activity
             int idx = engine.lastIndexOf('/');
             eName = engine.substring(idx + 1);
         } else {
-            eName = getString("cuckoochess".equals(engine) ?
-                              R.string.cuckoochess_engine :
-                              R.string.blackdiamond_engine );
+            eName = engine;
+            if (eName == "cuckoochess")
+              eName =  getString(R.string.cuckoochess_engine);
+            else if (eName == "new_stockfish")
+              eName =  getString(R.string.new_stockfish_engine);
+            else if (eName == "stockfish")
+              eName =  getString(R.string.stockfish_engine);
+            else if (eName == "andscacs")
+              eName =  getString(R.string.andscacs_engine);
+            else if (eName == "blackdiamond")
+              eName =  getString(R.string.blackdiamond_engine);
+            else if (eName == "bluefish")
+              eName =  getString(R.string.bluefish_engine);
+            else if (eName == "fatfritz")
+              eName =  getString(R.string.fatfritz_engine);
+            else if (eName == "cfish")
+              eName =  getString(R.string.cfish_engine);
+            else if (eName == "ditto")
+              eName =  getString(R.string.ditto_engine);
+            else if (eName == "ethereal")
+              eName =  getString(R.string.ethereal_engine);
+            else if (eName == "fruit")
+              eName =  getString(R.string.fruit_engine);
+
+            else if (eName == "glaurung")
+              eName =  getString(R.string.glaurung_engine);
+            else if (eName == "sf6")
+              eName =  getString(R.string.sf6_engine);
+            else if (eName == "chess")
+              eName =  getString(R.string.chess_engine);
+
+            else if (eName == "okimaguro")
+              eName =  getString(R.string.okimaguro_engine);
+            else if (eName == "corchess")
+              eName =  getString(R.string.corchess_engine);
+            else if (eName == "crystal")
+              eName =  getString(R.string.crystal_engine);
+
+            else if (eName == "wyldchess")
+              eName =  getString(R.string.wyldchess_engine);
+            else if (eName == "mojo")
+              eName =  getString(R.string.mojo_engine);
+            else if (eName == "rubichess")
+              eName =  getString(R.string.rubichess_engine);
+
+            else if (eName == "harmon")
+              eName =  getString(R.string.harmon_engine);
+            else if (eName == "shallowblue")
+              eName =  getString(R.string.shallowblue_engine);
+            else if (eName == "xiphos")
+              eName =  getString(R.string.xiphos_engine);
+
+            else if (eName == "laser")
+              eName =  getString(R.string.laser_engine);
+            else if (eName == "defenchess")
+              eName =  getString(R.string.defenchess_engine);
+            else if (eName == "demolito")
+              eName =  getString(R.string.demolito_engine);
+
+
+            else if (eName == "ct800")
+              eName =  getString(R.string.ct800_engine);
+
+            else
+              eName =  getString(R.string.stockfish_engine);
+
+
+
+            //eName = getString("cuckoochess".equals(engine) ?
+            //                  R.string.cuckoochess_engine :
+            //                  R.string.blackdiamond_engine );
 
         }
         if (ctrl != null && !ctrl.analysisMode())
@@ -1378,7 +1446,7 @@ public class DroidFish extends Activity
 
     @Override
     public void updateEngineTitle(int elo) {
-        String engine = settings.getString("engine", "blackdiamond");
+        String engine = settings.getString("engine", "stockfish");
         setEngineTitle(engine, elo);
     }
 
@@ -2569,35 +2637,36 @@ public class DroidFish extends Activity
                 "blackdiamond".equals(name) ||
                 "bluefish".equals(name) ||
                 "cfish".equals(name) ||
-                "ditto".equals(name) ||
-                "ethereal".equals(name) ||
-                "cuckoochess".equals(name) ||
-                "fruit".equals(name) ||
-                "glaurung".equals(name) ||
-                "sf6".equals(name) ||
-                "honey".equals(name) ||
-                "harmon".equals(name) ||
-                "rubichess".equals(name) ||
                 "chess".equals(name) ||
-                "okimaguro".equals(name) ||
                 "corchess".equals(name) ||
                 "crystal".equals(name) ||
-                "wyldchess".equals(name) ||
-                "mojo".equals(name) ||
-                "stockfish".equals(name) ||
-                "shallowblue".equals(name) ||
-                "laser".equals(name) ||
-                "defenchess".equals(name) ||
-                "xiphos".equals(name) ||
-                "demolito".equals(name) ||
                 "ct800".equals(name) ||
+                "cuckoochess".equals(name) ||
+                "defenchess".equals(name) ||
+                "demolito".equals(name) ||
+                "ditto".equals(name) ||
+                "ethereal".equals(name) ||
+                "fatfritz".equals(name) ||
+                "fruit".equals(name) ||
+                "glaurung".equals(name) ||
+                "harmon".equals(name) ||
+                "honey".equals(name) ||
+                "laser".equals(name) ||
+                "mojo".equals(name) ||
+                "new_stockfish".equals(name) ||
+                "okimaguro".equals(name) ||
+                "rubichess".equals(name) ||
+                "sf6".equals(name) ||
+                "shallowblue".equals(name) ||
+                "stockfish".equals(name) ||
+                "wyldchess".equals(name) ||
+                "xiphos".equals(name) ||
                 name.endsWith(".ini");
     }
 
     private Dialog selectEngineDialog(final boolean abortOnCancel) {
         final ArrayList<String> items = new ArrayList<>();
         final ArrayList<String> ids = new ArrayList<>();
-        ids.add("harmon"); items.add(getString(R.string.harmon_engine)); //harmon
         ids.add("andscacs"); items.add(getString(R.string.andscacs_engine));
         ids.add("blackdiamond"); items.add(getString(R.string.blackdiamond_engine));
         ids.add("bluefish"); items.add(getString(R.string.bluefish_engine));
@@ -2606,22 +2675,25 @@ public class DroidFish extends Activity
         ids.add("crystal"); items.add(getString(R.string.crystal_engine));
         ids.add("ct800"); items.add(getString(R.string.ct800_engine));
         ids.add("cuckoochess"); items.add(getString(R.string.cuckoochess_engine));
-        ids.add("ditto"); items.add(getString(R.string.ditto_engine));
         ids.add("defenchess"); items.add(getString(R.string.defenchess_engine));
         ids.add("demolito"); items.add(getString(R.string.demolito_engine));
-        ids.add("fruit"); items.add(getString(R.string.fruit_engine));
+        ids.add("ditto"); items.add(getString(R.string.ditto_engine));
         ids.add("ethereal"); items.add(getString(R.string.ethereal_engine));
+        ids.add("fatfritz"); items.add(getString(R.string.fatfritz_engine));
+        ids.add("fruit"); items.add(getString(R.string.fruit_engine));
         ids.add("glaurung"); items.add(getString(R.string.glaurung_engine));
+        ids.add("harmon"); items.add(getString(R.string.harmon_engine)); //harmon
         ids.add("stockfish"); items.add(getString(R.string.stockfish_engine));  //honey
         ids.add("laser"); items.add(getString(R.string.laser_engine));
         ids.add("mojo"); items.add(getString(R.string.mojo_engine));
+        ids.add("chess"); items.add(getString(R.string.chess_engine)); //senpai 1.0
         ids.add("okimaguro"); items.add(getString(R.string.okimaguro_engine));
         ids.add("rubichess"); items.add(getString(R.string.rubichess_engine));
-        ids.add("chess"); items.add(getString(R.string.chess_engine)); //senpai 1.0
-        ids.add("shallowblue"); items.add(getString(R.string.shallowblue_engine));
+        ids.add("new_stockfish"); items.add(getString(R.string.new_stockfish_engine));  //Stockfish
         ids.add("sf6"); items.add(getString(R.string.sf6_engine));
-        ids.add("xiphos"); items.add(getString(R.string.xiphos_engine));
+        ids.add("shallowblue"); items.add(getString(R.string.shallowblue_engine));
         ids.add("wyldchess"); items.add(getString(R.string.wyldchess_engine));
+        ids.add("xiphos"); items.add(getString(R.string.xiphos_engine));
 
         if (storageAvailable()) {
             final String sep = File.separator;

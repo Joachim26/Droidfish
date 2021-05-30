@@ -2,8 +2,10 @@ LOCAL_PATH := $(call my-dir)
 
 include src/main/cpp/nativeutil/Android.mk
 include src/main/cpp/stockfish/Android.mk
+include src/main/cpp/new_stockfish/Android.mk
 include src/main/cpp/blackdiamond/Android.mk
 include src/main/cpp/bluefish/Android.mk
+include src/main/cpp/fatfritz/Android.mk
 include src/main/cpp/glaurung/Android.mk
 include src/main/cpp/okimaguro/Android.mk
 include src/main/cpp/sf6/Android.mk

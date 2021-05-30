@@ -2,9 +2,9 @@
 <resources>
     <string name="app_name">Harmon Chess App</string>
     <string name="engine_hash_default">64</string>
-    <string name="moves_per_session_default">100</string>
-    <string name="time_control_default">100</string>
-    <string name="time_increment_default">10</string>
+    <string name="moves_per_session_default">0</string>
+    <string name="time_control_default">120000</string>
+    <string name="time_increment_default">180000</string>
     <string name="squareSelectType_default">1</string>
     <string name="language_default">default</string>
     <string name="font_size_default">12</string>
@@ -12,9 +12,9 @@
     <string name="scroll_sensitivity_default">2</string>
     <string name="book_line_length_default">1000000</string>
     <string name="viewPieceType_default">1</string>
-    <string name="viewPieceSet_default">chessmonk</string>
+    <string name="viewPieceSet_default">chesscases</string>
     <string name="autoDelay_default">5000</string>
-    <string name="sleepDelay_default">3000</string>
+    <string name="sleepDelay_default">0</string>
     <string name="move_announce_type_default">off</string>
     <string name="cpu_warning">\
 <b>Utilización de la CPU</b>\
@@ -221,32 +221,33 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
     <string name="engine_name_in_use">Nombre del motor en uso</string>
     <string name="slash_not_allowed">Símbolo / no permitido</string>
     <string name="engine_error">Error del Motor</string>
-    <string name="blackdiamond_engine">Black Diamond</string>
+    <string name="stockfish_engine">Honey-SE</string>
     <string name="andscacs_engine">Andscacs 0.921</string>
+    <string name="blackdiamond_engine">Black Diamond</string>
     <string name="bluefish_engine">Bluefish</string>
-    <string name="corchess_engine">CorChess</string>
     <string name="cfish_engine">Cfish</string>
-    <string name="ditto_engine">Ditto</string>
+    <string name="chess_engine">Senpai 1.0</string>
+    <string name="corchess_engine">CorChess</string>
     <string name="crystal_engine">Crystal</string>
-    <string name="harmon_engine">Harmon</string>
-    <string name="defenchess_engine">Defenchess 2.2</string>
-    <string name="demolito_engine">Demolito 2020-10-09</string>
-    <string name="ethereal_engine">Ethereal 2.75</string>
-    <string name="glaurung_engine">Glaurung 2.2</string>
-    <string name="wyldchess_engine">WyldChess</string>
-    <string name="stockfish_engine">Honey</string>
-    <string name="laser_engine">Laser 1.7</string>
-    <string name="mojo_engine">Mojo 1.0</string>
-    <string name="sf6_engine">Stockfish 6 </string>
-    <string name="okimaguro_engine">Oki Maguro</string>
-    <string name="rubichess_engine">Rubichess 1.9-dev</string>
-    <string name="xiphos_engine">Xiphos 0.6</string>
     <string name="ct800_engine">CT800 1.41</string>
     <string name="cuckoochess_engine">CuckooChess</string>
+    <string name="defenchess_engine">Defenchess 2.2</string>
+    <string name="demolito_engine">Demolito 2020-10-09</string>
+    <string name="ditto_engine">Ditto</string>
+    <string name="ethereal_engine">Ethereal 2.75</string>
+    <string name="fatfritz_engine">Fat Fish 2</string>
     <string name="fruit_engine">Fruit 2.1</string>
-    <string name="chess_engine">Senpai 1.0</string>
+    <string name="glaurung_engine">Glaurung 2.2</string>
+    <string name="harmon_engine">Harmon</string>
+    <string name="laser_engine">Laser 1.7</string>
+    <string name="mojo_engine">Mojo 1.0</string>
+    <string name="new_stockfish_engine">Stockfish</string>
+    <string name="okimaguro_engine">Oki Maguro</string>
+    <string name="rubichess_engine">Rubichess 1.9-dev</string>
+    <string name="sf6_engine">Stockfish 6 </string>
     <string name="shallowblue_engine">Shallow Blue 2.0</string>
-    <string name="select_engine">Seleccionar motor</string>
+    <string name="wyldchess_engine">WyldChess</string>
+    <string name="xiphos_engine">Xiphos 0.6</string>    <string name="select_engine">Seleccionar motor</string>
     <string name="engine_options">Opciones del motor</string>
     <string name="set_engine_options">Ajuste de opciones</string>
     <string name="configure_network_engine">Configurar motor en la red</string>
@@ -511,40 +512,40 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>2</item>
     </string-array>
     <string-array name="viewPieceSet_texts">
+        <item>Berserker</item>
         <item>Isle of Lewis</item>
-        <item>Alfonso</item>
+        <item>London</item>
+        <item>Madrid</item>
+        <item>Modern Italian</item>
+        <item>Paris</item>
+        <item>Windsor</item>
         <item>Alpha</item>
         <item>Cburnett</item>
-        <item>Chess Cases</item>
         <item>Chess Icons</item>
         <item>Chess Monk</item>
         <item>Free Staunton</item>
-        <item>Leipzig</item>
-        <item>London</item>
-        <item>Madrid</item>
         <item>Merida</item>
         <item>Merida New</item>
         <item>Metal Tops</item>
-        <item>Pirat</item>
         <item>Regular</item>
         <item>Wikimedia</item>
     </string-array>
     <string-array name="viewPieceSet_values">
+        <item>chesscases</item>
         <item>kilfiger</item>
+        <item>magnetic</item>
+        <item>maya</item>
         <item>alfonso</item>
+        <item>pirat</item>
+        <item>leipzig</item>
         <item>alpha</item>
         <item>cburnett</item>
-        <item>chesscases</item>
         <item>chessicons</item>
         <item>chessmonk</item>
         <item>freestaunton</item>
-        <item>leipzig</item>
-        <item>magnetic</item>
-        <item>maya</item>
         <item>merida</item>
         <item>merida_new</item>
         <item>metaltops</item>
-        <item>pirat</item>
         <item>regular</item>
         <item>wikimedia</item>
     </string-array>
@@ -560,6 +561,8 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>4096 MB</item>
         <item>8192 MB</item>
         <item>16384 MB</item>
+        <item>32768 MB</item>
+        <item>65536 MB</item>
     </string-array>
     <string-array name="engine_hash_values">
         <item>16</item>
@@ -573,6 +576,8 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>4096</item>
         <item>8192</item>
         <item>16384</item>
+        <item>32768</item>
+        <item>65536</item>
     </string-array>
     <string-array name="moves_per_session_texts">
         <item>Whole Game</item>
@@ -600,9 +605,14 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>100 milliseconds</item>
         <item>250 milliseconds</item>
         <item>500 milliseconds</item>
+        <item>750 milliseconds</item>
         <item>1 second</item>
         <item>2 seconds</item>
+        <item>3 seconds</item>
         <item>4 seconds</item>
+        <item>5 seconds</item>
+        <item>6 seconds</item>
+        <item>7 seconds</item>
         <item>8 seconds</item>
         <item>12 seconds</item>
         <item>15 seconds</item>
@@ -613,14 +623,21 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>5 minutes</item>
         <item>10 minutes</item>
         <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
     </string-array>
     <string-array name="time_control_values">
         <item>100</item>
         <item>250</item>
         <item>500</item>
+        <item>500</item>
         <item>1000</item>
         <item>2000</item>
+        <item>3000</item>
         <item>4000</item>
+        <item>5000</item>
+        <item>6000</item>
+        <item>7000</item>
         <item>8000</item>
         <item>12000</item>
         <item>15000</item>
@@ -631,6 +648,8 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>300000</item>
         <item>600000</item>
         <item>900000</item>
+        <item>1800000</item>
+        <item>3600000</item>
     </string-array>
     <string-array name="time_increment_texts">
         <item>None</item>
@@ -639,9 +658,13 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>20 milliseconds</item>
         <item>40 milliseconds</item>
         <item>60 milliseconds</item>
+        <item>80 milliseconds</item>
         <item>100 milliseconds</item>
+        <item>150 milliseconds</item>
+        <item>200 milliseconds</item>
         <item>250 milliseconds</item>
         <item>500 milliseconds</item>
+        <item>750 milliseconds</item>
         <item>1 second</item>
         <item>2 seconds</item>
         <item>3 seconds</item>
@@ -650,6 +673,7 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>15 seconds</item>
         <item>30 seconds</item>
         <item>1 minute</item>
+        <item>2 minute</item>
     </string-array>
     <string-array name="time_increment_values">
         <item>0</item>
@@ -658,9 +682,13 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>20</item>
         <item>40</item>
         <item>60</item>
+        <item>80</item>
         <item>100</item>
+        <item>150</item>
+        <item>200</item>
         <item>250</item>
         <item>500</item>
+        <item>750</item>
         <item>1000</item>
         <item>2000</item>
         <item>3000</item>
@@ -669,6 +697,7 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
         <item>15000</item>
         <item>30000</item>
         <item>60000</item>
+        <item>120000</item>
     </string-array>
     <string-array name="autoDelay_texts">
         <item>0.5 second</item>
@@ -695,9 +724,13 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
     </string-array>
     <string-array name="sleepDelay_texts">
         <item>Off</item>
+        <item>0.5 second</item>
         <item>1 second</item>
+        <item>1.5 second</item>
         <item>2 seconds</item>
+        <item>2.5 second</item>
         <item>3 seconds</item>
+        <item>3.5 second</item>
         <item>5 seconds</item>
         <item>10 seconds</item>
         <item>15 seconds</item>
@@ -706,14 +739,18 @@ Si está usted utilizando la batería, se recomienda que cambie los ajustes para
     </string-array>
     <string-array name="sleepDelay_values">
         <item>0</item>
-        <item>990</item>
-        <item>1990</item>
-        <item>2990</item>
-        <item>4990</item>
-        <item>9990</item>
-        <item>14990</item>
-        <item>29990</item>
-        <item>59990</item>
+        <item>400</item>
+        <item>900</item>
+        <item>1400</item>
+        <item>1900</item>
+        <item>2400</item>
+        <item>2900</item>
+        <item>3400</item>
+        <item>4900</item>
+        <item>9900</item>
+        <item>14900</item>
+        <item>29900</item>
+        <item>59900</item>
     </string-array>
 
     <string-array name="squareSelectType_texts">

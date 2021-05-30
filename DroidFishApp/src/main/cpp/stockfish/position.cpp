@@ -34,6 +34,8 @@
 
 using std::string;
 
+namespace Stockfish {
+
 namespace Zobrist {
 
   Key psq[PIECE_NB][SQUARE_NB];
@@ -64,19 +66,20 @@ std::ostream& operator<<(std::ostream& os, const Position& pos) {
 
       os << " | " << (1 + r) << "\n +---+---+---+---+---+---+---+---+\n";
   }
+
   os << "   a   b   c   d   e   f   g   h\n"
      << "\nFen: " << pos.fen() << "\nKey: " << std::hex << std::uppercase
      << std::setfill('0') << std::setw(16) << pos.key()
      << std::setfill(' ') << std::dec << "\nCheckers: ";
 
   for (Bitboard b = pos.checkers(); b; )
-      os << UCI::square(pop_lsb(&b)) << " ";
+      os << UCI::square(pop_lsb(b)) << " ";
 
   if (    int(Tablebases::MaxCardinality) >= popcount(pos.pieces())
       && !pos.can_castle(ANY_CASTLING))
   {
       StateInfo st;
-      ASSERT_ALIGNED(&st, Eval::NNUE::kCacheLineSize);
+      ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
       Position p;
       p.set(pos.fen(), pos.is_chess960(), &st, pos.this_thread());
@@ -196,7 +199,6 @@ Position& Position::set(const string& fenStr, bool isChess960, StateInfo* si, Th
 
   std::memset(this, 0, sizeof(Position));
   std::memset(si, 0, sizeof(StateInfo));
-  std::fill_n(&pieceList[0][0], sizeof(pieceList) / sizeof(Square), SQ_NONE);
   st = si;
 
   ss >> std::noskipws;
@@ -357,7 +359,7 @@ void Position::set_state(StateInfo* si) const {
 
   for (Bitboard b = pieces(); b; )
   {
-      Square s = pop_lsb(&b);
+      Square s = pop_lsb(b);
       Piece pc = piece_on(s);
       si->key ^= Zobrist::psq[pc][s];
 
@@ -408,7 +410,7 @@ Position& Position::set(const string& code, Color c, StateInfo* si) {
 /// Position::fen() returns a FEN representation of the position. In case of
 /// Chess960 the Shredder-FEN notation is used. This is mainly a debugging function.
 
-const string Position::fen() const {
+string Position::fen() const {
 
   int emptyCnt;
   std::ostringstream ss;
@@ -474,7 +476,7 @@ Bitboard Position::slider_blockers(Bitboard sliders, Square s, Bitboard& pinners
 
   while (snipers)
   {
-    Square sniperSq = pop_lsb(&snipers);
+    Square sniperSq = pop_lsb(snipers);
     Bitboard b = between_bb(s, sniperSq) & occupancy;
 
     if (b && !more_than_one(b))
@@ -542,7 +544,7 @@ bool Position::legal(Move m) const {
   // If the moving piece is a king, check whether the destination square is
   // attacked by the opponent.
   if (type_of(piece_on(from)) == KING)
-      return !(attackers_to(to) & pieces(~us));
+      return !(attackers_to(to, pieces() ^ from) & pieces(~us));
 
   // A non-king move is legal if and only if it is not pinned or it
   // is moving along the ray towards or away from the king.
@@ -684,7 +686,6 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
   assert(&newSt != st);
 
   thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
-
   Key k = st->key ^ Zobrist::side;
 
   // Copy some fields of the old state to our new StateInfo object except the
@@ -715,7 +716,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
 
   assert(color_of(pc) == us);
   assert(captured == NO_PIECE || color_of(captured) == (type_of(m) != CASTLING ? them : us));
-//  assert(type_of(captured) != KING);
+  assert(type_of(captured) != KING);
 
   if (type_of(m) == CASTLING)
   {
@@ -987,7 +988,7 @@ void Position::do_castling(Color us, Square from, Square& to, Square& rfrom, Squ
 }
 
 
-/// Position::do(undo)_null_move() is used to do(undo) a "null move": it flips
+/// Position::do_null_move() is used to do a "null move": it flips
 /// the side to move without executing any move on the board.
 
 void Position::do_null_move(StateInfo& newSt) {
@@ -1025,6 +1026,9 @@ void Position::do_null_move(StateInfo& newSt) {
 
   assert(pos_is_ok());
 }
+
+
+/// Position::undo_null_move() must be used to undo a "null move"
 
 void Position::undo_null_move() {
 
@@ -1091,8 +1095,8 @@ bool Position::see_ge(Move m, Value threshold) const {
       if (!(stmAttackers = attackers & pieces(stm)))
           break;
 
-      // Don't allow pinned pieces to attack (except the king) as long as
-      // there are pinners on their original square.
+      // Don't allow pinned pieces to attack as long as there are
+      // pinners on their original square.
       if (pinners(~stm) & occupied)
           stmAttackers &= ~blockers_for_king(stm);
 
@@ -1163,11 +1167,7 @@ bool Position::see_ge(Move m, Value threshold) const {
 
 bool Position::is_draw(int ply) const {
 
-#ifdef Noir
-  if (st->rule50 > 99 + bool(checkers()))
-#else
   if (st->rule50 > 99 && (!checkers() || MoveList<LEGAL>(*this).size()))
-#endif
       return true;
 
   // Return a draw score if a position repeats once earlier but strictly
@@ -1318,22 +1318,16 @@ bool Position::pos_is_ok() const {
               assert(0 && "pos_is_ok: Bitboards");
 
   StateInfo si = *st;
-  ASSERT_ALIGNED(&si, Eval::NNUE::kCacheLineSize);
+  ASSERT_ALIGNED(&si, Eval::NNUE::CacheLineSize);
 
   set_state(&si);
   if (std::memcmp(&si, st, sizeof(StateInfo)))
       assert(0 && "pos_is_ok: State");
 
   for (Piece pc : Pieces)
-  {
       if (   pieceCount[pc] != popcount(pieces(color_of(pc), type_of(pc)))
           || pieceCount[pc] != std::count(board, board + SQUARE_NB, pc))
           assert(0 && "pos_is_ok: Pieces");
-
-      for (int i = 0; i < pieceCount[pc]; ++i)
-          if (board[pieceList[pc][i]] != pc || index[pieceList[pc][i]] != i)
-              assert(0 && "pos_is_ok: Index");
-  }
 
   for (Color c : { WHITE, BLACK })
       for (CastlingRights cr : {c & KING_SIDE, c & QUEEN_SIDE})
@@ -1349,60 +1343,5 @@ bool Position::pos_is_ok() const {
 
   return true;
 }
-#if defined (Noir)
-bool Position::is_scb(Color Us) const {
 
-    if (pieces(Us, QUEEN))
-        return false;
-
-    if (pieces(Us, ROOK))
-        return false;
-
-    if (pieces(Us, KNIGHT))
-        return false;
-
-    if (      pieces(Us, BISHOP)
-        && !((pieces(Us, BISHOP) & ~DarkSquares) && (pieces(Us, BISHOP) &  DarkSquares)))
-            return true;
-
-    return false;
-}
-#endif
-
-#ifndef Stockfish
-bool Position::king_danger() const {
-
-    Square ksq = square<KING>(sideToMove);
-    Bitboard kingRing, kingAttackers, legalKing;
-
-    kingRing = kingAttackers = legalKing = 0;
-
-    kingRing = attacks_bb<KING>(ksq);
-
-    while (kingRing)
-    {
-      Square to = pop_lsb(&kingRing);
-      Bitboard enemyAttackers = pieces(~sideToMove) & attackers_to(to);
-      if (!enemyAttackers)
-      {
-          if ((pieces(sideToMove) & to) == 0)
-              legalKing |= to;
-      }
-
-      while (enemyAttackers)
-      {
-        Square currentEnemy = pop_lsb(&enemyAttackers);
-        if ((currentEnemy & ~kingRing) || (more_than_one(attackers_to(to) & pieces(~sideToMove))))
-            kingAttackers |= currentEnemy;
-      }
-    }
-    int kingAttackersCount = popcount(kingAttackers);
-    int legalKingCount = popcount(legalKing);
-
-    if (   (kingAttackersCount > 1 &&  legalKingCount < 2)
-        || (kingAttackersCount > 0 && !legalKingCount))
-        return true;
-
-    return false;
-}
-#endif
+} // namespace Stockfish

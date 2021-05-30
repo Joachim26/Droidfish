@@ -5,5 +5,4 @@ LOCAL_CFLAGS    := -D$(ENGINE)  -DNNUE -DNNUE_SPARSE  -std=c17   -fno-exceptions
 LOCAL_LDFLAGS	+= -fPIE -s
 include $(BUILD_EXECUTABLE)
 
-
-##-DNNUE_SPARSE
+#-DNNUE_EMBEDDED

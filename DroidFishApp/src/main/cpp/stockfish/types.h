@@ -12,9 +12,9 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef TYPES_H_INCLUDED
 #define TYPES_H_INCLUDED
@@ -83,6 +83,8 @@
 #  define pext(b, m) 0
 #endif
 
+namespace Stockfish {
+
 #ifdef USE_POPCNT
 constexpr bool HasPopCnt = true;
 #else
@@ -105,7 +107,7 @@ typedef uint64_t Key;
 typedef uint64_t Bitboard;
 
 constexpr int MAX_MOVES = 256;
-constexpr int MAX_PLY   = 256;
+constexpr int MAX_PLY   = 246;
 
 /// A move needs 16 bits to be stored
 ///
@@ -184,21 +186,6 @@ enum Value : int {
   VALUE_MATE_IN_MAX_PLY  =  VALUE_MATE - MAX_PLY,
   VALUE_MATED_IN_MAX_PLY = -VALUE_MATE_IN_MAX_PLY,
 
-//Code idea below by Ed Schröder
-#ifdef Harmon
-#define PVM 122/100
-#define PVE 122/100
-#define NVM 122/100
-#define NVE 122/100
-#define BVM 122/100
-#define BVE 122/100
-#define RVM 122/100
-#define RVE 122/100
-#define QVM 122/100
-#define QVE 122/100
-
-
-#elif (defined Blau) || (defined Noir)
   #define PVM 78/100
   #define PVE 78/100
   #define NVM 78/100
@@ -210,45 +197,20 @@ enum Value : int {
   #define QVM 78/100
   #define QVE 78/100
 
-#elif (defined Sullivan)
-  #define PVM 89/100
-  #define PVE 89/100
-  #define NVM 89/100
-  #define NVE 89/100
-  #define BVM 89/100
-  #define BVE 89/100
-  #define RVM 89/100
-  #define RVE 89/100
-  #define QVM 89/100
-  #define QVE 89/100
-
-#else
-  #define PVM 100/100
-  #define PVE 100/100
-  #define NVM 100/100
-  #define NVE 100/100
-  #define BVM 100/100
-  #define BVE 100/100
-  #define RVM 100/100
-  #define RVE 100/100
-  #define QVM 100/100
-  #define QVE 100/100
-
-#endif
-
+  /*PawnValueMg   = 126,   PawnValueEg   = 208,
+  KnightValueMg = 781,   KnightValueEg = 854,
+  BishopValueMg = 825,   BishopValueEg = 915,
+  RookValueMg   = 1276,  RookValueEg   = 1380,
+  QueenValueMg  = 2538,  QueenValueEg  = 2682,*/
   PawnValueMg   = 126*PVM,   PawnValueEg   = 208*PVE,
   KnightValueMg = 781*NVM,   KnightValueEg = 854*NVE,
   BishopValueMg = 825*BVM,   BishopValueEg = 915*BVE,
   RookValueMg   = 1276*RVM,  RookValueEg   = 1380*RVE,
   QueenValueMg  = 2538*QVM,  QueenValueEg  = 2682*QVE,
-  Tempo = 28,
 
-#ifdef Noir
-  VALUE_TB_WIN    = 101 * PawnValueEg,
-#endif
 
+  //MidgameLimit  = 15258, EndgameLimit  = 3915
   MidgameLimit  = 15258*PVM, EndgameLimit  = 3915*PVE
-
 };
 
 enum PieceType {
@@ -259,8 +221,8 @@ enum PieceType {
 
 enum Piece {
   NO_PIECE,
-  W_PAWN = 1, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
-  B_PAWN = 9, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING,
+  W_PAWN = PAWN,     W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
+  B_PAWN = PAWN + 8, B_KNIGHT, B_BISHOP, B_ROOK, B_QUEEN, B_KING,
   PIECE_NB = 16
 };
 
@@ -334,19 +296,6 @@ struct DirtyPiece {
   Square to[3];
 };
 
-//Shashin section
-enum {
-  SHASHIN_MAX_SCORE = 139 * PawnValueMg/100, SHASHIN_MIDDLE_HIGH_SCORE = 69 * PawnValueMg/100, SHASHIN_MIDDLE_LOW_SCORE=25 * PawnValueMg/100};
-//Positions-algorithms types
-enum {
-  SHASHIN_POSITION_DEFAULT, SHASHIN_POSITION_PETROSIAN, SHASHIN_POSITION_CAPABLANCA, SHASHIN_POSITION_CAPABLANCA_PETROSIAN,
-  SHASHIN_POSITION_TAL,SHASHIN_POSITION_TAL_PETROSIAN,SHASHIN_POSITION_TAL_CAPABLANCA,SHASHIN_POSITION_TAL_CAPABLANCA_PETROSIAN
-};
-enum { SHASHIN_TAL_THRESHOLD = 35 * PawnValueMg/100, SHASHIN_CAPABLANCA_THRESHOLD = 15 * PawnValueMg/100};
-
-//End Shashin section
-
-
 /// Score enum stores a middlegame and an endgame value in a single integer (enum).
 /// The least significant 16 bits are used to store the middlegame value and the
 /// upper 16 bits are used to store the endgame value. We have to take care to
@@ -377,15 +326,15 @@ constexpr T operator-(T d) { return T(-int(d)); }                  \
 inline T& operator+=(T& d1, int d2) { return d1 = d1 + d2; }       \
 inline T& operator-=(T& d1, int d2) { return d1 = d1 - d2; }
 
-#define ENABLE_INCR_OPERATORS_ON(T)                             \
-inline T& operator++(T& d) { return d = T(int(d) + 1); }        \
+#define ENABLE_INCR_OPERATORS_ON(T)                                \
+inline T& operator++(T& d) { return d = T(int(d) + 1); }           \
 inline T& operator--(T& d) { return d = T(int(d) - 1); }
 
-#define ENABLE_FULL_OPERATORS_ON(T)                             \
-ENABLE_BASE_OPERATORS_ON(T)                                     \
-constexpr T operator*(int i, T d) { return T(i * int(d)); }     \
-constexpr T operator*(T d, int i) { return T(int(d) * i); }     \
-constexpr T operator/(T d, int i) { return T(int(d) / i); }     \
+#define ENABLE_FULL_OPERATORS_ON(T)                                \
+ENABLE_BASE_OPERATORS_ON(T)                                        \
+constexpr T operator*(int i, T d) { return T(i * int(d)); }        \
+constexpr T operator*(T d, int i) { return T(int(d) * i); }        \
+constexpr T operator/(T d, int i) { return T(int(d) / i); }        \
 constexpr int operator/(T d1, T d2) { return int(d1) / int(d2); }  \
 inline T& operator*=(T& d, int i) { return d = T(int(d) * i); }    \
 inline T& operator/=(T& d, int i) { return d = T(int(d) / i); }
@@ -449,18 +398,10 @@ constexpr Square flip_file(Square s) { // Swap A1 <-> H1
   return Square(s ^ SQ_H1);
 }
 
-constexpr Square operator~(Square s) {
-  return Square(s ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
-}
-
 constexpr Piece operator~(Piece pc) {
   return Piece(pc ^ 8); // Swap color of piece B_KNIGHT <-> W_KNIGHT
 }
-#ifndef Stockfish
-inline File map_to_queenside(File f) {
-  return std::min(f, File(FILE_H - f)); // Map files ABCDEFGH to files ABCDDCBA
-}
-#endif
+
 constexpr CastlingRights operator&(Color c, CastlingRights cr) {
   return CastlingRights((c == WHITE ? WHITE_CASTLING : BLACK_CASTLING) & cr);
 }
@@ -559,6 +500,8 @@ constexpr bool is_ok(Move m) {
 constexpr Key make_key(uint64_t seed) {
   return seed * 6364136223846793005ULL + 1442695040888963407ULL;
 }
+
+} // namespace Stockfish
 
 #endif // #ifndef TYPES_H_INCLUDED
 

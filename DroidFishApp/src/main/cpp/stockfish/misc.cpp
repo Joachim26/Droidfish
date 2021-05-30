@@ -51,34 +51,23 @@ typedef bool(*fun3_t)(HANDLE, CONST GROUP_AFFINITY*, PGROUP_AFFINITY);
 #include <sys/mman.h>
 #endif
 
-#if defined(__APPLE__) || defined(__ANDROID__) || defined(__OpenBSD__) || (defined(__GLIBCXX__) && !defined(_GLIBCXX_HAVE_ALIGNED_ALLOC) && !defined(_WIN32))
+#if defined(__APPLE__) || defined(__ANDROID__) || defined(__OpenBSD__) || (defined(__GLIBCXX__) && !defined(_GLIBCXX_HAVE_ALIGNED_ALLOC) && !defined(_WIN32)) || defined(__e2k__)
 #define POSIXALIGNEDALLOC
 #include <stdlib.h>
 #endif
 
 #include "misc.h"
 #include "thread.h"
-#include "uci.h"
 
-#ifdef USE_MADVISE_HUGEPAGE
-  #include <sys/mman.h>
-#endif
-size_t allocSizeTest = 0;
 using namespace std;
 
+namespace Stockfish {
+
 namespace {
+
 /// Version number. If Version is left empty, then compile date in the format
 /// DD-MM-YY and show in engine_info.
-
-#if (defined Add_Features && ReleaseVer)
-const string Version = " v13.1";
-#else
-const string Version = "";
-#endif
-
-
-
-const string Suffix = "";
+const string Version = "v13.2 SE";
 
 /// Our fancy logging facility. The trick here is to replace cin.rdbuf() and
 /// cout.rdbuf() with two Tie objects that tie cin and cout to a file stream. We
@@ -144,167 +133,37 @@ public:
 };
 
 } // namespace
-/*
-#ifdef Blau
-#ifndef Harmon
-const std::string splash() {
 
-     stringstream sp;
-
-     sp <<  FontColor::engine << "\n";
-     sp <<  "                                                                                                        \n";
-     sp <<  "                                                                                                        \n";
-     sp <<  "     ######                                       #    #  ~ ~~~ ~~~ ~~~ ~~ ~~~ ~~~ ~~~ ~~    #     ###  \n";
-     sp <<  "     #     # #      #    # ###### ###### #  ####  #    # ~~ ~~~ ~ /''*._ ~~~~ ~~ ~ ~~~~~    ##    #   # \n";
-     sp <<  "     #     # #      #    # #      #      # #      #    #  ~ ~~ .-*'`    `*-.._.-'\\ ~~~ ~~  # #    #  #  \n";
-     sp <<  "     ######  #      #    # #####  #####  #  ####  ###### ~~  < * ) ) )   ,     ( ~~~ ~~~     #      #   \n";
-     sp <<  "     #     # #      #    # #      #      #      # #    #  ~~ ~~`*-._`._(__.--*'`.) ~ ~~~~    #     #    \n";
-     sp <<  "     #     # #      #    # #      #      # #    # #    # ~  ~~~ ~~ ~~~ ~~~ ~~ ~~~~ ~~ ~~     #    #     \n";
-     sp <<  "     ######  ######  ####  ###### #      #  ####  #    #  ~~ ~~~ ~~ ~~~ ~~~ ~~ ~~ ~~ ~~~~  #####  ##### \n\n";
-
-  return sp.str();
-}
-#endif
-#endif
-#ifdef Noir
-const std::string splash() {
-
-     stringstream sp;
-
-     sp <<  FontColor::engine << "\n";
-     sp <<  "                                                                                                         \n";
-     sp <<  "                                                                                                         \n";
-     sp <<  "  ######                       #     #   #     ######                                #####     #    ###  \n";
-     sp <<  "  #     # #        ##    ####  #    #   ###    #     # #   ##   #    #  ####  #    # #    #   ##   #   # \n";
-     sp <<  "  #     # #       #  #  #    # #   #   #####   #     # #  #  #  ##  ## #    # ##   # #    #  # #   #  #  \n";
-     sp <<  "  ######  #      #    # #      ####   #######  #     # # #    # # ## # #    # # #  # #    #    #     #   \n";
-     sp <<  "  #     # #      ###### #      #  #    #####   #     # # ###### #    # #    # #  # # #    #    #    #    \n";
-     sp <<  "  #     # #      #    # #    # #   #    ###    #     # # #    # #    # #    # #   ## #    #    #   #     \n";
-     sp <<  "  ######  ###### #    #  ####  #    #    #     ######  # #    # #    #  ####  #    # #####   ##### ##### \n\n";
-
-
-  return sp.str();
-}
-#endif
-
-#ifdef Stockfish
-#ifndef Harmon
-const std::string splash() {
-
-     stringstream sp;
-
-     sp <<  FontColor::engine << "\n";
-     sp <<  "                                                                                                \n";
-     sp <<  "                                                                                                \n";
-     sp <<  "   ####            #     #                              ####        .-'`````'-.      #     ###  \n";
-     sp <<  "  #    # #   #  #  ##   ##   ##    ####  #    # #####  #    #   (\\  /   \\  /   \\    ##    #   # \n";
-     sp <<  "  #    # #  #   #  # # # #  #  #  #    # #    # #    # #    #  ) \\/   (@) (@)   \\  # #    #  #  \n";
-     sp <<  "  #    # ###    #  #  #  # #    # #      #    # #    # #    # (__(       W       )   #      #   \n";
-     sp <<  "  #    # #  #   #  #     # ###### #  ### #    # #####  #    #    (  V v V V v V  )   #     #    \n";
-     sp <<  "  #    # #   #  #  #     # #    # #    # #    # #   #  #    #     \\  A A A A A  /    #    #     \n";
-     sp <<  "   ####  #    # #  #     # #    #  ####   ####  #    #  ####       \\/\\-.,,,.-/\\/   #####  ##### \n\n";
-
-  return sp.str();
-}
-#endif
-#endif
-#ifdef Sullivan
-#ifndef Harmon
-const std::string splash() {
-
-     stringstream sp;
-
-     sp <<  FontColor::engine << "\n";
-     sp <<  "                                                                         \n";
-     sp <<  "                                            __         __                \n";
-     sp <<  "     #     #                      #     #  /  \\.-'''-./  \\    #     ###  \n";
-     sp <<  "     #     #  ####  #    # ######  #   #   \\    \\   /    /   ##    #   # \n";
-     sp <<  "     #     # #    # ##   # #        # #     (   o   o   )   # #    #  #  \n";
-     sp <<  "     ####### #    # # #  # #####     #      |     w     |     #      #   \n";
-     sp <<  "     #     # #    # #  # # #         #      \\  .-'''-.  /     #     #    \n";
-     sp <<  "     #     # #    # #   ## #         #       '-\\__Y__/-'      #    #     \n";
-     sp <<  "     #     #  ####  #    # ######    #          `---`       #####  ##### \n\n";
-     sp <<  "                                                                                     \n";
-     sp <<  "                                                                                     \n";
-
-  return sp.str();
-}
-#endif
-#endif
-#ifdef Harmon
-
-const std::string splash() {
-
-     stringstream sp;
-     sp <<  FontColor::engine << "\n";
-     sp <<  "                                                                                                \n";
-     sp <<  "                                                                                                \n";
-     sp <<  "                                                                                                \n";
-     sp <<  "    #     #                             #     #          //\"\"\"\\\\            #     ###           \n";
-     sp <<  "    #     #   ##   #####  #    #  ####  ##    #         //^   ^\\\\          ##    #   #          \n";
-     sp <<  "    #     #  #  #  #    # ##  ## #    # # #   #         ||O   O||         # #    #  #           \n";
-     sp <<  "    ####### #    # #    # # ## # #    # #  #  #         !|  ~  |!           #      #            \n";
-     sp <<  "    #     # ###### #####  #    # #    # #   # #           \\ O /             #     #             \n";
-     sp <<  "    #     # #    # #   #  #    # #    # #    ##          __| |__            #    #              \n";
-     sp <<  "    #     # #    # #    # #    #  ####  #     #         /       \\         #####  #####          \n";
-     sp <<  "                                                                                                \n";
-     sp <<  "                                                                                                \n";
-     sp <<  "                                                                                                \n";
-
-
-  return sp.str();
-}
-#endif
-*/
 
 /// engine_info() returns the full name of the current Stockfish version. This
 /// will be either "Stockfish <Tag> DD-MM-YY" (where DD-MM-YY is the date when
 /// the program was compiled) or "Stockfish <Version>", depending on whether
 /// Version is empty.
 
-const string engine_info(bool to_uci) {
+string engine_info(bool to_uci) {
 
-    const string months("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec");
-    string month, day, year;
-    stringstream ss, date(__DATE__); // From compiler, format is "Sep 21 2008"
+  const string months("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec");
+  string month, day, year;
+  stringstream ss, date(__DATE__); // From compiler, format is "Sep 21 2008"
 
-#ifdef Blau
-    ss <<  "    Bluefish " << Version << Suffix << setfill('0');
-#elif Noir
-	  ss <<  "    Black Diamond " << Version << Suffix << setfill('0');
-#elif Stockfish
-    ss <<  "    Oki Maguro "  << Version << Suffix << setfill('0');
-#elif Harmon
-    ss <<  "    Harmon "    << Version << Suffix << setfill('0');
-#elif Sullivan
-    ss <<  "    Honey "       << Version << Suffix << setfill('0');
-#endif
-#if (defined Sullivan && defined Test)
-	if (Version.empty())
-	{
-		date >> month >> day;
-		ss << setw(2) << (1 + months.find(month) / 4) <<setw(2) << day  << "-" << " ";
-	}
+  ss << "Honey " << Version << setfill('0');
 
-#else
-    if (Version.empty())
-    {
-        date >> month >> day >> year;
-        ss << setw(2) << (1 + months.find(month) / 4) <<setw(2) << day << year.substr(2) << " ";
-    }
-#endif
-       ss << (to_uci  ? "\nid author ": " by ")
-          << "The Stockfish Developers as noted in the AUTHORS file" ;
-#ifdef Pi
-	   ss << (to_uci  ? "":"\nCompiled for Picochess by Scally\n");
-#endif
+  if (Version.empty())
+  {
+      date >> month >> day >> year;
+      ss << setw(2) << day << setw(2) << (1 + months.find(month) / 4) << year.substr(2);
+  }
+
+  ss << (to_uci  ? "\nid author ": " by ")
+     << "the Stockfish developers (see AUTHORS file)";
+
   return ss.str();
 }
 
 
 /// compiler_info() returns a string trying to describe the compiler we use
 
-const std::string compiler_info() {
+std::string compiler_info() {
 
   #define stringify2(x) #x
   #define stringify(x) stringify2(x)
@@ -318,7 +177,7 @@ const std::string compiler_info() {
 /// _WIN32             Building on Windows (any)
 /// _WIN64             Building on Windows 64 bit
 
-  std::string compiler = "\nCompiled with ";
+  std::string compiler = "\nCompiled by ";
 
   #ifdef __clang__
      compiler += "clang++ ";
@@ -333,6 +192,18 @@ const std::string compiler_info() {
      compiler += "(version ";
      compiler += stringify(_MSC_FULL_VER) "." stringify(_MSC_BUILD);
      compiler += ")";
+  #elif defined(__e2k__) && defined(__LCC__)
+    #define dot_ver2(n) \
+      compiler += (char)'.'; \
+      compiler += (char)('0' + (n) / 10); \
+      compiler += (char)('0' + (n) % 10);
+
+     compiler += "MCST LCC ";
+     compiler += "(version ";
+     compiler += std::to_string(__LCC__ / 100);
+     dot_ver2(__LCC__ % 100)
+     dot_ver2(__LCC_MINOR__)
+     compiler += ")";
   #elif __GNUC__
      compiler += "g++ (GNUC) ";
      compiler += make_version_string(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
@@ -342,7 +213,7 @@ const std::string compiler_info() {
   #endif
 
   #if defined(__APPLE__)
-     compiler += " on macOS";
+     compiler += " on Apple";
   #elif defined(__CYGWIN__)
      compiler += " on Cygwin";
   #elif defined(__MINGW64__)
@@ -504,7 +375,11 @@ void std_aligned_free(void* ptr) {
 
 #if defined(_WIN32)
 
-static void* aligned_large_pages_alloc_win(size_t allocSize) {
+static void* aligned_large_pages_alloc_windows(size_t allocSize) {
+
+  #if !defined(_WIN64)
+    return nullptr;
+  #else
 
   HANDLE hProcessToken { };
   LUID luid { };
@@ -547,42 +422,19 @@ static void* aligned_large_pages_alloc_win(size_t allocSize) {
   CloseHandle(hProcessToken);
 
   return mem;
+
+  #endif
 }
 
 void* aligned_large_pages_alloc(size_t allocSize) {
 
-  static bool firstCall = true;
-  static bool secondCall = true;
-
   // Try to allocate large pages
-  void* mem = aligned_large_pages_alloc_win(allocSize);
-  // Suppress info strings on the first call. The first call occurs before 'uci'
-  // is received and in that case this output confuses some GUIs.
-  if (firstCall)
-  goto skip;
-  if (secondCall)
-  goto skip2;
-  if (allocSizeTest != allocSize )
-  {
-      if (mem)
-          sync_cout << "info string Hash Table: Windows Large Pages enabled: " << (allocSize >> 20) << " Mb" << sync_endl;
-      else
-          sync_cout << "info string Hash Table: Default Pages enabled: " << (allocSize >> 20) << " Mb" << sync_endl;
-      allocSizeTest  = allocSize ;
-  }
-
-skip2:
-   secondCall = false;
-skip:
-   firstCall = false;
+  void* mem = aligned_large_pages_alloc_windows(allocSize);
 
   // Fall back to regular, page aligned, allocation if necessary
   if (!mem)
       mem = VirtualAlloc(NULL, allocSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-
-  // NOTE: VirtualAlloc returns memory at page boundary, so no need to align for
-  // cachelines
   return mem;
 }
 
@@ -590,12 +442,11 @@ skip:
 
 void* aligned_large_pages_alloc(size_t allocSize) {
 
-
-//#if defined(__linux__)
-constexpr size_t alignment = 2 * 1024 * 1024; // assumed 2MB page size
-//#else
-//constexpr size_t alignment = 4096; // assumed small page size
-//#endif
+#if defined(__linux__)
+  constexpr size_t alignment = 2 * 1024 * 1024; // assumed 2MB page size
+#else
+  constexpr size_t alignment = 4096; // assumed small page size
+#endif
 
   // round up to multiples of alignment
   size_t size = ((allocSize + alignment - 1) / alignment) * alignment;
@@ -618,8 +469,9 @@ void aligned_large_pages_free(void* mem) {
   if (mem && !VirtualFree(mem, 0, MEM_RELEASE))
   {
       DWORD err = GetLastError();
-      std::cerr << "Failed to free transposition table. Error code: 0x" <<
-          std::hex << err << std::dec << std::endl;
+      std::cerr << "Failed to free large page memory. Error code: 0x"
+                << std::hex << err
+                << std::dec << std::endl;
       exit(EXIT_FAILURE);
   }
 }
@@ -752,11 +604,10 @@ namespace CommandLine {
 string argv0;            // path+name of the executable binary, as given by argv[0]
 string binaryDirectory;  // path of the executable directory
 string workingDirectory; // path of the working directory
-string pathSeparator;    // Separator for our current OS
 
 void init(int argc, char* argv[]) {
     (void)argc;
-    string separator;
+    string pathSeparator;
 
     // extract the path+name of the executable binary
     argv0 = argv[0];
@@ -797,44 +648,4 @@ void init(int argc, char* argv[]) {
 
 } // namespace CommandLine
 
-/* ascii logos
-
-                |
-           .-'`````'-.
-      (\  /   \   /   \
-      ) \/   (@) (@)   \
-     (__(       W       )
-        (  V v V V v V  )
-         \  A A A A A  /
-         \/\-.,,,.-/\/
-
-          __         __
-         /  \.-'''-./  \
-         \    ~   ~   /
-          |   o   o   |
-          \  .-'''-.  /
-           '-\__Y__/-'
-              `---`
-
-            |\/\/\/|
-            |      |
-            |  / \ |
-            | (o)(o)
-            c      _)
-            | ,___|
-            |   /
-           /____\
-
-           //"\\
-         ||^   ^\\
-          |O   O|
-          |  ~  !
-           \ O /
-          __| |__
-
-
-            /''*._
-       .-*'`    `*-.._.-'\
-      < * ) ) )   ,     (
-       `*-._`._(__.--*'`.)
-*/
+} // namespace Stockfish

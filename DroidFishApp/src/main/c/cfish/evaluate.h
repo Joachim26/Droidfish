@@ -3,9 +3,9 @@
 
 #include "types.h"
 
-#define EvalFileDefaultName "ninu.bin"
+#define EvalFileDefaultName "eval.bin"
 
-#define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/"
+#define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/eval.bin"
 
 enum { Tempo = 28 };
 

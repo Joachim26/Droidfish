@@ -1,6 +1,6 @@
 /*
   Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2020 The Stockfish developers
+  Copyright (C) 2004-2021 The Stockfish developers
 
   Stockfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -915,14 +915,14 @@ INLINE Value search_node(Position *pos, Stack *ss, Value alpha, Value beta,
              ? (ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE)
              :  ss->staticEval > (ss-2)->staticEval;
 
-  // Step 7. Futility pruning: child node
+  // Step 8. Futility pruning: child node
   if (   !PvNode
       &&  depth < 9
       &&  eval - futility_margin(depth, improving) >= beta
       &&  eval < VALUE_KNOWN_WIN)  // Do not return unproven wins
     return eval; // - futility_margin(depth); (do not do the right thing)
 
-  // Step 8. Null move search with verification search (is omitted in PV nodes)
+  // Step 9. Null move search with verification search (is omitted in PV nodes)
   if (   !PvNode
       && (ss-1)->currentMove != MOVE_NULL
       && (ss-1)->statScore < 22977

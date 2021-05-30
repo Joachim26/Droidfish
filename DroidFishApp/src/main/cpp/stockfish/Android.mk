@@ -2,10 +2,10 @@ LOCAL_PATH := $(call my-dir)
 ENGINE := Sullivan
 SF_SRC_FILES := \
 	benchmark.cpp main.cpp movegen.cpp pawns.cpp thread.cpp uci.cpp psqt.cpp \
-	bitbase.cpp endgame.cpp material.cpp movepick.cpp position.cpp polybook.cpp timeman.cpp \
+	bitbase.cpp endgame.cpp material.cpp movepick.cpp position.cpp timeman.cpp \
 	tune.cpp ucioption.cpp \
 	bitboard.cpp evaluate.cpp misc.cpp search.cpp tt.cpp syzygy/tbprobe.cpp \
-	nnue/evaluate_nnue.cpp nnue/features/half_kp.cpp
+	nnue/evaluate_nnue.cpp nnue/features/half_ka_v2.cpp
 
 MY_ARCH_DEF += -D$(ENGINE) -DAdd_Features
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)

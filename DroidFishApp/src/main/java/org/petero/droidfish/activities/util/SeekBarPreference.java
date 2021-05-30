@@ -144,16 +144,18 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
         if ((progress == 0) && showStrengthHint) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
             String engine = settings.getString("engine", "stockfish");
-            String engine1 = settings.getString("engine", "blackdiamond");
-            String engine2 = settings.getString("engine", "bluefish");
-            String engine3 = settings.getString("engine", "okimaguro");
-            String engine4 = settings.getString("engine", "harmon");
-            String engine5 = settings.getString("engine", "mojo");
-            String engine6 = settings.getString("engine", "corchess");
-            String engine7 = settings.getString("engine", "crystal");
-            String engine8 = settings.getString("engine", "cfish");
+            String engine1 = settings.getString("engine", "new_stockfish");
+            String engine2 = settings.getString("engine", "blackdiamond");
+            String engine3 = settings.getString("engine", "bluefish");
+            String engine4 = settings.getString("engine", "okimaguro");
+            String engine5 = settings.getString("engine", "harmon");
+            String engine6 = settings.getString("engine", "mojo");
+            String engine7 = settings.getString("engine", "corchess");
+            String engine8 = settings.getString("engine", "crystal");
             String engine9 = settings.getString("engine", "cfish");
-            if ( ("stockfish".equals(engine)) || ("blackdiamond".equals(engine1)) || ("okimaguro".equals(engine3)) || ("bluefish".equals(engine2)) || ("harmon".equals(engine4)) || ("mojo".equals(engine5)) || ("corchess".equals(engine6))|| ("crystal".equals(engine7)) ||("cfish".equals(engine8)) ||("ditto".equals(engine9))) {
+            String engine10 = settings.getString("engine", "ditto");
+            String engine11 = settings.getString("engine", "fatfritz");
+            if ( ("stockfish".equals(engine)) || ("new_stockfish".equals(engine1))  || ("blackdiamond".equals(engine1)) || ("okimaguro".equals(engine3)) || ("bluefish".equals(engine2)) || ("harmon".equals(engine4)) || ("mojo".equals(engine5)) || ("corchess".equals(engine6))|| ("crystal".equals(engine7)) ||("cfish".equals(engine8))  ||("ditto".equals(engine9))  ||("fatfritz".equals(engine10))) {
                 showStrengthHint = false;
                 if (getKey().equals("strength"))
                     DroidFishApp.toast(R.string.strength_cuckoo_hint, Toast.LENGTH_LONG);

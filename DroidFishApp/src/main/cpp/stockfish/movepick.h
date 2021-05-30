@@ -27,6 +27,8 @@
 #include "position.h"
 #include "types.h"
 
+namespace Stockfish {
+
 /// StatsEntry stores the stat table value. It is usually a number but could
 /// be a move or even a nested history. We use a class instead of naked value
 /// to directly call history update operator<<() on the entry so to use stats
@@ -108,12 +110,12 @@ typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB> PieceToHistory;
 typedef Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB> ContinuationHistory;
 
 
-/// MovePicker class is used to pick one pseudo legal move at a time from the
+/// MovePicker class is used to pick one pseudo-legal move at a time from the
 /// current position. The most important method is next_move(), which returns a
-/// new pseudo legal move each time it is called, until there are no moves left,
-/// when MOVE_NONE is returned. In order to improve the efficiency of the alpha
-/// beta algorithm, MovePicker attempts to return the moves which are most likely
-/// to get a cut-off first.
+/// new pseudo-legal move each time it is called, until there are no moves left,
+/// when MOVE_NONE is returned. In order to improve the efficiency of the
+/// alpha-beta algorithm, MovePicker attempts to return the moves which are most
+/// likely to get a cut-off first.
 class MovePicker {
 
   enum PickType { Next, Best };
@@ -123,16 +125,10 @@ public:
   MovePicker& operator=(const MovePicker&) = delete;
   MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-#ifdef Noir
-                                           const ButterflyHistory*,
-#endif
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Square);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-#ifdef Noir
-                                           const ButterflyHistory*,
-#endif
                                            const LowPlyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
@@ -140,6 +136,7 @@ public:
                                            const Move*,
                                            int);
   Move next_move(bool skipQuiets = false);
+
 private:
   template<PickType T, typename Pred> Move select(Pred);
   template<GenType> void score();
@@ -148,9 +145,6 @@ private:
 
   const Position& pos;
   const ButterflyHistory* mainHistory;
-#ifdef Noir
-  const ButterflyHistory* staticHistory;
-#endif
   const LowPlyHistory* lowPlyHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
@@ -163,5 +157,7 @@ private:
   int ply;
   ExtMove moves[MAX_MOVES];
 };
+
+} // namespace Stockfish
 
 #endif // #ifndef MOVEPICK_H_INCLUDED

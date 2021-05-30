@@ -10,7 +10,7 @@
   Honey is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.s
+  GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -22,9 +22,8 @@
 #include <algorithm>
 
 #include "types.h"
-#ifdef Noir
-#include "position.h"
-#endif
+
+namespace Stockfish {
 
 class Position;
 
@@ -58,28 +57,10 @@ ExtMove* generate(const Position& pos, ExtMove* moveList);
 
 /// The MoveList struct is a simple wrapper around generate(). It sometimes comes
 /// in handy to use this class instead of the low level generate() function.
-#ifdef Noir
-template<GenType T, PieceType P = ALL_PIECES>
-struct MoveList {
-
-  explicit MoveList(const Position& pos) : last(generate<T>(pos, moveList)) {
-
-    if (P != ALL_PIECES)
-    {
-        for (ExtMove* cur = moveList; cur != last; )
-            if (type_of(pos.piece_on(from_sq(cur->move))) != P)
-                *cur = (--last)->move;
-            else
-                ++cur;
-    }
-  }
-
-#else
 template<GenType T>
 struct MoveList {
 
   explicit MoveList(const Position& pos) : last(generate<T>(pos, moveList)) {}
-#endif
   const ExtMove* begin() const { return moveList; }
   const ExtMove* end() const { return last; }
   size_t size() const { return last - moveList; }
@@ -90,5 +71,7 @@ struct MoveList {
 private:
   ExtMove moveList[MAX_MOVES], *last;
 };
+
+} // namespace Stockfish
 
 #endif // #ifndef MOVEGEN_H_INCLUDED

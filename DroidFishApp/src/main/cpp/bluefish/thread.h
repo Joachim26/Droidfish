@@ -58,6 +58,7 @@ public:
   int best_move_count(Move move) const;
 #endif
 
+  int id() const { return idx; }
   Pawns::Table pawnsTable;
   Material::Table materialTable;
   size_t pvIdx, pvLast;

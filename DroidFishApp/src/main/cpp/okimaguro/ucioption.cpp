@@ -75,6 +75,7 @@ void init(OptionsMap& o) {
     o["Book_Depth_1"] 	          << Option(127, 1, 127, on_book_depth1);
 
     o["Contempt_Value"]           << Option(24, -100, 100);
+
     o["Contempt"]                 << Option(true);
     o["Dynamic_Contempt"]         << Option(true);
     o["Analysis_Contempt"]        << Option("Off var White var Black var Both var Off", "Off");
@@ -86,7 +87,7 @@ void init(OptionsMap& o) {
     o["Ponder"]                   << Option(false);
     o["Adaptive_Play"]            << Option(false); //Adaptive Play change - now simple on/off check box
 	  o["FastPlay"]                 << Option(false);
-	  o["Minimal Output"]           << Option(true);
+	  o["Minimal Output"]           << Option(false);
     // Score percentage evalaution output, similair to Lc0 output
     o["Score Output"]             << Option("Centipawn var ScorPct-GUI var Centipawn"
                                            ,"Centipawn");
@@ -107,10 +108,10 @@ void init(OptionsMap& o) {
 #if (defined Pi )
     o["Bench_KNPS"]               << Option (200, 100, 1000);//used for UCI Play By Elo
 #else
-    o["Bench_KNPS"]               << Option (1000, 500, 6000);//used for UCI Play By Elo
+    o["Bench_KNPS"]               << Option (500, 50, 6000);//used for UCI Play By Elo
 #endif
-    o["Search_Nodes"]             << Option(0, 0, 100000);
-    o["Search_Depth"]             << Option(0, 0, 25);
+    o["Search_Nodes"]             << Option(0, 0, 10000000);
+    o["Search_Depth"]             << Option(0, 0, 30);
     o["Tactical"]                 << Option(0, 0, 8);
     o["Variety"]                  << Option(false);
     o["UCI_ShowWDL"]              << Option(false);
@@ -125,7 +126,6 @@ void init(OptionsMap& o) {
     o["Slow Play"]                << Option(false);
     o["UCI_Elo"]                  << Option(1750, 1000, 2900);
     o["FIDE_Ratings"]             << Option(true);
-
     // A separate weaker play level from the predefined levels below. The difference
     // between both of the methods and the "skill level" is that the engine is only weakened
     // by the reduction in nodes searched, thus reducing the move horizon visibility naturally

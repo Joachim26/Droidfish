@@ -85,7 +85,7 @@ public class PieceSet {
 
         String[] sa = {
                 defaultPieceSet,
-                "alfonso", "alpha", "cburnett", "chessicons", "chessmonk",
+                "alfonso", "alpha", "cburnett", "chesscases", "chessicons", "chessmonk",
                 "freestaunton", "kilfiger", "leipzig", "magnetic", "maya",
                 "merida", "merida_new", "metaltops", "pirat", "regular",
                 "wikimedia",

@@ -44,16 +44,20 @@ public abstract class UCIEngineBase implements UCIEngine {
             return new CuckooChessEngine();
         else if ("stockfish".equals(engine))
             return new InternalStockFish(report, engineOptions.workDir);
+        else if ("new_stockfish".equals(engine))
+            return new InternalNew_StockFish(report, engineOptions.workDir);
         else if ("andscacs".equals(engine))
             return new InternalAndscacs(report, engineOptions.workDir);
         else if ("blackdiamond".equals(engine))
             return new InternalBlackDiamond(report, engineOptions.workDir);
         else if ("bluefish".equals(engine))
             return new InternalBluefish(report, engineOptions.workDir);
+        else if ("fatfritz".equals(engine))
+            return new InternalFatFritz(report, engineOptions.workDir);
         else if ("cfish".equals(engine))
             return new InternalCfish(report, engineOptions.workDir);
         else if ("ditto".equals(engine))
-            return new InternalDitto(report, engineOptions.workDir);            
+            return new InternalDitto(report, engineOptions.workDir);
         else if ("ethereal".equals(engine))
             return new InternalEthereal(report, engineOptions.workDir);
         else if ("fruit".equals(engine))

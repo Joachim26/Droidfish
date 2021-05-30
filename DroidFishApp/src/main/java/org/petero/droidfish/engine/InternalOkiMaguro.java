@@ -36,7 +36,7 @@ import org.petero.droidfish.EngineOptions;
 
 /** Stockfish engine running as process, started from assets resource. */
 public class InternalOkiMaguro extends ExternalEngine {
-    private static final String defaultNet = "ninu.bin";
+    private static final String defaultNet = "eval.bin";
     private static final String netOption = "evalfile";
     private File defaultNetFile; // To get the full path of the copied default network file
 

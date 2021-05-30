@@ -44,6 +44,16 @@ public class EngineUtil {
         return abi + "/stockfish" + (isSimdSupported() ? "" : "_nosimd");
     }
 
+    public static String internalNew_StockFishName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/new_stockfish" + (isSimdSupported() ? "" : "_nosimd");
+    }
+
     public static String internalAndscacsName() {
         String abi = Build.CPU_ABI;
         if (!"x86".equals(abi) &&
@@ -73,6 +83,17 @@ public class EngineUtil {
         }
         return abi + "/bluefish" + (isSimdSupported() ? "" : "_nosimd");
     }
+
+    public static String internalFatFritzName() {
+        String abi = Build.CPU_ABI;
+        if (!"x86".equals(abi) &&
+                !"x86_64".equals(abi) &&
+                !"arm64-v8a".equals(abi)) {
+            abi = "armeabi-v7a"; // Unknown ABI, assume 32-bit arm
+        }
+        return abi + "/fatfritz" + (isSimdSupported() ? "" : "_nosimd");
+    }
+
 
     public static String internalCfishName() {
         String abi = Build.CPU_ABI;

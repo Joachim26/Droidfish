@@ -20,6 +20,8 @@
 
 #include "movepick.h"
 
+namespace Stockfish {
+
 namespace {
 
   enum Stages {
@@ -54,17 +56,9 @@ namespace {
 /// ordering is at the current node.
 
 /// MovePicker constructor for the main search
-#ifndef Noir
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh, const LowPlyHistory* lp,
-#else
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh, const ButterflyHistory* sh, const LowPlyHistory* lp,
-#endif
                        const CapturePieceToHistory* cph, const PieceToHistory** ch, Move cm, const Move* killers, int pl)
-#ifndef Noir
            : pos(p), mainHistory(mh), lowPlyHistory(lp), captureHistory(cph), continuationHistory(ch),
-#else
-           : pos(p), mainHistory(mh), staticHistory(sh), lowPlyHistory(lp), captureHistory(cph), continuationHistory(ch),
-#endif
              ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d), ply(pl) {
 
   assert(d > 0);
@@ -74,15 +68,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 }
 
 /// MovePicker constructor for quiescence search
-#ifndef Noir
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                        const CapturePieceToHistory* cph, const PieceToHistory** ch, Square rs)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d) {
-#else
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh, const ButterflyHistory* sh,
-                       const CapturePieceToHistory* cph, const PieceToHistory** ch, Square rs)
-           : pos(p), mainHistory(mh), staticHistory(sh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d) {
-#endif
 
   assert(d <= 0);
 
@@ -113,15 +101,12 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   for (auto& m : *this)
-      if (Type == CAPTURES)
+      if constexpr (Type == CAPTURES)
           m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
-      else if (Type == QUIETS)
+      else if constexpr (Type == QUIETS)
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
-#ifdef Noir
-                   +     (*staticHistory)[pos.side_to_move()][from_to(m)]
-#endif
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
@@ -149,11 +134,8 @@ Move MovePicker::select(Pred filter) {
   {
       if (T == Best)
           std::swap(*cur, *std::max_element(cur, endMoves));
-#ifdef Noir
-      if (*cur != ttMove && filter() && pos.legal(*cur))
-#else
+
       if (*cur != ttMove && filter())
-#endif
           return *cur++;
 
       cur++;
@@ -253,13 +235,10 @@ top:
 
   case EVASION:
       return select<Best>([](){ return true; });
-#ifdef Noir
- case PROBCUT:
-      return select<Best>([&](){ return pos.see_ge(*cur, std::max(PawnValueMg, threshold)); });
-#else
+
   case PROBCUT:
       return select<Best>([&](){ return pos.see_ge(*cur, threshold); });
-#endif
+
   case QCAPTURE:
       if (select<Best>([&](){ return   depth > DEPTH_QS_RECAPTURES
                                     || to_sq(*cur) == recaptureSquare; }))
@@ -286,3 +265,5 @@ top:
   assert(false);
   return MOVE_NONE; // Silence warning
 }
+
+} // namespace Stockfish

@@ -10,7 +10,7 @@
   Honey is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details..
+  GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -20,14 +20,13 @@
 #define EVALUATE_H_INCLUDED
 
 #include <string>
+#include <optional>
 
 #include "types.h"
 
+namespace Stockfish {
+
 class Position;
-
-
-
-
 
 namespace Eval {
 
@@ -40,21 +39,22 @@ namespace Eval {
   // The default net name MUST follow the format nn-[SHA256 first 12 digits].nnue
   // for the build process (profile-build and fishtest) to work. Do not change the
   // name of the macro, as it is used in the Makefile.
-
-  #define EvalFileDefaultName   "eval.bin"
-  #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/eval.bin"
-
-  #define SHA256NET   "nn-811243cea2cf.nnue" // eval.bin
+  #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/nn-7756374aaed3.nnue"
+  #define EvalFileDefaultName   "nn-7756374aaed3.nnue"
 
   namespace NNUE {
 
-    Value evaluate(const Position& pos);
+    Value evaluate(const Position& pos, bool adjusted = false);
     bool load_eval(std::string name, std::istream& stream);
+    bool save_eval(std::ostream& stream);
     void init();
+    void export_net(const std::optional<std::string>& filename);
     void verify();
 
   } // namespace NNUE
 
 } // namespace Eval
+
+} // namespace Stockfish
 
 #endif // #ifndef EVALUATE_H_INCLUDED

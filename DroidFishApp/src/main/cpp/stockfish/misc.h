@@ -7,7 +7,7 @@
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Honey is distributed in the hope that it will be useful,
+  Stockfish is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -28,10 +28,10 @@
 
 #include "types.h"
 
-const std::string splash();
-const std::string engine_info(bool to_uci = false);
-const std::string compiler_info();
+namespace Stockfish {
 
+std::string engine_info(bool to_uci = false);
+std::string compiler_info();
 void prefetch(void* addr);
 void start_logger(const std::string& fname);
 void* std_aligned_alloc(size_t alignment, size_t size);
@@ -53,11 +53,8 @@ inline TimePoint now() {
 
 template<class Entry, int Size>
 struct HashTable {
-#ifndef Noir
   Entry* operator[](Key key) { return &table[(uint32_t)key & (Size - 1)]; }
-#else
-  Entry* operator[](Key key) { return &table[key & (Size - 1)]; }
-#endif
+
 private:
   std::vector<Entry> table = std::vector<Entry>(Size); // Allocate on the heap
 };
@@ -80,6 +77,49 @@ T* align_ptr_up(T* ptr)
   const uintptr_t ptrint = reinterpret_cast<uintptr_t>(reinterpret_cast<char*>(ptr));
   return reinterpret_cast<T*>(reinterpret_cast<char*>((ptrint + (Alignment - 1)) / Alignment * Alignment));
 }
+
+template <typename T>
+class ValueListInserter {
+public:
+  ValueListInserter(T* v, std::size_t& s) :
+    values(v),
+    size(&s)
+  {
+  }
+
+  void push_back(const T& value) { values[(*size)++] = value; }
+private:
+  T* values;
+  std::size_t* size;
+};
+
+template <typename T, std::size_t MaxSize>
+class ValueList {
+
+public:
+  std::size_t size() const { return size_; }
+  void resize(std::size_t newSize) { size_ = newSize; }
+  void push_back(const T& value) { values_[size_++] = value; }
+  T& operator[](std::size_t index) { return values_[index]; }
+  T* begin() { return values_; }
+  T* end() { return values_ + size_; }
+  const T& operator[](std::size_t index) const { return values_[index]; }
+  const T* begin() const { return values_; }
+  const T* end() const { return values_ + size_; }
+  operator ValueListInserter<T>() { return ValueListInserter(values_, size_); }
+
+  void swap(ValueList& other) {
+    const std::size_t maxSize = std::max(size_, other.size_);
+    for (std::size_t i = 0; i < maxSize; ++i) {
+      std::swap(values_[i], other.values_[i]);
+    }
+    std::swap(size_, other.size_);
+  }
+
+private:
+  T values_[MaxSize];
+  std::size_t size_ = 0;
+};
 
 /// xorshift64star Pseudo-Random Number Generator
 /// This class is based on original code written and dedicated
@@ -141,110 +181,13 @@ namespace WinProcGroup {
   void bindThisThread(size_t idx);
 }
 
-/*namespace FontColor {
-
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & black( std::basic_ostream< CharT, Traits > &os )
-  {
-    return os << "\033[1;107m\033[1;90m";
-  }
-
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & red( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[40m\033[1;91m";
-  }
-    template < class CharT, class Traits >
-    constexpr
-    std::basic_ostream< CharT, Traits > & green( std::basic_ostream< CharT, Traits > &os )
-    {
-       return os << "\033[40m\033[1;92m";  //green
-    }
-#ifdef Stockfish
-#ifndef Harmon
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[40m\033[1;92m";  //green
-  }
-#endif
-#endif
-#ifdef Sullivan
-#ifndef Harmon
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[40m\033[1;93m";  //yellow
-  }
-#endif
-#endif
-#ifdef Blau
-#ifndef Harmon
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[1;106m\033[1;94m";  //blue & cyan
-  }
-#endif
-#endif
-
-#ifdef Noir
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[1;107m\033[1;90m";  //black
-  }
-#endif
-#ifdef Harmon
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & engine( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[37m\033[38;5;200m";
-  }
-#endif
-
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & blue( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[40m\033[1;94m";
-  }
-
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & white( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[40m\033[1;90m";
-  }
-
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & error( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[1;107m\033[1;91m";
-  }
-
-  template < class CharT, class Traits >
-  constexpr
-  std::basic_ostream< CharT, Traits > & reset( std::basic_ostream< CharT, Traits > &os )
-  {
-     return os << "\033[0m";
-  }
-
-} // FontColor
-*/
 namespace CommandLine {
   void init(int argc, char* argv[]);
 
   extern std::string binaryDirectory;  // path of the executable directory
   extern std::string workingDirectory; // path of the working directory
 }
+
+} // namespace Stockfish
 
 #endif // #ifndef MISC_H_INCLUDED

@@ -10,7 +10,7 @@
   Honey is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details..
+  GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -33,6 +33,7 @@
 #include "misc.h"
 #include "pawns.h"
 #include "thread.h"
+#include "timeman.h"
 #include "uci.h"
 #include "incbin/incbin.h"
 
@@ -44,7 +45,6 @@
 //     const unsigned char *const gEmbeddedNNUEEnd;     // a marker to the end
 //     const unsigned int         gEmbeddedNNUESize;    // the size of the embedded file
 // Note that this does not work in Microsoft Visual Studio.
-#define NNUE_EMBEDDING_OFF
 #if !defined(_MSC_VER) && !defined(NNUE_EMBEDDING_OFF)
   INCBIN(EmbeddedNNUE, EvalFileDefaultName);
 #else
@@ -53,10 +53,10 @@
   const unsigned int         gEmbeddedNNUESize = 1;
 #endif
 
-bool pureNN = Options["PureNN"];
 
 using namespace std;
-using namespace Eval::NNUE;
+
+namespace Stockfish {
 
 namespace Eval {
 
@@ -75,10 +75,8 @@ namespace Eval {
 
     useNNUE = Options["UseNN"];
     if (!useNNUE)
-      {
-        pureNN = false;
         return;
-      }
+
     string eval_file = string(Options["EvalFile"]);
 
     #if defined(DEFAULT_NNUE_DIRECTORY)
@@ -116,6 +114,30 @@ namespace Eval {
         }
   }
 
+  /// NNUE::export_net() exports the currently loaded network to a file
+  void NNUE::export_net(const std::optional<std::string>& filename) {
+    std::string actualFilename;
+
+    if (filename.has_value())
+        actualFilename = filename.value();
+    else
+    {
+        if (eval_file_loaded != EvalFileDefaultName)
+        {
+             sync_cout << "Failed to export a net. A non-embedded net can only be saved if the filename is specified." << sync_endl;
+             return;
+        }
+        actualFilename = EvalFileDefaultName;
+    }
+
+    ofstream stream(actualFilename, std::ios_base::binary);
+
+    if (save_eval(stream))
+        sync_cout << "Network saved successfully to " << actualFilename << "." << sync_endl;
+    else
+        sync_cout << "Failed to export a net." << sync_endl;
+  }
+
   /// NNUE::verify() verifies that the last net used was loaded successfully
   void NNUE::verify() {
 
@@ -125,7 +147,7 @@ namespace Eval {
     {
         UCI::OptionsMap defaults;
         UCI::init(defaults);
-/*  My repo will have the best NN named as eval.bin
+/* breaks bench with movetime
         string msg1 = "If the UCI option \"Use NNUE\" is set to true, network evaluation parameters compatible with the engine must be available.";
         string msg2 = "The option is set to true, but the network file " + eval_file + " was not loaded successfully.";
         string msg3 = "The UCI option EvalFile might need to specify the full path, including the directory name, to the network file.";
@@ -138,8 +160,8 @@ namespace Eval {
         sync_cout << "info string ERROR: " << msg4 << sync_endl;
         sync_cout << "info string ERROR: " << msg5 << sync_endl;
 
-        exit(EXIT_FAILURE);*/
-    }
+        exit(EXIT_FAILURE);
+  */  }
 
     if (useNNUE)
         sync_cout << "info string NNUE evaluation using " << eval_file << " enabled" << sync_endl;
@@ -192,11 +214,11 @@ using namespace Trace;
 namespace {
 
   // Threshold for lazy and space evaluation
-  constexpr Value LazyThreshold1 =  Value(1565);
-  constexpr Value LazyThreshold2 =  Value(1102);
-  constexpr Value SpaceThreshold = Value(11551);
-  constexpr Value NNUEThreshold1 =   Value(682);
-  constexpr Value NNUEThreshold2 =   Value(176);
+  constexpr Value LazyThreshold1    =  Value(1565);
+  constexpr Value LazyThreshold2    =  Value(1102);
+  constexpr Value SpaceThreshold    = Value(11551);
+  constexpr Value NNUEThreshold1    =   Value(800);
+  constexpr Value NNUEThreshold2    =   Value(176);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
@@ -252,19 +274,19 @@ namespace {
   // which piece type attacks which one. Attacks on lesser pieces which are
   // pawn-defended are not considered.
   constexpr Score ThreatByMinor[PIECE_TYPE_NB] = {
-    S(0, 0), S(5, 32), S(57, 41), S(77, 56), S(88, 119), S(79, 161)
+    S(0, 0), S(5, 32), S(55, 41), S(77, 56), S(89, 119), S(79, 162)
   };
 
   constexpr Score ThreatByRook[PIECE_TYPE_NB] = {
-    S(0, 0), S(3, 46), S(37, 68), S(42, 60), S(0, 38), S(58, 41)
+    S(0, 0), S(3, 44), S(37, 68), S(42, 60), S(0, 39), S(58, 43)
   };
+
+  constexpr Value CorneredBishop = Value(50);
 
   // Assorted bonuses and penalties
   constexpr Score UncontestedOutpost  = S(  1, 10);
   constexpr Score BishopOnKingRing    = S( 24,  0);
   constexpr Score BishopXRayPawns     = S(  4,  5);
-  constexpr Value CorneredBishopV     = Value(50);
-  constexpr Score CorneredBishop      = S(CorneredBishopV, CorneredBishopV);
   constexpr Score FlankAttacks        = S(  8,  0);
   constexpr Score Hanging             = S( 69, 36);
   constexpr Score KnightOnQueen       = S( 16, 11);
@@ -272,7 +294,6 @@ namespace {
   constexpr Score MinorBehindPawn     = S( 18,  3);
   constexpr Score PassedFile          = S( 11,  8);
   constexpr Score PawnlessFlank       = S( 17, 95);
-  constexpr Score QueenInfiltration   = S( -2, 14);
   constexpr Score ReachableOutpost    = S( 31, 22);
   constexpr Score RestrictedPiece     = S(  7,  7);
   constexpr Score RookOnKingRing      = S( 16,  0);
@@ -400,8 +421,9 @@ namespace {
 
     attackedBy[Us][Pt] = 0;
 
-    while (b1) {
-        Square s = pop_lsb(&b1);
+    while (b1)
+    {
+        Square s = pop_lsb(b1);
 
         // Find attacked squares, including x-ray attacks for bishops and rooks
         b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(QUEEN))
@@ -481,8 +503,8 @@ namespace {
                 {
                     Direction d = pawn_push(Us) + (file_of(s) == FILE_A ? EAST : WEST);
                     if (pos.piece_on(s + d) == make_piece(Us, PAWN))
-                        score -= !pos.empty(s + d + pawn_push(Us)) ? CorneredBishop * 4
-                                                                   : CorneredBishop * 3;
+                        score -= !pos.empty(s + d + pawn_push(Us)) ? 4 * make_score(CorneredBishop, CorneredBishop)
+                                                                   : 3 * make_score(CorneredBishop, CorneredBishop);
                 }
             }
         }
@@ -520,11 +542,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-                // Bonus for queen on weak square in enemy camp
-
-            if (relative_rank(Us, s) > RANK_4 && (~pe->pawn_attacks_span(Them) & s))
-                score += QueenInfiltration;
-
         }
     }
     if constexpr (T)
@@ -666,11 +683,11 @@ namespace {
     {
         b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
         while (b)
-            score += ThreatByMinor[type_of(pos.piece_on(pop_lsb(&b)))];
+            score += ThreatByMinor[type_of(pos.piece_on(pop_lsb(b)))];
 
         b = weak & attackedBy[Us][ROOK];
         while (b)
-            score += ThreatByRook[type_of(pos.piece_on(pop_lsb(&b)))];
+            score += ThreatByRook[type_of(pos.piece_on(pop_lsb(b)))];
 
         if (weak & attackedBy[Us][KING])
             score += ThreatByKing;
@@ -768,7 +785,7 @@ namespace {
 
     while (b)
     {
-        Square s = pop_lsb(&b);
+        Square s = pop_lsb(b);
 
         assert(!(pos.pieces(Them, PAWN) & forward_file_bb(Us, s + Up)));
 
@@ -914,7 +931,7 @@ namespace {
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     int sf = me->scale_factor(pos, strongSide);
 
-    // If scale factor is not already specific, scale down via general heuristics
+    // If scale factor is not already specific, scale up/down via general heuristics
     if (sf == SCALE_FACTOR_NORMAL)
     {
         if (pos.opposite_bishops())
@@ -987,12 +1004,8 @@ namespace {
     // Initialize score by reading the incrementally updated scores included in
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
-#if defined (Noir) || (Stockfish) || (Sullivan) || (Beth) || (Blau)
-    Score score = Score(0);
-    score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
-#else
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
-#endif
+
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
     score += pe->pawn_score(WHITE) - pe->pawn_score(BLACK);
@@ -1001,34 +1014,33 @@ namespace {
     auto lazy_skip = [&](Value lazyThreshold) {
         return abs(mg_value(score) + eg_value(score)) / 2 > lazyThreshold + pos.non_pawn_material() / 64;
     };
-    if (!pureNN)
-      {
-      if (lazy_skip(LazyThreshold1))
-          goto make_v;
 
-      // Main evaluation begins here
-      initialize<WHITE>();
-      initialize<BLACK>();
+    if (lazy_skip(LazyThreshold1))
+        goto make_v;
 
-      // Pieces evaluated first (also populates attackedBy, attackedBy2).
-      // Note that the order of evaluation of the terms is left unspecified.
-      score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-              + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
-              + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
-              + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
+    // Main evaluation begins here
+    initialize<WHITE>();
+    initialize<BLACK>();
 
-      score += mobility[WHITE] - mobility[BLACK];
+    // Pieces evaluated first (also populates attackedBy, attackedBy2).
+    // Note that the order of evaluation of the terms is left unspecified.
+    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
+            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
+            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
+            + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
-      // More complex interactions that require fully populated attack bitboards
-      score +=  king<   WHITE>() - king<   BLACK>()
-              + passed< WHITE>() - passed< BLACK>();
+    score += mobility[WHITE] - mobility[BLACK];
 
-      if (lazy_skip(LazyThreshold2))
-          goto make_v;
+    // More complex interactions that require fully populated attack bitboards
+    score +=  king<   WHITE>() - king<   BLACK>()
+            + passed< WHITE>() - passed< BLACK>();
 
-      score +=  threats<WHITE>() - threats<BLACK>()
-              + space<  WHITE>() - space<  BLACK>();
-     }
+    if (lazy_skip(LazyThreshold2))
+        goto make_v;
+
+    score +=  threats<WHITE>() - threats<BLACK>()
+            + space<  WHITE>() - space<  BLACK>();
+
 make_v:
     // Derive single value from mg and eg parts of score
     Value v = winnable(score);
@@ -1042,11 +1054,18 @@ make_v:
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
     }
 
-    return (pos.side_to_move() == WHITE ? v : -v) + Tempo;
+    // Evaluation grain
+    v = (v / 16) * 16;
 
+    // Side to move point of view
+    v = (pos.side_to_move() == WHITE ? v : -v);
+
+    return v;
   }
 
-  // specifically correct for cornered bishops to fix FRC with NNUE.
+
+  /// Fisher Random Chess: correction for cornered bishops, to fix chess960 play with NNUE
+
   Value fix_FRC(const Position& pos) {
 
     constexpr Bitboard Corners =  1ULL << SQ_A1 | 1ULL << SQ_H1 | 1ULL << SQ_A8 | 1ULL << SQ_H8;
@@ -1058,36 +1077,35 @@ make_v:
 
     if (   pos.piece_on(SQ_A1) == W_BISHOP
         && pos.piece_on(SQ_B2) == W_PAWN)
-        correction += !pos.empty(SQ_B3) ? -CorneredBishopV * 4
-                                        : -CorneredBishopV * 3;
+        correction += !pos.empty(SQ_B3) ? -CorneredBishop * 4
+                                        : -CorneredBishop * 3;
 
     if (   pos.piece_on(SQ_H1) == W_BISHOP
         && pos.piece_on(SQ_G2) == W_PAWN)
-        correction += !pos.empty(SQ_G3) ? -CorneredBishopV * 4
-                                        : -CorneredBishopV * 3;
+        correction += !pos.empty(SQ_G3) ? -CorneredBishop * 4
+                                        : -CorneredBishop * 3;
 
     if (   pos.piece_on(SQ_A8) == B_BISHOP
         && pos.piece_on(SQ_B7) == B_PAWN)
-        correction += !pos.empty(SQ_B6) ? CorneredBishopV * 4
-                                        : CorneredBishopV * 3;
+        correction += !pos.empty(SQ_B6) ? CorneredBishop * 4
+                                        : CorneredBishop * 3;
 
     if (   pos.piece_on(SQ_H8) == B_BISHOP
         && pos.piece_on(SQ_G7) == B_PAWN)
-        correction += !pos.empty(SQ_G6) ? CorneredBishopV * 4
-                                        : CorneredBishopV * 3;
+        correction += !pos.empty(SQ_G6) ? CorneredBishop * 4
+                                        : CorneredBishop * 3;
 
     return pos.side_to_move() == WHITE ?  Value(correction)
                                        : -Value(correction);
   }
 
-} // namespace
+} // namespace Eval
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
 Value Eval::evaluate(const Position& pos) {
-
 
   Value v;
 
@@ -1098,17 +1116,15 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int material = pos.non_pawn_material() + 4 * PawnValueMg * pos.count<PAWN>();
-         int scale =  580
-                    + material / 32
-                    - 4 * pos.rule50_count();
 
-         Value  nnueValue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
+         int scale = 903 + 28 * pos.count<PAWN>() + 28 * pos.non_pawn_material() / 1024;
+
+         Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
          if (pos.is_chess960())
-            nnueValue += fix_FRC(pos);
+             nnue += fix_FRC(pos);
 
-         return nnueValue;
+         return nnue;
       };
 
       // If there is PSQ imbalance we use the classical eval. We also introduce
@@ -1116,15 +1132,14 @@ Value Eval::evaluate(const Position& pos) {
       Value psq = Value(abs(eg_value(pos.psq_score())));
       int   r50 = 16 + pos.rule50_count();
       bool  largePsq = psq * 16 > (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50;
-      bool  classical = largePsq || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB));
 
       // Use classical evaluation for really low piece endgames.
       // One critical case is the draw for bishop + A/H file pawn vs naked king.
       bool lowPieceEndgame =   pos.non_pawn_material() == BishopValueMg
                             || (pos.non_pawn_material() < 2 * RookValueMg && pos.count<PAWN>() < 2);
 
-      v = classical || lowPieceEndgame ? Evaluation<NO_TRACE>(pos).value()
-                                       : adjusted_NNUE();
+      v = largePsq || lowPieceEndgame ? Evaluation<NO_TRACE>(pos).value()  // classical
+                                      : adjusted_NNUE();                   // NNUE
 
       // If the classical eval is small and imbalance large, use NNUE nevertheless.
       // For the case of opposite colored bishops, switch to NNUE eval with small
@@ -1133,13 +1148,12 @@ Value Eval::evaluate(const Position& pos) {
           && !lowPieceEndgame
           && (   abs(v) * 16 < NNUEThreshold2 * r50
               || (   pos.opposite_bishops()
-                  && abs(v) * 16 < (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50
-                  && !(pos.this_thread()->nodes & 0xB))))
+                  && abs(v) * 16 < (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50)))
           v = adjusted_NNUE();
   }
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (128 - pos.rule50_count()) / 128;
+  v = v * (100 - pos.rule50_count()) / 100;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
@@ -1192,7 +1206,6 @@ std::string Eval::trace(const Position& pos) {
 
   ss << "\nClassical evaluation: " << to_cp(v) << " (white side)\n";
 
-  //if (Eval::useNNUE || playNNUE)
   if (Eval::useNNUE)
   {
       v = NNUE::evaluate(pos);
@@ -1206,3 +1219,5 @@ std::string Eval::trace(const Position& pos) {
 
   return ss.str();
 }
+
+} // namespace Stockfish

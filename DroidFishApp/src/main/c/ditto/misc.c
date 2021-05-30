@@ -54,7 +54,7 @@ void print_engine_info(bool to_uci)
 {
   char my_date[64];
 
-  printf("Cfish %s", Version);
+  printf("Ditto %s", Version);
 
   if (strlen(Version) == 0) {
     int day, month, year;
@@ -70,11 +70,29 @@ void print_engine_info(bool to_uci)
     printf("%02d%02d%02d", day, month, year % 100);
   }
 
-  printf("%s%s%s%s\n", Is64Bit ? " 64" : ""
-                     , HasPext ? " BMI2" : (HasPopCnt ? " POPCNT" : "")
-                     , HasNuma ? " NUMA" : ""
-                     , to_uci ? "\nid author The Stockfish developers"
-                              : " by Syzygy based on Stockfish");
+  printf(
+#ifdef IS_64BIT
+         " 64"
+#endif
+#ifdef USE_AVX512
+         " AVX512"
+#elif USE_PEXT
+         " BMI2"
+#elif USE_AVX2
+         " AVX2"
+#elif USE_NEON
+         " NEON"
+#elif USE_POPCNT
+         " POPCNT"
+#endif
+#ifdef USE_VNNI
+         "-VNNI"
+#endif
+#ifdef NUMA
+         " NUMA"
+#endif
+         "%s\n", to_uci ? "\nid author The Stockfish developers"
+                      : " by Ditto based on Cfish");
   fflush(stdout);
 }
 

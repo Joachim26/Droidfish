@@ -54,7 +54,7 @@ void print_engine_info(bool to_uci)
 {
   char my_date[64];
 
-  printf("Ditto %s", Version);
+  printf("Cfish %s", Version);
 
   if (strlen(Version) == 0) {
     int day, month, year;
@@ -92,7 +92,7 @@ void print_engine_info(bool to_uci)
          " NUMA"
 #endif
          "%s\n", to_uci ? "\nid author The Stockfish developers"
-                      : " by Ditto based on Cfish");
+                      : " by Syzygy based on Stockfish");
   fflush(stdout);
 }
 

@@ -22,8 +22,8 @@ public class ToolTip {
         /* default values */
         mTitle = "";
         mDescription = "";
-        mBackgroundColor = Color.parseColor("#3498db");
-        mTextColor = Color.parseColor("#FFFFFF");
+        mBackgroundColor = Color.parseColor("#2b2b2b");
+        mTextColor = Color.parseColor("#CFCFCF");
 
         mEnterAnimation = new AlphaAnimation(0f, 1f);
         mEnterAnimation.setDuration(750);

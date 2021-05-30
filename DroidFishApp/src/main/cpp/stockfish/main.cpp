@@ -27,8 +27,8 @@
 #include "thread.h"
 #include "tt.h"
 #include "uci.h"
-#include "syzygy/tbprobe.h"
-#include "polybook.h"
+
+using namespace Stockfish;
 
 int main(int argc, char* argv[]) {
 
@@ -42,11 +42,6 @@ int main(int argc, char* argv[]) {
   Position::init();
   Bitbases::init();
   Endgames::init();
-
-   polybook1.init(Options["Book_File_1"]);  // book idea from Marco Zerbanti
-
-
-
   Threads.set(size_t(Options["Threads"]));
   Search::clear(); // After threads are up
   Eval::NNUE::init();

@@ -26,6 +26,8 @@
 #include "syzygy/tbprobe.h"
 #include "tt.h"
 
+namespace Stockfish {
+
 ThreadPool Threads; // Global object
 
 
@@ -50,23 +52,13 @@ Thread::~Thread() {
   stdThread.join();
 }
 
-#if defined (Sullivan) || (Blau) ||  (Noir) || (Harmon)
-int Thread::best_move_count(Move move) const {
-  auto rm = std::find(rootMoves.begin() + pvIdx,
-                      rootMoves.begin() + pvLast, move);
 
-  return rm != rootMoves.begin() + pvLast ? rm->best_move_count : 0;
-}
-#endif
 /// Thread::clear() reset histories, usually before a new game
 
 void Thread::clear() {
 
   counterMoves.fill(MOVE_NONE);
   mainHistory.fill(0);
-#ifdef Noir
-  staticHistory.fill(0);
-#endif
   lowPlyHistory.fill(0);
   captureHistory.fill(0);
 
@@ -136,14 +128,16 @@ void Thread::idle_loop() {
 
 void ThreadPool::set(size_t requested) {
 
-  if (size() > 0) { // destroy any existing thread(s)
+  if (size() > 0)   // destroy any existing thread(s)
+  {
       main()->wait_for_search_finished();
 
       while (size() > 0)
           delete back(), pop_back();
   }
 
-  if (requested > 0) { // create new thread(s)
+  if (requested > 0)   // create new thread(s)
+  {
       push_back(new MainThread(0));
 
       while (size() < requested)
@@ -208,11 +202,7 @@ void ThreadPool::start_thinking(Position& pos, StateListPtr& states,
   // since they are read-only.
   for (Thread* th : *this)
   {
-#ifndef Noir
       th->nodes = th->tbHits = th->nmpMinPly = th->bestMoveChanges = 0;
-#else
-      th->nodes = th->tbHits = th->nmpGuard = th->bestMoveChanges = 0;
-#endif
       th->rootDepth = th->completedDepth = 0;
       th->rootMoves = rootMoves;
       th->rootPos.set(pos.fen(), pos.is_chess960(), &th->rootState, th);
@@ -272,3 +262,5 @@ void ThreadPool::wait_for_search_finished() const {
         if (th != front())
             th->wait_for_search_finished();
 }
+
+} // namespace Stockfish

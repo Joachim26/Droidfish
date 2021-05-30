@@ -24,6 +24,8 @@
 
 #include "types.h"
 
+namespace Stockfish {
+
 class Position;
 
 namespace UCI {
@@ -67,11 +69,7 @@ private:
 
 void init(OptionsMap&);
 void loop(int argc, char* argv[]);
-#ifndef Noir
 std::string value(Value v);
-#else
-std::string value(Value v, Value v2);
-#endif
 std::string square(Square s);
 std::string move(Move m, bool chess960);
 std::string pv(const Position& pos, Depth depth, Value alpha, Value beta);
@@ -81,5 +79,7 @@ Move to_move(const Position& pos, std::string& str);
 } // namespace UCI
 
 extern UCI::OptionsMap Options;
+
+} // namespace Stockfish
 
 #endif // #ifndef UCI_H_INCLUDED

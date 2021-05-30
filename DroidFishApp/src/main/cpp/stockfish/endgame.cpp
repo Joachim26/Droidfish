@@ -12,15 +12,17 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <cassert>
 
 #include "bitboard.h"
 #include "endgame.h"
 #include "movegen.h"
+
+namespace Stockfish {
 
 namespace {
 
@@ -32,18 +34,11 @@ namespace {
       return 90 - (7 * fd * fd / 2 + 7 * rd * rd / 2);
   }
 
-  // Table used to drive the king towards a corner square of the
-  // right color in KBN vs K endgames.
-  constexpr int PushToCorners[SQUARE_NB] = {
-    6600, 6280, 5860, 5540, 5170, 4850, 4530, 4160,
-    6280, 5760, 5490, 5120, 4800, 4280, 4160, 4530,
-    5860, 5490, 4960, 4680, 4280, 4000, 4480, 4850,
-    5540, 5120, 4680, 3840, 3520, 4480, 4800, 5170,
-    5170, 4800, 4480, 3520, 3840, 4680, 5120, 5540,
-    4850, 4480, 4000, 4280, 4680, 4960, 5490, 5860,
-    4530, 4160, 4280, 4800, 5120, 5490, 5760, 6280,
-    4160, 4530, 4850, 5170, 5540, 5860, 6280, 6600
-  };
+  // Used to drive the king towards A1H8 corners in KBN vs K endgames.
+  // Values range from 0 on A8H1 diagonal to 7 in A1H8 corners
+  inline int push_to_corner(Square s) {
+      return abs(7 - rank_of(s) - file_of(s));
+  }
 
   // Drive a piece close to or away from another piece
   inline int push_close(Square s1, Square s2) { return 140 - 20 * distance(s1, s2); }
@@ -109,6 +104,7 @@ Value Endgame<KXK>::operator()(const Position& pos) const {
   // Stalemate detection with lone king
   if (pos.side_to_move() == weakSide && !MoveList<LEGAL>(pos).size())
       return VALUE_DRAW;
+
   Square strongKing = pos.square<KING>(strongSide);
   Square weakKing   = pos.square<KING>(weakSide);
 
@@ -143,9 +139,9 @@ Value Endgame<KBNK>::operator()(const Position& pos) const {
   // If our bishop does not attack A1/H8, we flip the enemy king square
   // to drive to opposite corners (A8/H1).
 
-  Value result =  VALUE_KNOWN_WIN
+  Value result =  (VALUE_KNOWN_WIN + 3520)
                 + push_close(strongKing, weakKing)
-                + PushToCorners[opposite_colors(strongBishop, SQ_A1) ? flip_file(weakKing) : weakKing];
+                + 420 * push_to_corner(opposite_colors(strongBishop, SQ_A1) ? flip_file(weakKing) : weakKing);
 
   assert(abs(result) < VALUE_TB_WIN_IN_MAX_PLY);
   return strongSide == pos.side_to_move() ? result : -result;
@@ -559,8 +555,8 @@ ScaleFactor Endgame<KRPPKRP>::operator()(const Position& pos) const {
   assert(verify_material(pos, strongSide, RookValueMg, 2));
   assert(verify_material(pos, weakSide,   RookValueMg, 1));
 
-  Square strongPawn1 = pos.squares<PAWN>(strongSide)[0];
-  Square strongPawn2 = pos.squares<PAWN>(strongSide)[1];
+  Square strongPawn1 = lsb(pos.pieces(strongSide, PAWN));
+  Square strongPawn2 = msb(pos.pieces(strongSide, PAWN));
   Square weakKing = pos.square<KING>(weakSide);
 
   // Does the stronger side have a passed pawn?
@@ -644,8 +640,8 @@ ScaleFactor Endgame<KBPPKB>::operator()(const Position& pos) const {
       return SCALE_FACTOR_NONE;
 
   Square weakKing = pos.square<KING>(weakSide);
-  Square strongPawn1 = pos.squares<PAWN>(strongSide)[0];
-  Square strongPawn2 = pos.squares<PAWN>(strongSide)[1];
+  Square strongPawn1 = lsb(pos.pieces(strongSide, PAWN));
+  Square strongPawn2 = msb(pos.pieces(strongSide, PAWN));
   Square blockSq1, blockSq2;
 
   if (relative_rank(strongSide, strongPawn1) > relative_rank(strongSide, strongPawn2))
@@ -747,3 +743,5 @@ ScaleFactor Endgame<KPKP>::operator()(const Position& pos) const {
   // it's probably at least a draw even with the pawn.
   return Bitbases::probe(strongKing, strongPawn, weakKing, us) ? SCALE_FACTOR_NONE : SCALE_FACTOR_DRAW;
 }
+
+} // namespace Stockfish
