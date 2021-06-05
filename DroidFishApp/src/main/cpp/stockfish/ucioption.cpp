@@ -23,6 +23,8 @@
 
 #include "evaluate.h"
 #include "misc.h"
+#include "polybook.h"
+
 #include "search.h"
 #include "thread.h"
 #include "tt.h"
@@ -46,6 +48,21 @@ void on_tb_path(const Option& o) { Tablebases::init(o); }
 void on_use_NNUE(const Option& ) { Eval::NNUE::init(); }
 void on_eval_file(const Option& ) { Eval::NNUE::init(); }
 
+void on_book_file1(const Option& o) { polybook1.init(o); }
+void on_book_file2(const Option& o) { polybook2.init(o); }
+void on_book_file3(const Option& o) { polybook3.init(o); }
+void on_book_file4(const Option& o) { polybook4.init(o); }
+
+void on_best_book_move1(const Option& o) { polybook1.set_best_book_move(o); }
+void on_best_book_move2(const Option& o) { polybook2.set_best_book_move(o); }
+void on_best_book_move3(const Option& o) { polybook3.set_best_book_move(o); }
+void on_best_book_move4(const Option& o) { polybook4.set_best_book_move(o); }
+
+void on_book_depth1(const Option& o) { polybook1.set_book_depth(o); }
+void on_book_depth2(const Option& o) { polybook2.set_book_depth(o); }
+void on_book_depth3(const Option& o) { polybook3.set_book_depth(o); }
+void on_book_depth4(const Option& o) { polybook4.set_book_depth(o); }
+
 /// Our case insensitive less() function as required by UCI protocol
 bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const {
 
@@ -61,42 +78,60 @@ void init(OptionsMap& o) {
   constexpr int MaxHashMB = Is64Bit ? 33554432 : 2048;
 
   o["Debug Log File"]        << Option("", on_logger);
-  o["Contempt"]              << Option(24, -100, 100);
-  o["Analysis Contempt"]     << Option("Both var Off var White var Black var Both", "Both");
-  o["Threads"]               << Option(1, 1, 512, on_threads);
-  o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
-  o["Clear Hash"]            << Option(on_clear_hash);
-  o["Ponder"]                << Option(false);
-  o["Minimal Output"]        << Option(true);
 
-  o["MultiPV"]               << Option(1, 1, 256);
-  o["Skill Level"]           << Option(40, 0, 40);
+  o["Best_Move_1"] 	         << Option(false, on_best_book_move1);
+  o["Best_Move_2"] 	         << Option(false, on_best_book_move2);
+  o["Best_Move_3"]           << Option(false, on_best_book_move3);
+  o["Best_Move_4"]           << Option(false, on_best_book_move4);
+  o["Book_Depth_1"] 	       << Option(127, 1, 127, on_book_depth1);
+  o["Book_Depth_2"] 	       << Option(127, 1, 127, on_book_depth2);
+  o["Book_Depth_3"]          << Option(127, 1, 127, on_book_depth3);
+  o["Book_Depth_4"]          << Option(127, 1, 127, on_book_depth4);
+  o["Book_File_1"] 	         << Option("", on_book_file1);
+  o["Book_File_2"] 	         << Option("", on_book_file2);
+  o["Book_File_3"]           << Option("", on_book_file3);
+  o["Book_File_4"]           << Option("", on_book_file4);
+  o["Use_Book_1"] 	         << Option(false);
+  o["Use_Book_2"] 	         << Option(false);
+  o["Use_Book_3"] 	         << Option(false);
+  o["Use_Book_4"]            << Option(false);
+
+  o["Analysis Contempt"]     << Option("Both var Off var White var Black var Both", "Both");
+  o["Bench_KNPS"]            << Option (500, 100, 6000);//used for UCI Play By Elo
+  o["Clear Hash"]            << Option(on_clear_hash);
+  o["Contempt"]              << Option(24, -100, 100);
+  o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
+  o["Minimal_Output"]        << Option(false);
   o["Move Overhead"]         << Option(10, 0, 5000);
-  o["Bench_KNPS"]            << Option (2000, 100, 6000);//used for UCI Play By Elo
-  o["Search_Nodes"]          << Option(0, 0, 10000000);
-  o["Search_Depth"]          << Option(5, 0, 30);
-  o["Tactical"]              << Option(3, 0, 8);
-  o["Tactical_Depth"]        << Option(5, 0, 16);
-  o["Variety"]               << Option(false);
-  o["FIDE_Ratings"]          << Option(true);
+  o["MultiPV"]               << Option(1, 1, 256);
+  o["Ponder"]                << Option(false);
+  o["Skill Level"]           << Option(40, 0, 40);
+  o["Threads"]               << Option(1, 1, 512, on_threads);
+
   // A separate weaker play level from the predefined levels below. The difference
   // between both of the methods and the "skill level" is that the engine is only weakened
   // by the reduction in nodes searched, thus reducing the move horizon visibility naturally
-  o["Engine_Level"]             << Option("None var World_Champion var Super_GM "
-                                            "var GM var Deep_Thought var SIM var Cray_Blitz "
-                                            "var IM var Master var Expert var Class_A "
-                                            "var Class_B var Class_C var Class_D var Boris "
-                                            "var Novice var None", "None");
+  o["Engine_Level"]           << Option("None var World_Champion var Super_GM "
+                                        "var GM var Deep_Thought var SIM var Cray_Blitz "
+                                        "var IM var Master var Expert var Class_A "
+                                        "var Class_B var Class_C var Class_D var Class_E "
+                                        "var None", "None");
 
 
+  o["nodestime"]             << Option(0, 0, 10000);
+  o["Search_Depth"]          << Option(0, 0, 30);
+  o["Search_Nodes"]          << Option(0, 0, 10000000);
   o["Slow Mover"]            << Option(100, 10, 1000);
   o["Slow Play"]             << Option(false);
-  o["nodestime"]             << Option(0, 0, 10000);
-  o["UCI_Chess960"]          << Option(false);
+  o["Tactical_Depth"]        << Option(5, 0, 16);
+  o["Adaptive_Play"]         << Option(true);
   o["UCI_AnalyseMode"]       << Option(false);
-  o["UCI_LimitStrength"]     << Option(false);
-  o["UCI_Elo"]               << Option(1200, 1200, 2900);
+  o["UCI_Chess960"]          << Option(false);
+  o["UCI_Elo"]               << Option(1300, 1300, 2900);
+  o["UCI_LimitStrength"]     << Option(true);
   o["UCI_ShowWDL"]           << Option(false);
+  o["Tactical"]              << Option(3, 0, 8);
+  o["Variety"]               << Option(true);
   o["SyzygyPath"]            << Option("/storage/emulated/0/DroidFish/rtb/", on_tb_path);
   //o["SyzygyPath"]          << Option("c:\\syzygy", on_tb_path);
   //o["SyzygyPath"]          << Option("<empty>", on_tb_path);

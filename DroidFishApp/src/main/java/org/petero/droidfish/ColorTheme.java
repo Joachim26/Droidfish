@@ -63,7 +63,7 @@ public class ColorTheme {
     };
     private static final String prefPrefix = "color_";
 
-    private final static int defaultTheme = 3;
+    private final static int defaultTheme = 1;
     final static int[] themeNames = {
         R.string.colortheme_honey,
         R.string.colortheme_honey2,

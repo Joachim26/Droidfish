@@ -28,6 +28,8 @@ Copyright (C) 2016-2020 Thomas Zipproth
 #include "position.h"
 #include "string.h"
 
+using namespace Stockfish;
+
 typedef struct {
     uint64_t key;
     uint16_t move;
@@ -90,6 +92,7 @@ private:
 
     bool enabled, do_search;
 };
+extern PolyBook polybook;
 extern PolyBook polybook1;
 extern PolyBook polybook2;
 extern PolyBook polybook3;

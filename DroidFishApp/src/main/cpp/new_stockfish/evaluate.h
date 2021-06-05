@@ -40,7 +40,7 @@ namespace Eval {
   // for the build process (profile-build and fishtest) to work. Do not change the
   // name of the macro, as it is used in the Makefile.
   #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/nn-7756374aaed3.nnue"
-  #define EvalFileDefaultName   "nn-7756374aaed3.nnue"
+  #define EvalFileDefaultName   "nn-7e66505906a6.nnue"
 
   namespace NNUE {
 

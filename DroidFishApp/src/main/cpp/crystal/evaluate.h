@@ -36,9 +36,9 @@ namespace Eval {
   // The default net name MUST follow the format nn-[SHA256 first 12 digits].nnue
   // for the build process (profile-build and fishtest) to work. Do not change the
   // name of the macro, as it is used in the Makefile.
-  #define EvalFileDefaultName   "whiterose.bin"
+  #define EvalFileDefaultName   "eval.bin"
 
-  #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/whiterose.bin"
+  #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/eval.bin"
 
   #define SHA256NET   "nn-62ef826d1a6d.nnue" // eval.bin
 

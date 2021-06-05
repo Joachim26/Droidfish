@@ -1356,7 +1356,7 @@ public class DroidFish extends Activity
             else if (eName == "andscacs")
               eName =  getString(R.string.andscacs_engine);
             else if (eName == "blackdiamond")
-              eName =  getString(R.string.blackdiamond_engine);
+              eName =  "Black Diamond";
             else if (eName == "bluefish")
               eName =  getString(R.string.bluefish_engine);
             else if (eName == "fatfritz")
@@ -1416,7 +1416,7 @@ public class DroidFish extends Activity
 
             //eName = getString("cuckoochess".equals(engine) ?
             //                  R.string.cuckoochess_engine :
-            //                  R.string.blackdiamond_engine );
+            //                  R.string.black_engine );
 
         }
         if (ctrl != null && !ctrl.analysisMode())
@@ -2668,6 +2668,7 @@ public class DroidFish extends Activity
         final ArrayList<String> items = new ArrayList<>();
         final ArrayList<String> ids = new ArrayList<>();
         ids.add("andscacs"); items.add(getString(R.string.andscacs_engine));
+        ids.add("stockfish"); items.add(getString(R.string.stockfish_engine));  //honey
         ids.add("blackdiamond"); items.add(getString(R.string.blackdiamond_engine));
         ids.add("bluefish"); items.add(getString(R.string.bluefish_engine));
         ids.add("cfish"); items.add(getString(R.string.cfish_engine));
@@ -2683,14 +2684,13 @@ public class DroidFish extends Activity
         ids.add("fruit"); items.add(getString(R.string.fruit_engine));
         ids.add("glaurung"); items.add(getString(R.string.glaurung_engine));
         ids.add("harmon"); items.add(getString(R.string.harmon_engine)); //harmon
-        ids.add("stockfish"); items.add(getString(R.string.stockfish_engine));  //honey
         ids.add("laser"); items.add(getString(R.string.laser_engine));
         ids.add("mojo"); items.add(getString(R.string.mojo_engine));
         ids.add("chess"); items.add(getString(R.string.chess_engine)); //senpai 1.0
         ids.add("okimaguro"); items.add(getString(R.string.okimaguro_engine));
         ids.add("rubichess"); items.add(getString(R.string.rubichess_engine));
         ids.add("new_stockfish"); items.add(getString(R.string.new_stockfish_engine));  //Stockfish
-        ids.add("sf6"); items.add(getString(R.string.sf6_engine));
+        ids.add("sf6"); items.add(getString(R.string.sf6_engine));//Stockfish 6
         ids.add("shallowblue"); items.add(getString(R.string.shallowblue_engine));
         ids.add("wyldchess"); items.add(getString(R.string.wyldchess_engine));
         ids.add("xiphos"); items.add(getString(R.string.xiphos_engine));
