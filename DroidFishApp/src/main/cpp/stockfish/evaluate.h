@@ -30,7 +30,7 @@ class Position;
 
 namespace Eval {
 
-  std::string trace(const Position& pos);
+  std::string trace(Position& pos);
   Value evaluate(const Position& pos);
 
   extern bool useNNUE;
@@ -39,17 +39,29 @@ namespace Eval {
   // The default net name MUST follow the format nn-[SHA256 first 12 digits].nnue
   // for the build process (profile-build and fishtest) to work. Do not change the
   // name of the macro, as it is used in the Makefile.
-  #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/nn-7756374aaed3.nnue"
-  #define EvalFileDefaultName   "nn-7e66505906a6.nnue"
+  #define EvalFileDefaultPath   "/storage/emulated/0/Droidfish/nnue/nn-bd92a1a93fbf.nnue"
+  #define EvalFileDefaultName   "nn-bd92a1a93fbf.nnue"
 
   namespace NNUE {
+    enum struct UseNNUEMode
+    {
+      False,
+      True,
+      Pure
+    };
 
+    extern UseNNUEMode useNNUE;
+    extern std::string eval_file_loaded;
+
+    std::string trace(Position& pos);
     Value evaluate(const Position& pos, bool adjusted = false);
+
+    void init();
+    void verify();
+
     bool load_eval(std::string name, std::istream& stream);
     bool save_eval(std::ostream& stream);
-    void init();
-    void export_net(const std::optional<std::string>& filename);
-    void verify();
+    bool save_eval(const std::optional<std::string>& filename);
 
   } // namespace NNUE
 

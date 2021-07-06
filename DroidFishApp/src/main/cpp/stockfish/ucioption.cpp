@@ -99,7 +99,6 @@ void init(OptionsMap& o) {
   o["Analysis Contempt"]     << Option("Both var Off var White var Black var Both", "Both");
   o["Bench_KNPS"]            << Option (500, 100, 6000);//used for UCI Play By Elo
   o["Clear Hash"]            << Option(on_clear_hash);
-  o["Contempt"]              << Option(24, -100, 100);
   o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
   o["Minimal_Output"]        << Option(false);
   o["Move Overhead"]         << Option(10, 0, 5000);
@@ -124,11 +123,10 @@ void init(OptionsMap& o) {
   o["Slow Mover"]            << Option(100, 10, 1000);
   o["Slow Play"]             << Option(false);
   o["Tactical_Depth"]        << Option(5, 0, 16);
-  o["Adaptive_Play"]         << Option(true);
-  o["UCI_AnalyseMode"]       << Option(false);
+  o["Adaptive_Play"]         << Option(false);
   o["UCI_Chess960"]          << Option(false);
   o["UCI_Elo"]               << Option(1300, 1300, 2900);
-  o["UCI_LimitStrength"]     << Option(true);
+  o["UCI_LimitStrength"]     << Option(false);
   o["UCI_ShowWDL"]           << Option(false);
   o["Tactical"]              << Option(3, 0, 8);
   o["Variety"]               << Option(true);
@@ -139,7 +137,7 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
-  o["UseNN"]                 << Option(true, on_use_NNUE);
+  o["UseNN"]                 << Option("pure var true var false var pure", "pure", on_use_NNUE);
 
   o["EvalFile"]              << Option(EvalFileDefaultPath, on_eval_file);
 }
